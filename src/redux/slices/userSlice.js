@@ -9,7 +9,15 @@ export const loginUser = createAsyncThunk(
     console.log("Data --->", data);
     try {
       const response = await axiosInstance.post("api/users/login", data);
-      // console.log("Response", response.data);
+      // Check if role_id is 2
+      if (response?.data?.user?.role_id !== 2) {
+        // If the role_id is not 2, reject the login and show an error
+        const errorMessage = "You do not have the required permissions to log in.";
+        toast.error(errorMessage);
+        return rejectWithValue({ message: errorMessage });
+      }
+
+      // Proceed with the login if the role_id is 2
       localStorage.setItem("token", response?.data?.token);
       localStorage.setItem("user", JSON.stringify(response?.data?.user));
       toast.success(response?.data?.message);
@@ -21,6 +29,7 @@ export const loginUser = createAsyncThunk(
     }
   }
 );
+
 
 // Handle User Registration
 export const registerUser = createAsyncThunk(
