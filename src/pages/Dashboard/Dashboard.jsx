@@ -1,26 +1,30 @@
 import React, { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import Navbar from "../../components/Navbar";
 import { Col, Row } from "react-bootstrap";
+import { useDispatch, useSelector } from "react-redux";
+import { getUserCounts } from "../../redux/slices/userSlice";
 
 const Dashboard = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const userCounts = useSelector((state) => state.UserData.userCounts);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    if (location.state?.loginSuccess) {
-      toast.success("Welcome to the Dashboard!", {
-        position: "top-right",
-        autoClose: 1000,
-        hideProgressBar: true,
-        closeOnClick: true,
-        pauseOnHover: false,
-        draggable: false,
-      });
-    }
-  }, [location.state]);
+    dispatch(getUserCounts());
+  }, []);
+
+  const userStats = [
+    { key: "activeAdmins", label: "Active Admins" },
+    { key: "inactiveAdmins", label: "Inactive Admins" },
+    // { key: "activeSuperAdmins", label: "Active Super Admins" },
+    // { key: "inactiveSuperAdmins", label: "Inactive Super Admins" },
+    // { key: "activeUsers", label: "Active Users" },
+    // { key: "inactiveUsers", label: "Inactive Users" },
+    { key: "allActiveUsers", label: "All Active Users" },
+    { key: "allInactiveUsers", label: "All Inactive Users" },
+  ];
 
   return (
     <div className="bg-light min-vh-100">
@@ -52,16 +56,11 @@ const Dashboard = () => {
             <section className="mb-4">
               <h5 className="fw-bold mb-3">Tracking Overview</h5>
               <div className="row g-3">
-                {[
-                  "Active Admins",
-                  "Inactive Admins",
-                  "Active All Users",
-                  "Inactive All Users",
-                ].map((item, index) => (
+                {userStats.map(({ key, label }, index) => (
                   <div key={index} className="col-6 col-md-3">
                     <div className="card text-center p-3 shadow-sm border-0 rounded-3 h-100">
-                      <h3 className="fw-bold mb-2">0</h3>
-                      <p className="text-muted small mb-0">{item}</p>
+                      <h3 className="fw-bold mb-2">{userCounts?.[key] || 0}</h3>
+                      <p className="text-muted small mb-0">{label}</p>
                     </div>
                   </div>
                 ))}
@@ -93,7 +92,6 @@ const Dashboard = () => {
           </Col>
         </Row>
       </main>
-      <ToastContainer />
     </div>
   );
 };

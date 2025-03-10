@@ -1,28 +1,35 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
+import { useDispatch } from "react-redux";
 import "react-toastify/dist/ReactToastify.css";
+import { loginUser } from "../../redux/slices/userSlice";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e) => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const handleLogin = async (e) => {
     e.preventDefault();
 
-    toast.success("Login Successful!", {
-      position: "top-right",
-      autoClose: 3000,
-      hideProgressBar: true,
-      closeOnClick: true,
-      pauseOnHover: false,
-      draggable: false,
-    });
+    if (!email || !password) return;
 
-    setTimeout(() => {
-      navigate("/dashboard", { state: { loginSuccess: true } });
-    }, 500);
+    setLoading(true);
+    try {
+      const response = await dispatch(
+        loginUser({ data: { email, password } })
+      ).unwrap();
+      if (response?.token) {
+        setTimeout(() => navigate("/dashboard"), 500);
+      }
+    } catch (error) {
+      console.error("Login failed:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -42,7 +49,6 @@ const Login = () => {
         <img
           src="src/assets/Images/mainlogo.png"
           alt="Netubia"
-          // className="rounded-circle"
           style={{
             objectFit: "contain",
             height: "110px",
@@ -50,9 +56,6 @@ const Login = () => {
             maxWidth: "100%",
           }}
         />
-        {/* <h1 style={{ color: "#fff", fontSize: "28px", fontWeight: "700" }}>
-          Netubia
-        </h1> */}
         <p style={{ color: "#fff", fontSize: "26px", fontWeight: "600" }}>
           Welcome back!
         </p>
@@ -68,7 +71,6 @@ const Login = () => {
           width: "100%",
           maxWidth: "500px",
           textAlign: "center",
-          transition: "all 0.3s ease-in-out",
         }}
       >
         <h2
@@ -79,7 +81,7 @@ const Login = () => {
             fontSize: "24px",
           }}
         >
-         Please log in to continue.
+          Please log in to continue.
         </h2>
 
         <input
@@ -96,14 +98,7 @@ const Login = () => {
             border: "1px solid #A8D8FF",
             fontSize: "16px",
             boxSizing: "border-box",
-            outline: "none",
-            transition: "all 0.3s ease",
-            fontFamily: "'Roboto', sans-serif",
           }}
-          onFocus={(e) =>
-            (e.target.style.boxShadow = "0 0 8px rgba(90, 103, 216, 0.6)")
-          }
-          onBlur={(e) => (e.target.style.boxShadow = "none")}
         />
 
         <input
@@ -120,14 +115,7 @@ const Login = () => {
             border: "1px solid #A8D8FF",
             fontSize: "16px",
             boxSizing: "border-box",
-            outline: "none",
-            transition: "all 0.3s ease",
-            fontFamily: "'Roboto', sans-serif",
           }}
-          onFocus={(e) =>
-            (e.target.style.boxShadow = "0 0 8px rgba(90, 103, 216, 0.6)")
-          }
-          onBlur={(e) => (e.target.style.boxShadow = "none")}
         />
 
         <button
@@ -135,35 +123,21 @@ const Login = () => {
           style={{
             width: "100%",
             padding: "14px",
-            backgroundColor: "#000",
+            backgroundColor: loading ? "#ccc" : "#000",
             color: "#fff",
             border: "none",
             borderRadius: "8px",
-            cursor: "pointer",
+            cursor: loading ? "not-allowed" : "pointer",
             fontSize: "16px",
             fontWeight: "bold",
-            transition: "background-color 0.3s ease, transform 0.2s ease",
+            transition: "background-color 0.3s ease",
           }}
-          onMouseEnter={(e) => {
-            e.target.style.backgroundColor = "#4C51BF";
-            e.target.style.transform = "scale(1.05)";
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.backgroundColor = "#000";
-            e.target.style.transform = "scale(1)";
-          }}
+          disabled={loading}
         >
-          Log in
+          {loading ? "Logging in..." : "Log in"}
         </button>
 
-        <p
-          style={{
-            marginTop: "15px",
-            fontSize: "14px",
-            color: "#777",
-            fontWeight: "300",
-          }}
-        >
+        <p style={{ marginTop: "15px", fontSize: "14px", color: "#777" }}>
           Forgot your password?{" "}
           <a
             href="/reset-password"
@@ -173,8 +147,6 @@ const Login = () => {
           </a>
         </p>
       </form>
-
-      <ToastContainer />
     </div>
   );
 };

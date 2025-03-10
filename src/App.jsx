@@ -14,6 +14,8 @@ import { MdDashboard } from "react-icons/md";
 import { HiUsers } from "react-icons/hi";
 import { BsFileEarmarkBarGraphFill } from "react-icons/bs";
 import { RiVerifiedBadgeFill } from "react-icons/ri";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import Dashboard from "./pages/Dashboard/Dashboard.jsx";
 import User from "./pages/Users/User.jsx";
 import Reports from "./pages/Reports/Revenue.jsx";
@@ -197,6 +199,8 @@ const App = () => {
           <Route path="/listusers" element={<Listusers />} />
         </Routes>
       </div>
+
+      <ToastContainer />
     </div>
   );
 };

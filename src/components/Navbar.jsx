@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { logoutUser } from "../redux/slices/userSlice";
 
 function Navbar({ username = "SA", pageTitle = "" }) {
   const [showLogout, setShowLogout] = useState(false);
@@ -12,6 +13,7 @@ function Navbar({ username = "SA", pageTitle = "" }) {
   };
 
   const handleLogout = () => {
+    logoutUser();
     navigate("/");
   };
 
