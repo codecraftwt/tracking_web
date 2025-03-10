@@ -8,20 +8,20 @@ import {
   useLocation,
   useNavigate,
 } from "react-router-dom";
-import Dashboard from "./pages/Dashboard/Dashboard.jsx";
 import "./App.css";
-import User from "./pages/Users/User.jsx";
-import PhotoVerification from "./pages/PhotoVerification/PhotoVerification.jsx";
-import Reports from "./pages/Reports/Reports.jsx";
-import TodaysActiveUsers from "./pages/TodaysActiveUsers/TodaysActiveUsers.jsx";
+import { CgProfile } from "react-icons/cg";
 import { MdDashboard } from "react-icons/md";
 import { HiUsers } from "react-icons/hi";
 import { BsFileEarmarkBarGraphFill } from "react-icons/bs";
 import { RiVerifiedBadgeFill } from "react-icons/ri";
+import Dashboard from "./pages/Dashboard/Dashboard.jsx";
+import User from "./pages/Users/User.jsx";
+import Reports from "./pages/Reports/Revenue.jsx";
 import Login from "./pages/Authintication/Login.jsx";
 import Profile from "./pages/Profile/Profile.jsx";
-import { CgProfile } from "react-icons/cg";
 import Listusers from "./pages/Users/Listusers.jsx";
+import ManagePlans from "./pages/Plans/ManagePlans.jsx";
+import RegisterAdmin from "./pages/TodaysActiveUsers/RegisterAdmin.jsx";
 
 const SidebarLink = ({ to, icon: Icon, label, badge }) => {
   const location = useLocation();
@@ -100,16 +100,16 @@ const App = () => {
         return 1;
       case "/user":
         return 2;
-      case "/report":
+      case "/revenue":
         return 3;
-      case "/todays-active-users":
+      case "/add-admin":
         return 4;
-      case "/photo-verification":
+      case "/manage-plans":
         return 5;
       case "/profile":
         return 6;
-        case "/listusers":
-          return 7;
+      case "/listusers":
+        return 7;
       default:
         return -1;
     }
@@ -164,17 +164,17 @@ const App = () => {
                   label="All Admin's Details"
                 />
                 <SidebarLink
-                  to="/report"
+                  to="/revenue"
                   icon={BsFileEarmarkBarGraphFill}
                   label="Revenue Details"
                 />
                 <SidebarLink
-                  to="/todays-active-users"
+                  to="/add-admin"
                   icon={HiUsers}
                   label="Add New Admins"
                 />
                 <SidebarLink
-                  to="/photo-verification"
+                  to="/manage-plans"
                   icon={RiVerifiedBadgeFill}
                   label="Manage Plans"
                 />
@@ -190,11 +190,11 @@ const App = () => {
           <Route path="/" element={<Login />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/user" element={<User />} />
-          <Route path="/photo-verification" element={<PhotoVerification />} />
-          <Route path="/todays-active-users" element={<TodaysActiveUsers />} />
-          <Route path="/report" element={<Reports />} />
+          <Route path="/manage-plans" element={<ManagePlans />} />
+          <Route path="/add-admin" element={<RegisterAdmin />} />
+          <Route path="/revenue" element={<Reports />} />
           <Route path="/profile" element={<Profile />} />
-            <Route path="/listusers" element={<Listusers />} />
+          <Route path="/listusers" element={<Listusers />} />
         </Routes>
       </div>
     </div>

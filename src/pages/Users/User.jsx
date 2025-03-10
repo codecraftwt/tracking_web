@@ -7,6 +7,8 @@ import {
   InputGroup,
   FormControl,
   Button,
+  Row,
+  Col,
 } from "react-bootstrap";
 import Navbar from "../../components/Navbar";
 import { BiSearch, BiUserPlus, BiPencil } from "react-icons/bi"; // Import Icons
@@ -49,39 +51,43 @@ const User = ({ users }) => {
     <div>
       <Navbar pageTitle="All Admin's Details" />
       <main className="container my-4">
-        {/* Search Bar and Add User Button */}
-        <div className="d-flex justify-content-between align-items-center mb-4">
-          <InputGroup style={{ maxWidth: "400px" }}>
-            <InputGroup.Text
-              style={{ background: "#f8f9fa", borderRight: "none" }}
-            >
-              <BiSearch />
-            </InputGroup.Text>
-            <FormControl
-              placeholder="Search admins..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              style={{ borderLeft: "none", background: "#f8f9fa" }}
-            />
-          </InputGroup>
-          <Button
-            variant="primary"
-            className="d-flex align-items-center"
-            onClick={() => navigate("/todays-active-users")}
-          >
-            <BiUserPlus className="me-2" /> Add Admin
-          </Button>
-        </div>
+        <Row className="justify-content-center">
+          <Col md={11}>
+            {/* Search Bar and Add User Button */}
+            <div className="d-flex justify-content-between align-items-center mb-4">
+              <InputGroup style={{ maxWidth: "400px" }}>
+                <InputGroup.Text
+                  style={{ background: "#f8f9fa", borderRight: "none" }}
+                >
+                  <BiSearch />
+                </InputGroup.Text>
+                <FormControl
+                  placeholder="Search admins..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  style={{ borderLeft: "none", background: "#f8f9fa" }}
+                />
+              </InputGroup>
+              <Button
+                variant="primary"
+                className="d-flex align-items-center"
+                onClick={() => navigate("/todays-active-users")}
+              >
+                <BiUserPlus className="me-2" /> Add Admin
+              </Button>
+            </div>
 
-        {/* Tabbed Interface */}
-        <Tabs activeKey={key} onSelect={(k) => setKey(k)} className="mb-3">
-          <Tab eventKey="active" title="Active Admins" className="p-3">
-            <UserList users={filteredActiveUsers} navigate={navigate} />
-          </Tab>
-          <Tab eventKey="inactive" title="Inactive Admins" className="p-3">
-            <UserList users={filteredInactiveUsers} navigate={navigate} />
-          </Tab>
-        </Tabs>
+            {/* Tabbed Interface */}
+            <Tabs activeKey={key} onSelect={(k) => setKey(k)} className="mb-3">
+              <Tab eventKey="active" title="Active Admins" className="p-3">
+                <UserList users={filteredActiveUsers} navigate={navigate} />
+              </Tab>
+              <Tab eventKey="inactive" title="Inactive Admins" className="p-3">
+                <UserList users={filteredInactiveUsers} navigate={navigate} />
+              </Tab>
+            </Tabs>
+          </Col>
+        </Row>
       </main>
     </div>
   );
@@ -109,7 +115,10 @@ const UserList = ({ users, navigate }) => {
         >
           <Card.Body className="d-flex align-items-center justify-content-between">
             <div>
-              <h6 className="mb-1" style={{ fontWeight: "600", color: "#2c3e50" }}>
+              <h6
+                className="mb-1"
+                style={{ fontWeight: "600", color: "#2c3e50" }}
+              >
                 {user.name}
               </h6>
               <p className="text-muted small mb-0">{user.email}</p>

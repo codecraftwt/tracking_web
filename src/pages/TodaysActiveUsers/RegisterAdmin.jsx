@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import Navbar from "../../components/Navbar";
+import { Placeholder } from "react-bootstrap";
 
-const TodaysActiveUsers = () => {
+const RegisterAdmin = () => {
   const location = useLocation();
   const editingUser = location.state?.user || null;
 
@@ -49,22 +50,48 @@ const TodaysActiveUsers = () => {
         <section>
           <div className="row justify-content-center">
             <div className="col-md-8 col-lg-8">
-              <div className="card shadow-sm p-4 rounded">
+              <div className="shadow-sm p-4 rounded">
                 <h4 className="text-center mb-3 text-primary">
                   {editingUser ? "Edit Admin Details" : "Register New Admin"}
                 </h4>
                 <form onSubmit={handleSubmit}>
                   {[
-                    { label: "Full Name", name: "fullName", type: "text" },
-                    { label: "Email", name: "email", type: "email" },
-                    { label: "Password", name: "password", type: "password" },
+                    {
+                      label: "Full Name",
+                      name: "fullName",
+                      type: "text",
+                      placeholder: "Enter a full name",
+                    },
+                    {
+                      label: "Email",
+                      name: "email",
+                      type: "email",
+                      placeholder: "Enter an email",
+                    },
+                    {
+                      label: "Password",
+                      name: "password",
+                      type: "password",
+                      placeholder: "Enter a password",
+                    },
                     {
                       label: "Confirm Password",
                       name: "confirmPassword",
                       type: "password",
+                      placeholder: "Confirm password",
                     },
-                    { label: "Mobile Number", name: "mobile", type: "text" },
-                    { label: "Address", name: "address", type: "text" },
+                    {
+                      label: "Mobile Number",
+                      name: "mobile",
+                      type: "text",
+                      placeholder: "Enter a mobile number",
+                    },
+                    {
+                      label: "Address",
+                      name: "address",
+                      type: "text",
+                      placeholder: "Enter an address",
+                    },
                   ].map((field, index) => (
                     <div className="mb-3" key={index}>
                       <label className="form-label fw-bold">
@@ -73,6 +100,7 @@ const TodaysActiveUsers = () => {
                       <input
                         type={field.type}
                         name={field.name}
+                        placeholder={field.placeholder}
                         className="form-control"
                         value={formData[field.name]}
                         onChange={handleChange}
@@ -130,4 +158,4 @@ const TodaysActiveUsers = () => {
   );
 };
 
-export default TodaysActiveUsers;
+export default RegisterAdmin;
