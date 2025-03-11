@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { useLocation } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 
 import Navbar from "../../components/Navbar";
 import { AiOutlineCloseCircle } from "react-icons/ai"; // Import cross icon
@@ -10,7 +10,7 @@ const RegisterAdmin = () => {
   const location = useLocation();
   const dispatch = useDispatch();
   const editingUser = location.state?.admin || null;
-
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -33,6 +33,7 @@ const RegisterAdmin = () => {
         address: editingUser.address,
         status: editingUser?.isActive ? "active" : "inactive",
         avtar: null,
+        
       });
 
       if (editingUser.avtar) {
@@ -59,7 +60,7 @@ const RegisterAdmin = () => {
     setPreviewImage(null);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const payload = new FormData();
@@ -74,12 +75,16 @@ const RegisterAdmin = () => {
       payload.append("avtar", formData.avtar);
     }
 
-    if (editingUser) {
-      dispatch(updateUser({ userId: editingUser._id, formData: payload }));
-    } else {
-      payload.append("password", formData.password);
-      payload.append("confirmPassword", formData.confirmPassword);
-      dispatch(registerUser(payload));
+    try {
+      if (editingUser) {
+        await dispatch(updateUser({ userId: editingUser._id, formData: payload })).unwrap();
+      } else {
+        payload.append("password", formData.password);
+        payload.append("confirmPassword", formData.confirmPassword);
+        await dispatch(registerUser(payload)).unwrap();
+      }
+      navigate('/user');
+    } catch (error) {
     }
   };
 

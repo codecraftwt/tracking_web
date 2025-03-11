@@ -74,7 +74,7 @@ const Dashboard = () => {
                 <div className="col-6">
                   <button
                     className="btn btn-primary w-100 py-2 rounded-3 fw-bold"
-                    onClick={() => navigate("/todays-active-users")}
+                    onClick={() => navigate("/add-admin")}
                   >
                     Add New Admin
                   </button>
