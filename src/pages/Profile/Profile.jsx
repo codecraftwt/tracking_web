@@ -1,13 +1,17 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Navbar from "../../components/Navbar";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { FaEdit } from "react-icons/fa";
-import { useEffect } from "react";
+import { useAuth } from "../../context/AuthContext";
+import { Modal, Button } from "react-bootstrap";
 
 const Profile = () => {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
   const userData = useSelector((state) => state.UserData.userInfo);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     console.log("User Data fetched:", userData);
@@ -17,58 +21,39 @@ const Profile = () => {
     console.log("User Data Updated:", userData);
   }, [userData]);
 
-  const navigate = useNavigate();
   const handleEditClick = () => {
     navigate("/add-admin", { state: { admin: userData } });
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate("/");
   };
 
   return (
     <div>
       <Navbar pageTitle="Profile" />
       <main className="container my-5">
-        <section
-          className="mb-4"
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            width: "100%",
-          }}
-        >
+        <section className="d-flex flex-column align-items-center">
           <div
-            style={{
-              backgroundColor: "#ffffff",
-              padding: "30px",
-              borderRadius: "15px",
-              width: "100%",
-              maxWidth: "500px",
-              boxShadow: "0 8px 16px rgba(0, 0, 0, 0.1)",
-              border: "1px solid #e0e0e0",
-              position: "relative", // Added for positioning the edit icon
-            }}
+            className="bg-white p-4 rounded shadow border"
+            style={{ maxWidth: "500px", width: "100%", position: "relative" }}
           >
             {userData?.avtar && (
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  marginBottom: "15px",
-                }}
-              >
+              <div className="d-flex justify-content-center mb-3">
                 <img
                   src={userData.avtar}
                   alt="Profile Avatar"
+                  className="rounded-circle border"
                   style={{
                     width: "100px",
                     height: "100px",
-                    borderRadius: "50%",
                     objectFit: "cover",
-                    border: "2px solid #ddd",
                   }}
                 />
               </div>
             )}
+
             {/* Edit Icon */}
             <div
               style={{
@@ -82,69 +67,67 @@ const Profile = () => {
               <FaEdit size={24} color="#555" />
             </div>
 
-            <h2
-              style={{
-                textAlign: "center",
-                marginBottom: "25px",
-                fontWeight: "600",
-                color: "#333",
-              }}
-            >
+            <h2 className="text-center mb-4 fw-semibold text-dark">
               {userData?.name}
             </h2>
-            <div style={{ marginBottom: "20px" }}>
-              <label
-                style={{ fontWeight: "500", color: "#555", fontSize: "14px" }}
-              >
-                Email
-              </label>
-              <p style={{ margin: "5px 0 0", fontSize: "16px", color: "#333" }}>
-                {" "}
-                {userData?.email}
-              </p>
+
+            <div className="mb-3">
+              <label className="fw-bold text-secondary">Email</label>
+              <p className="m-0 text-dark">{userData?.email}</p>
             </div>
-            <div style={{ marginBottom: "20px" }}>
-              <label
-                style={{ fontWeight: "500", color: "#555", fontSize: "14px" }}
-              >
-                Mobile
-              </label>
-              <p style={{ margin: "5px 0 0", fontSize: "16px", color: "#333" }}>
-                {userData?.mobile_no}
-              </p>
+
+            <div className="mb-3">
+              <label className="fw-bold text-secondary">Mobile</label>
+              <p className="m-0 text-dark">{userData?.mobile_no}</p>
             </div>
-            <div style={{ marginBottom: "20px" }}>
-              <label
-                style={{ fontWeight: "500", color: "#555", fontSize: "14px" }}
-              >
-                Address
-              </label>
-              <p style={{ margin: "5px 0 0", fontSize: "16px", color: "#333" }}>
-                {userData?.address}
-              </p>
+
+            <div className="mb-3">
+              <label className="fw-bold text-secondary">Address</label>
+              <p className="m-0 text-dark">{userData?.address}</p>
             </div>
+
             <button
-              style={{
-                width: "100%",
-                padding: "12px",
-                backgroundColor: "#ff4d4f",
-                color: "#fff",
-                border: "none",
-                borderRadius: "8px",
-                cursor: "pointer",
-                fontSize: "16px",
-                fontWeight: "500",
-                marginTop: "20px",
-                transition: "background-color 0.3s ease",
-              }}
-              onMouseOver={(e) => (e.target.style.backgroundColor = "#ff7875")}
-              onMouseOut={(e) => (e.target.style.backgroundColor = "#ff4d4f")}
+              className="btn btn-danger w-100 mt-3"
+              onClick={() => setShowModal(true)}
             >
               Log Out
             </button>
           </div>
         </section>
       </main>
+
+      {/* Logout Confirmation Modal */}
+      <Modal show={showModal} onHide={() => setShowModal(false)} centered>
+        <Modal.Header
+          closeButton
+          style={{ backgroundColor: "#4A90E2" }}
+          className="text-white"
+        >
+          <Modal.Title className="fw-bold"> Confirm Logout</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="text-center p-4">
+          <p className="fs-5 text-dark">Are you sure you want to log out?</p>
+          <p className="text-secondary">
+            You will need to log in again to access your account.
+          </p>
+        </Modal.Body>
+        <Modal.Footer className="d-flex justify-content-center">
+          <Button
+            variant="secondary"
+            className="px-4 py-2 fw-bold"
+            onClick={() => setShowModal(false)}
+          >
+            No, Stay Logged In
+          </Button>
+          <Button
+            variant="danger"
+            className="px-4 py-2 fw-bold"
+            onClick={handleLogout}
+          >
+            Yes, Log Out
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

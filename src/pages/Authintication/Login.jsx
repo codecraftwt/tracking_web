@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import "react-toastify/dist/ReactToastify.css";
 import { loginUser } from "../../redux/slices/userSlice";
+import { useAuth } from "../../context/AuthContext";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -10,6 +11,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
+  const { login, setIsAuthenticated } = useAuth();
   const dispatch = useDispatch();
 
   const handleLogin = async (e) => {
@@ -22,9 +24,15 @@ const Login = () => {
       const response = await dispatch(
         loginUser({ data: { email, password } })
       ).unwrap();
-      if (response?.token) {
-        setTimeout(() => navigate("/dashboard"), 500);
-      }
+
+      console.log("----------------------------", response.data);
+
+      // const { token: token, user: userData } = response.data;
+      //   login(token, userData);
+
+      setIsAuthenticated(true);
+
+      navigate("/dashboard");
     } catch (error) {
       console.error("Login failed:", error);
     } finally {

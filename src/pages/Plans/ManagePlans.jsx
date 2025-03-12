@@ -103,7 +103,7 @@ const ManagePlans = () => {
   };
 
   return (
-    <div style={{ background: "#f8f9fa", minHeight: "100vh" }}>
+    <div style={{ background: "#fff", minHeight: "100vh" }}>
       <Navbar pageTitle="Manage Plans" />
       <main className="container my-4">
         <Row className="justify-content-center">

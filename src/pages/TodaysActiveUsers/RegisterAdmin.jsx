@@ -97,13 +97,13 @@ const RegisterAdmin = () => {
   };
 
   return (
-    <div className="bg-light min-vh-100">
+    <div className="bg-white min-vh-100">
       <Navbar pageTitle={editingUser ? "Edit Admin" : "Add New Admin"} />
       <main className="container py-4">
         <section>
           <div className="row justify-content-center">
             <div className="col-md-8 col-lg-8">
-              <div className="shadow-sm p-4 rounded bg-white">
+              <div className="shadow-sm p-4 rounded bg-light">
                 <h4 className="text-center mb-3 text-primary">
                   {editingUser ? "Edit Admin Details" : "Register New Admin"}
                 </h4>

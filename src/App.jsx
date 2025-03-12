@@ -7,6 +7,7 @@ import {
   Link,
   useLocation,
   useNavigate,
+  Navigate,
 } from "react-router-dom";
 import "./App.css";
 import { CgProfile } from "react-icons/cg";
@@ -24,6 +25,8 @@ import Profile from "./pages/Profile/Profile.jsx";
 import Listusers from "./pages/Users/Listusers.jsx";
 import ManagePlans from "./pages/Plans/ManagePlans.jsx";
 import RegisterAdmin from "./pages/TodaysActiveUsers/RegisterAdmin.jsx";
+import { AuthProvider } from "./context/AuthContext.jsx";
+import PrivateRoute from "./context/PrivateRoute.jsx";
 
 const SidebarLink = ({ to, icon: Icon, label, badge }) => {
   const location = useLocation();
@@ -65,27 +68,6 @@ const SidebarLink = ({ to, icon: Icon, label, badge }) => {
         >
           {label}
         </span>
-        {/* {badge && (
-          <span
-            className="ms-auto"
-            style={{
-              backgroundColor: isActive ? "#192233" : "#fff",
-              color: "white",
-              borderRadius: "50%",
-              width: "24px",
-              height: "24px",
-              display: "flex",
-              zIndex: 999,
-              marginRight: 15,
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: "12px",
-              fontWeight: 600,
-            }}
-          >
-            {badge}
-          </span>
-        )} */}
       </Link>
     </li>
   );
@@ -188,16 +170,37 @@ const App = () => {
       )}
 
       <div style={{ flexGrow: 1, overflowY: "auto" }}>
-        <Routes>
-          <Route path="/" element={<Login />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/user" element={<User />} />
-          <Route path="/manage-plans" element={<ManagePlans />} />
-          <Route path="/add-admin" element={<RegisterAdmin />} />
-          <Route path="/revenue" element={<Reports />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/listusers" element={<Listusers />} />
-        </Routes>
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<Login />} />
+            <Route
+              path="/dashboard"
+              element={<PrivateRoute element={<Dashboard />} />}
+            />
+            <Route path="/user" element={<PrivateRoute element={<User />} />} />
+            <Route
+              path="/manage-plans"
+              element={<PrivateRoute element={<ManagePlans />} />}
+            />
+            <Route
+              path="/add-admin"
+              element={<PrivateRoute element={<RegisterAdmin />} />}
+            />
+            <Route
+              path="/revenue"
+              element={<PrivateRoute element={<Reports />} />}
+            />
+            <Route
+              path="/profile"
+              element={<PrivateRoute element={<Profile />} />}
+            />
+            <Route
+              path="/listusers"
+              element={<PrivateRoute element={<Listusers />} />}
+            />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </AuthProvider>
       </div>
 
       <ToastContainer />

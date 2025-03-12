@@ -27,14 +27,14 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="bg-light min-vh-100">
+    <div className="bg-white min-vh-100">
       <Navbar pageTitle="Dashboard" />
       <main className="container my-4">
         <Row className="justify-content-center">
           <Col md={11}>
             {/* Revenue Section */}
-            <section className="mb-4">
-              <div className="card p-4 shadow-sm border-0 rounded-3">
+            <section className="mb-4 bg-light">
+            <div className="card p-4 shadow-sm border-0 rounded-3" style={{ backgroundColor: "#f5f5f5" }}>
                 <h5 className="text-muted text-uppercase small fw-bold">
                   Total Revenue
                 </h5>
@@ -58,7 +58,7 @@ const Dashboard = () => {
               <div className="row g-3">
                 {userStats.map(({ key, label }, index) => (
                   <div key={index} className="col-6 col-md-3">
-                    <div className="card text-center p-3 shadow-sm border-0 rounded-3 h-100">
+                    <div className="card text-center p-3 shadow-sm border-0 rounded-3 h-100" style={{ backgroundColor: "#f5f5f5" }}>
                       <h3 className="fw-bold mb-2">{userCounts?.[key] || 0}</h3>
                       <p className="text-muted small mb-0">{label}</p>
                     </div>

@@ -1,19 +1,19 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { logoutUser } from "../redux/slices/userSlice";
+import { useAuth } from "../context/AuthContext";
+import { Modal, Button } from "react-bootstrap";
 
 function Navbar({ username = "SA", pageTitle = "" }) {
   const [showLogout, setShowLogout] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const userInitial = username.slice(0, 2).toUpperCase();
   const navigate = useNavigate();
-
-  const usernameStyle = {
-    color: "#000",
-    fontSize: "16px",
-  };
+  const { logout } = useAuth();
 
   const handleLogout = () => {
     logoutUser();
+    logout();
     navigate("/");
   };
 
@@ -58,7 +58,7 @@ function Navbar({ username = "SA", pageTitle = "" }) {
             >
               <button
                 className="dropdown-item"
-                onClick={handleLogout}
+                onClick={() => setShowModal(true)}
                 style={{
                   backgroundColor: "#f8f9fa",
                   border: "none",
@@ -86,6 +86,39 @@ function Navbar({ username = "SA", pageTitle = "" }) {
           )}
         </div>
       </header>
+
+      {/* Logout Confirmation Modal */}
+      <Modal show={showModal} onHide={() => setShowModal(false)} centered>
+        <Modal.Header
+          closeButton
+          style={{ backgroundColor: "#4A90E2" }}
+          className="text-white"
+        >
+          <Modal.Title className="fw-bold"> Confirm Logout</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="text-center p-4">
+          <p className="fs-5 text-dark">Are you sure you want to log out?</p>
+          <p className="text-secondary">
+            You will need to log in again to access your account.
+          </p>
+        </Modal.Body>
+        <Modal.Footer className="d-flex justify-content-center">
+          <Button
+            variant="secondary"
+            className="px-4 py-2 fw-bold"
+            onClick={() => setShowModal(false)}
+          >
+            No, Stay Logged In
+          </Button>
+          <Button
+            variant="danger"
+            className="px-4 py-2 fw-bold"
+            onClick={handleLogout}
+          >
+            Yes, Log Out
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 }
