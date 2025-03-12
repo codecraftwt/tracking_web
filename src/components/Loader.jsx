@@ -29,7 +29,7 @@ const Loader = ({ text = "Loading...", size = "lg" }) => {
     <div style={loaderOverlayStyle}>
       <div style={loaderContentStyle}>
         <Spinner animation="border" variant="primary" size={size} />
-        <span className="ms-3">{text}</span>
+        {/* <span className="ms-3">{text}</span> */}
       </div>
     </div>
   );

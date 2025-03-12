@@ -12,6 +12,7 @@ import {
 } from "react-bootstrap";
 import Navbar from "../../components/Navbar";
 import { BiSearch, BiUserPlus, BiPencil } from "react-icons/bi";
+import { FaUser } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { getAllAdmins } from "../../redux/slices/userSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -24,17 +25,13 @@ const User = () => {
   const admins = useSelector((state) => state.UserData.adminList) || [];
   const dispatch = useDispatch();
 
-  console.log("Admins List --------->", admins);
-
   useEffect(() => {
     dispatch(getAllAdmins());
   }, [dispatch]);
 
-  // **Filter Admins into Active & Inactive Lists**
   const activeAdmins = admins.filter((admin) => admin.isActive);
   const inactiveAdmins = admins.filter((admin) => !admin.isActive);
 
-  // **Search Filtering for Active & Inactive Admins**
   const filteredActiveAdmins = activeAdmins.filter(
     (admin) =>
       admin.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -53,7 +50,6 @@ const User = () => {
       <main className="container my-4">
         <Row className="justify-content-center">
           <Col md={11}>
-            {/* Search Bar and Add User Button */}
             <div className="d-flex justify-content-between align-items-center mb-4">
               <InputGroup style={{ maxWidth: "400px" }}>
                 <InputGroup.Text
@@ -76,8 +72,6 @@ const User = () => {
                 <BiUserPlus className="me-2" /> Add Admin
               </Button>
             </div>
-
-            {/* Tabbed Interface */}
             <Tabs activeKey={key} onSelect={(k) => setKey(k)} className="mb-3">
               <Tab eventKey="active" title="Active Admins" className="p-3">
                 <UserList users={filteredActiveAdmins} navigate={navigate} />
@@ -93,7 +87,6 @@ const User = () => {
   );
 };
 
-// **Reusable Component for Admin List**
 const UserList = ({ users, navigate }) => {
   return (
     <ListGroup>
@@ -108,17 +101,45 @@ const UserList = ({ users, navigate }) => {
               transition: "0.3s",
               cursor: "pointer",
             }}
-            onClick={() => navigate(`/list-users/${admin._id}`)} 
+            onClick={() => navigate(`/list-users/${admin._id}`)}
           >
             <Card.Body className="d-flex align-items-center justify-content-between">
-              <div>
-                <h6
-                  className="mb-1"
-                  style={{ fontWeight: "600", color: "#2c3e50" }}
-                >
-                  {admin.name}
-                </h6>
-                <p className="text-muted small mb-0">{admin.email}</p>
+              <div className="d-flex align-items-center">
+                {admin?.avtar ? (
+                  <img
+                    src={admin?.avtar}
+                    alt="Admin Avtar"
+                    style={{
+                      width: "40px",
+                      height: "40px",
+                      borderRadius: "50%",
+                      marginRight: "10px",
+                    }}
+                  />
+                ) : (
+                  <FaUser
+                    style={{
+                      width: "40px",
+                      height: "40px",
+                      borderRadius: "50%",
+                      background: "#ddd",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      padding: "8px",
+                      marginRight: "10px",
+                    }}
+                  />
+                )}
+                <div>
+                  <h6
+                    className="mb-1"
+                    style={{ fontWeight: "600", color: "#2c3e50" }}
+                  >
+                    {admin.name}
+                  </h6>
+                  <p className="text-muted small mb-0">{admin.email}</p>
+                </div>
               </div>
               <span
                 className="d-flex align-items-center justify-content-center"

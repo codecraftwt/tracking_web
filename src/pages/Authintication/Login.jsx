@@ -4,11 +4,13 @@ import { useDispatch } from "react-redux";
 import "react-toastify/dist/ReactToastify.css";
 import { loginUser } from "../../redux/slices/userSlice";
 import { useAuth } from "../../context/AuthContext";
+import { FaEye, FaEyeSlash, FaSpinner } from "react-icons/fa"; // Import eye icons from react-icons
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
 
   const navigate = useNavigate();
   const { login, setIsAuthenticated } = useAuth();
@@ -25,13 +27,7 @@ const Login = () => {
         loginUser({ data: { email, password } })
       ).unwrap();
 
-      console.log("----------------------------", response.data);
-
-      // const { token: token, user: userData } = response.data;
-      //   login(token, userData);
-
       setIsAuthenticated(true);
-
       navigate("/dashboard");
     } catch (error) {
       console.error("Login failed:", error);
@@ -109,22 +105,41 @@ const Login = () => {
           }}
         />
 
-        <input
-          type="password"
-          placeholder="Enter your password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          style={{
-            width: "100%",
-            padding: "14px",
-            marginBottom: "25px",
-            borderRadius: "8px",
-            border: "1px solid #A8D8FF",
-            fontSize: "16px",
-            boxSizing: "border-box",
-          }}
-        />
+        <div style={{ position: "relative" }}>
+          <input
+            type={showPassword ? "text" : "password"}
+            placeholder="Enter your password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            style={{
+              width: "100%",
+              padding: "14px",
+              marginBottom: "25px",
+              borderRadius: "8px",
+              border: "1px solid #A8D8FF",
+              fontSize: "16px",
+              boxSizing: "border-box",
+              paddingRight: "40px",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              right: "15px",
+              top: "33%",
+              transform: "translateY(-50%)",
+              cursor: "pointer",
+            }}
+            onClick={() => setShowPassword(!showPassword)}
+          >
+            {showPassword ? (
+              <FaEyeSlash size={20} color="#777" />
+            ) : (
+              <FaEye size={20} color="#777" />
+            )}
+          </div>
+        </div>
 
         <button
           type="submit"
@@ -138,11 +153,15 @@ const Login = () => {
             cursor: loading ? "not-allowed" : "pointer",
             fontSize: "16px",
             fontWeight: "bold",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "10px",
             transition: "background-color 0.3s ease",
           }}
           disabled={loading}
         >
-          {loading ? "Logging in..." : "Log in"}
+          {loading ? <FaSpinner size={20} className="spinner" /> : "Log in"}
         </button>
 
         <p style={{ marginTop: "15px", fontSize: "14px", color: "#777" }}>

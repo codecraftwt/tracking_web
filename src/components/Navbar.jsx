@@ -19,7 +19,7 @@ function Navbar({ username = "SA", pageTitle = "" }) {
 
   return (
     <div style={{ backgroundColor: "#4A90E2" }}>
-      <header
+        <header
         style={{ borderTopLeftRadius: "35px" }}
         className="d-flex justify-content-between align-items-center px-4 py-3 bg-white shadow-sm"
       >

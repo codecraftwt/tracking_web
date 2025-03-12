@@ -6,7 +6,6 @@ import { toast } from "react-toastify";
 export const loginUser = createAsyncThunk(
   "user/loginUser",
   async ({ data }, { rejectWithValue }) => {
-    console.log("Data --->", data);
     try {
       const response = await axiosInstance.post("api/users/login", data);
       if (response?.data?.user?.role_id !== 2) {
@@ -20,7 +19,6 @@ export const loginUser = createAsyncThunk(
       toast.success(response?.data?.message);
       return response.data;
     } catch (error) {
-      console.log("Error ----->", error);
       toast.error(error?.response?.data?.message);
       return rejectWithValue(error.response.data);
     }

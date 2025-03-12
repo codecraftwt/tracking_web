@@ -128,11 +128,11 @@ const App = () => {
             >
               <img src="src/assets/Images/logo.png" alt="Logo" width="40" />
               <h4
-                className="mb-0"
-                style={{ fontSize: "24px", fontFamily: "Poppins, sans-serif" }}
-              >
-                Trackify
-              </h4>
+  className="mb-0"
+  style={{ fontSize: "24px", fontFamily: "'Poppins', sans-serif,fontWeight: 700" }}
+>
+  Trackify
+</h4>
             </div>
 
             <nav>
