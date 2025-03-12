@@ -13,7 +13,7 @@ const Loader = ({ text = "Loading...", size = "lg" }) => {
     justifyContent: "center",
     alignItems: "center",
     zIndex: 9999,
-    backdropFilter: "blur(1px)",
+    // backdropFilter: "blur(1px)",
     height: "100vh",
   };
 

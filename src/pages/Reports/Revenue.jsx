@@ -16,7 +16,7 @@ const Revenue = () => {
   return (
     <div style={{ background: "#fff", minHeight: "100vh" }}>
       <Navbar pageTitle="Revenue Details" />
-      <Container className="my-5">
+      <Container className="my-5 formStyle">
         <Row className="justify-content-center">
           <Col md={11}>
             {/* Paid Users Table */}

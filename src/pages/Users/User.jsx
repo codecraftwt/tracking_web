@@ -16,6 +16,8 @@ import { FaUser } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { getAllAdmins } from "../../redux/slices/userSlice";
 import { useDispatch, useSelector } from "react-redux";
+import Loader from "../../components/Loader";
+import CustomButton from "../../components/CustomButton";
 
 const User = () => {
   const [key, setKey] = useState("active");
@@ -23,6 +25,7 @@ const User = () => {
   const navigate = useNavigate();
 
   const admins = useSelector((state) => state.UserData.adminList) || [];
+  const loading = useSelector((state) => state.UserData.loadingAdmin);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -47,6 +50,7 @@ const User = () => {
   return (
     <div>
       <Navbar pageTitle="All Admin's Details" />
+
       <main className="container my-4">
         <Row className="justify-content-center">
           <Col md={11}>
@@ -63,21 +67,28 @@ const User = () => {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   style={{ borderLeft: "none", background: "#f8f9fa" }}
                 />
-              </InputGroup>
-              <Button
-                variant="primary"
-                className="d-flex align-items-center"
-                onClick={() => navigate("/add-admin")}
-              >
-                <BiUserPlus className="me-2" /> Add Admin
-              </Button>
+              </InputGroup>             
+
+              <CustomButton
+                handleClick={() => navigate("/add-admin")}
+                text="Add Admin"
+                icon={BiUserPlus}
+              />
             </div>
             <Tabs activeKey={key} onSelect={(k) => setKey(k)} className="mb-3">
               <Tab eventKey="active" title="Active Admins" className="p-3">
-                <UserList users={filteredActiveAdmins} navigate={navigate} />
+                <UserList
+                  users={filteredActiveAdmins}
+                  navigate={navigate}
+                  loading={loading}
+                />
               </Tab>
               <Tab eventKey="inactive" title="Inactive Admins" className="p-3">
-                <UserList users={filteredInactiveAdmins} navigate={navigate} />
+                <UserList
+                  users={filteredInactiveAdmins}
+                  navigate={navigate}
+                  loading={loading}
+                />
               </Tab>
             </Tabs>
           </Col>
@@ -87,7 +98,11 @@ const User = () => {
   );
 };
 
-const UserList = ({ users, navigate }) => {
+const UserList = ({ users, navigate, loading }) => {
+  if (loading) {
+    return <Loader text="Getting admins" />;
+  }
+
   return (
     <ListGroup>
       {users.length > 0 ? (

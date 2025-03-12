@@ -159,7 +159,7 @@ const userSlice = createSlice({
       .addCase(loginUser.fulfilled, (state, action) => {
         console.log("Login complted..", action.payload);
         state.loading = false;
-        state.userInfo = action.payload;
+        state.userInfo = action.payload.user;
       })
       .addCase(loginUser.rejected, (state, action) => {
         console.log("Login Failed..", action.payload);
@@ -195,8 +195,9 @@ const userSlice = createSlice({
         if (userIndex !== -1) {
           state.usersList[userIndex] = updatedUser;
         }
-        if (state.userInfo?.user?._id === updatedUser._id) {
-          state.userInfo.user = updatedUser;
+        if (state.userInfo?._id === updatedUser._id) {
+          state.userInfo = updatedUser;
+          localStorage.setItem("user", JSON.stringify(updatedUser));
         }
       })
 

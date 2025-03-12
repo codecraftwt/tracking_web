@@ -7,28 +7,68 @@ import { Table, Container, Row, Col, Tabs, Tab } from "react-bootstrap";
 import Navbar from "../../components/Navbar";
 import Loader from "../../components/Loader";
 
+const UserTable = ({ users, status }) => (
+  <Table striped bordered hover responsive className="tableStyle">
+    <thead>
+      <tr className="tdThStyle">
+        <th>Sr. No.</th>
+        <th>Profile</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Mobile Number</th>
+        <th>Status</th>
+        <th>Address</th>
+        <th>Created At</th>
+        <th>Updated At</th>
+      </tr>
+    </thead>
+    <tbody>
+      {users.length > 0 ? (
+        users.map((user, index) => (
+          <tr key={user._id} className="tdThStyle">
+            <td>{index + 1}</td>
+            <td className="text-center">
+              {user.avtar ? (
+                <img
+                  src={user.avtar}
+                  alt="User Avatar"
+                  style={{ width: "50px", height: "50px", borderRadius: "50%" }}
+                />
+              ) : (
+                <BiUser style={{ fontSize: "30px" }} />
+              )}
+            </td>
+            <td>{user.name}</td>
+            <td>{user.email}</td>
+            <td>{user.mobile_no}</td>
+            <td>{status}</td>
+            <td>{user.address}</td>
+            <td>{new Date(user.createdAt).toLocaleDateString()}</td>
+            <td>{new Date(user.updatedAt).toLocaleDateString()}</td>
+          </tr>
+        ))
+      ) : (
+        <tr>
+          <td colSpan="9" className="text-center tdThStyle">
+            No {status.toLowerCase()} users found.
+          </td>
+        </tr>
+      )}
+    </tbody>
+  </Table>
+);
+
 const Listusers = () => {
   const { adminId } = useParams();
-  const users = useSelector((state) => state.UserData.usersList) || [];
-  const loading = useSelector((state) => state.UserData.loading);
-  const [activeTab, setActiveTab] = useState("active"); // State to manage active tab
-
+  const { usersList: users = [], loading } = useSelector(
+    (state) => state.UserData
+  );
+  const [activeTab, setActiveTab] = useState("active");
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (adminId) {
-      dispatch(getAllUsers(adminId));
-    }
+    if (adminId) dispatch(getAllUsers(adminId));
   }, [adminId, dispatch]);
-
-  const tableStyle = {
-    fontFamily: "Inter, sans-serif",
-    fontSize: "0.9rem",
-  };
-
-  const tdThStyle = {
-    fontSize: "0.85rem",
-  };
 
   const activeUsers = users.filter((user) => user.isActive);
   const inactiveUsers = users.filter((user) => !user.isActive);
@@ -42,145 +82,20 @@ const Listusers = () => {
             <Tabs
               activeKey={activeTab}
               onSelect={(k) => setActiveTab(k)}
-              id="user-tabs"
               className="mb-3"
             >
               <Tab eventKey="active" title="Active Users">
                 {loading ? (
                   <Loader text="Getting users" />
                 ) : (
-                  <Table striped bordered hover responsive style={tableStyle}>
-                    <thead>
-                      <tr>
-                        <th style={tdThStyle}>Sr. No.</th>
-                        <th style={tdThStyle}>Profile</th>
-                        <th style={tdThStyle}>Name</th>
-                        <th style={tdThStyle}>Email</th>
-                        <th style={tdThStyle}>Mobile Number</th>
-                        <th style={tdThStyle}>Status</th>
-                        <th style={tdThStyle}>Address</th>
-                        <th style={tdThStyle}>Created At</th>
-                        <th style={tdThStyle}>Updated At</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {activeUsers.length > 0 ? (
-                        activeUsers.map((user, index) => (
-                          <tr key={user._id}>
-                            <td style={tdThStyle}>{index + 1}</td>
-                            <td
-                              style={{
-                                ...tdThStyle,
-                                display: "flex",
-                                justifyContent: "center",
-                                alignItems: "center",
-                              }}
-                            >
-                              {user.avtar ? (
-                                <img
-                                  src={user.avtar}
-                                  alt="User Avatar"
-                                  style={{
-                                    width: "50px",
-                                    height: "50px",
-                                    borderRadius: "50%",
-                                  }}
-                                />
-                              ) : (
-                                <BiUser style={{ fontSize: "30px" }} />
-                              )}
-                            </td>
-                            <td style={tdThStyle}>{user.name}</td>
-                            <td style={tdThStyle}>{user.email}</td>
-                            <td style={tdThStyle}>{user.mobile_no}</td>
-                            <td style={tdThStyle}>Active</td>
-                            <td style={tdThStyle}>{user.address}</td>
-                            <td style={tdThStyle}>
-                              {new Date(user.createdAt).toLocaleDateString()}
-                            </td>
-                            <td style={tdThStyle}>
-                              {new Date(user.updatedAt).toLocaleDateString()}
-                            </td>
-                          </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td colSpan="9" className="text-center" style={tdThStyle}>
-                            No active users found.
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </Table>
+                  <UserTable users={activeUsers} status="Active" />
                 )}
               </Tab>
               <Tab eventKey="inactive" title="Inactive Users">
                 {loading ? (
                   <Loader text="Getting users" />
                 ) : (
-                  <Table striped bordered hover responsive style={tableStyle}>
-                    <thead>
-                      <tr>
-                        <th style={tdThStyle}>Sr. No.</th>
-                        <th style={tdThStyle}>Profile</th>
-                        <th style={tdThStyle}>Name</th>
-                        <th style={tdThStyle}>Email</th>
-                        <th style={tdThStyle}>Mobile Number</th>
-                        <th style={tdThStyle}>Status</th>
-                        <th style={tdThStyle}>Address</th>
-                        <th style={tdThStyle}>Created At</th>
-                        <th style={tdThStyle}>Updated At</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {inactiveUsers.length > 0 ? (
-                        inactiveUsers.map((user, index) => (
-                          <tr key={user._id}>
-                            <td style={tdThStyle}>{index + 1}</td>
-                            <td
-                              style={{
-                                ...tdThStyle,
-                                display: "flex",
-                                justifyContent: "center",
-                                alignItems: "center",
-                              }}
-                            >
-                              {user.avtar ? (
-                                <img
-                                  src={user.avtar}
-                                  alt="User Avatar"
-                                  style={{
-                                    width: "50px",
-                                    height: "50px",
-                                    borderRadius: "50%",
-                                  }}
-                                />
-                              ) : (
-                                <BiUser style={{ fontSize: "30px" }} />
-                              )}
-                            </td>
-                            <td style={tdThStyle}>{user.name}</td>
-                            <td style={tdThStyle}>{user.email}</td>
-                            <td style={tdThStyle}>{user.mobile_no}</td>
-                            <td style={tdThStyle}>Inactive</td>
-                            <td style={tdThStyle}>{user.address}</td>
-                            <td style={tdThStyle}>
-                              {new Date(user.createdAt).toLocaleDateString()}
-                            </td>
-                            <td style={tdThStyle}>
-                              {new Date(user.updatedAt).toLocaleDateString()}
-                            </td>
-                          </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td colSpan="9" className="text-center" style={tdThStyle}>
-                            No inactive users found.
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </Table>
+                  <UserTable users={inactiveUsers} status="Inactive" />
                 )}
               </Tab>
             </Tabs>
@@ -191,4 +106,4 @@ const Listusers = () => {
   );
 };
 
-export default Listusers; 
+export default Listusers;

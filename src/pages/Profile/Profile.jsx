@@ -22,7 +22,7 @@ const Profile = () => {
   }, [userData]);
 
   const handleEditClick = () => {
-    navigate("/add-admin", { state: { admin: userData } });
+    navigate("/add-admin", { state: { admin: userData, profileEditing: true } });
   };
 
   const handleLogout = () => {

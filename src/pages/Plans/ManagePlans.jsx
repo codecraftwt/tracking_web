@@ -10,6 +10,8 @@ import {
   getAllPlans,
   updatePlan,
 } from "../../redux/slices/planSlice";
+import Loader from "../../components/Loader";
+import CustomButton from "../../components/CustomButton";
 
 const ManagePlans = () => {
   const dispatch = useDispatch();
@@ -109,56 +111,60 @@ const ManagePlans = () => {
         <Row className="justify-content-center">
           <Col md={11}>
             <div className="d-flex justify-content-between align-items-center mb-4">
-              <h4 className="fw-bold">Subscription Plans</h4>
-              <Button variant="success" onClick={handleShow}>
-                <FaPlus className="me-2" /> Add Plan
-              </Button>
+              <h5>Subscription Plans</h5>             
+              <CustomButton
+                handleClick={handleShow}
+                text="Add Plan"
+                icon={FaPlus}
+              />
             </div>
 
-            {loading && <div>Loading...</div>}
-
-            <Table striped bordered hover>
-              <thead className="bg-primary text-white">
-                <tr>
-                  <th>Name</th>
-                  <th>Description</th>
-                  <th>Minimum Users</th>
-                  <th>Maximum Users</th>
-                  <th>Price</th>
-                  <th>Duration</th>
-                  <th className="text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {plansList?.map((plan) => (
-                  <tr key={plan._id}>
-                    <td>{plan.name}</td>
-                    <td>{plan.description}</td>
-                    <td>{plan.minUsers}</td>
-                    <td>{plan.maxUsers}</td>
-                    <td>{plan.price}</td>
-                    <td>{plan.duration}</td>
-                    <td className="text-center">
-                      <Button
-                        variant="outline-warning"
-                        size="sm"
-                        className="me-2"
-                        onClick={() => handleEdit(plan)}
-                      >
-                        <FaEdit />
-                      </Button>
-                      <Button
-                        variant="outline-danger"
-                        size="sm"
-                        onClick={() => confirmDelete(plan._id)}
-                      >
-                        <FaTrash />
-                      </Button>
-                    </td>
+            {loading ? (
+              <Loader text="Getting users" />
+            ) : (
+              <Table striped bordered hover className="tableStyle">
+                <thead className="bg-primary text-white">
+                  <tr className="tdThStyle">
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Minimum Users</th>
+                    <th>Maximum Users</th>
+                    <th>Price</th>
+                    <th>Duration</th>
+                    <th className="text-center">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </Table>
+                </thead>
+                <tbody className="tdThStyle">
+                  {plansList?.map((plan) => (
+                    <tr key={plan._id}>
+                      <td>{plan.name}</td>
+                      <td>{plan.description}</td>
+                      <td>{plan.minUsers}</td>
+                      <td>{plan.maxUsers}</td>
+                      <td>{plan.price}</td>
+                      <td>{plan.duration}</td>
+                      <td className="text-center">
+                        <Button
+                          variant="outline-warning"
+                          size="sm"
+                          className="me-2"
+                          onClick={() => handleEdit(plan)}
+                        >
+                          <FaEdit />
+                        </Button>
+                        <Button
+                          variant="outline-danger"
+                          size="sm"
+                          onClick={() => confirmDelete(plan._id)}
+                        >
+                          <FaTrash />
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            )}
           </Col>
         </Row>
       </main>

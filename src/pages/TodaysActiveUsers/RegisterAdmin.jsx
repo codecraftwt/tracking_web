@@ -10,6 +10,7 @@ const RegisterAdmin = () => {
   const location = useLocation();
   const dispatch = useDispatch();
   const editingUser = location.state?.admin || null; // Access the passed userData
+  const profileEditing = location.state?.profileEditing || false;
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     fullName: "",
@@ -92,7 +93,11 @@ const RegisterAdmin = () => {
         payload.append("confirmPassword", formData.confirmPassword);
         await dispatch(registerUser(payload)).unwrap();
       }
-      navigate("/user");
+      if (profileEditing) {
+        navigate("/profile");
+      } else {
+        navigate("/user");
+      }
     } catch (error) {}
   };
 
@@ -101,10 +106,10 @@ const RegisterAdmin = () => {
       <Navbar pageTitle={editingUser ? "Edit Admin" : "Add New Admin"} />
       <main className="container py-4">
         <section>
-          <div className="row justify-content-center">
+          <div className="row justify-content-center formStyle">
             <div className="col-md-8 col-lg-8">
               <div className="shadow-sm p-4 rounded bg-light">
-                <h4 className="text-center mb-3 text-primary">
+                <h4 className="text-center my-4 text-primary">
                   {editingUser ? "Edit Admin Details" : "Register New Admin"}
                 </h4>
                 <form onSubmit={handleSubmit}>

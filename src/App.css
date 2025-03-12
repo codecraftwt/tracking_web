@@ -1,9 +1,9 @@
-
 .active-sidebar-item {
   cursor: pointer;
   position: relative;
 }
-.active-sidebar-item::before, .active-sidebar-item::after {
+.active-sidebar-item::before,
+.active-sidebar-item::after {
   content: "";
   position: absolute;
 }
@@ -16,7 +16,7 @@
   border-bottom-right-radius: 20px;
   -moz-border-bottom-right-radius: 20px;
   -webkit-border-bottom-right-radius: 20px;
-  -webkit-box-shadow: 0 40px 0 0 #fff; 
+  -webkit-box-shadow: 0 40px 0 0 #fff;
   -moz-box-shadow: 0 40px 0 0 #fff;
   box-shadow: 0 40px 0 0 #fff;
 }
@@ -33,5 +33,15 @@
   box-shadow: 0 -40px 0 0 #fff;
 }
 
+.tableStyle {
+  font-family: "Inter", sans-serif;
+  font-size: 0.9rem;
+}
 
+.formStyle {
+  font-family: "Inter", sans-serif;  
+}
 
+.tdThStyle {
+  font-size: 0.85rem;
+}
