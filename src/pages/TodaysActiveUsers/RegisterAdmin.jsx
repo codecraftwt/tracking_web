@@ -1,15 +1,15 @@
 import { useState, useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 
 import Navbar from "../../components/Navbar";
-import { AiOutlineCloseCircle } from "react-icons/ai"; // Import cross icon
+import { AiOutlineCloseCircle } from "react-icons/ai";
 import { registerUser, updateUser } from "../../redux/slices/userSlice";
 
 const RegisterAdmin = () => {
   const location = useLocation();
   const dispatch = useDispatch();
-  const editingUser = location.state?.admin || null;
+  const editingUser = location.state?.admin || null; // Access the passed userData
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     fullName: "",
@@ -23,6 +23,9 @@ const RegisterAdmin = () => {
   });
 
   const [previewImage, setPreviewImage] = useState(null);
+  const userData = useSelector((state) => state.UserData.userInfo);
+
+  console.log(userData);
 
   useEffect(() => {
     if (editingUser) {
@@ -33,7 +36,6 @@ const RegisterAdmin = () => {
         address: editingUser.address,
         status: editingUser?.isActive ? "active" : "inactive",
         avtar: null,
-        
       });
 
       if (editingUser.avtar) {
@@ -66,10 +68,15 @@ const RegisterAdmin = () => {
     const payload = new FormData();
     payload.append("name", formData.fullName);
     payload.append("email", formData.email);
+    payload.append("createdby", userData._id);
     payload.append("mobile_no", formData.mobile);
     payload.append("address", formData.address);
     payload.append("isActive", formData.status === "active" ? true : false);
-    payload.append("role_id", 1);
+    if (editingUser) {
+      payload.append("role_id", editingUser.role_id); // Keep existing role_id
+    } else {
+      payload.append("role_id", 1); // Assign role_id 1 for new admin
+    }
 
     if (formData.avtar) {
       payload.append("avtar", formData.avtar);
@@ -77,15 +84,16 @@ const RegisterAdmin = () => {
 
     try {
       if (editingUser) {
-        await dispatch(updateUser({ userId: editingUser._id, formData: payload })).unwrap();
+        await dispatch(
+          updateUser({ userId: editingUser._id, formData: payload })
+        ).unwrap();
       } else {
         payload.append("password", formData.password);
         payload.append("confirmPassword", formData.confirmPassword);
         await dispatch(registerUser(payload)).unwrap();
       }
-      navigate('/user');
-    } catch (error) {
-    }
+      navigate("/user");
+    } catch (error) {}
   };
 
   return (
@@ -95,7 +103,7 @@ const RegisterAdmin = () => {
         <section>
           <div className="row justify-content-center">
             <div className="col-md-8 col-lg-8">
-              <div className="shadow-sm p-4 rounded">
+              <div className="shadow-sm p-4 rounded bg-white">
                 <h4 className="text-center mb-3 text-primary">
                   {editingUser ? "Edit Admin Details" : "Register New Admin"}
                 </h4>

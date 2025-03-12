@@ -14,7 +14,7 @@ const Revenue = () => {
   const totalRevenue = paidUsers.reduce((sum, user) => sum + user.amount, 0);
 
   return (
-    <div style={{ background: "#f4f6f9", minHeight: "100vh" }}>
+    <div style={{ background: "#fff", minHeight: "100vh" }}>
       <Navbar pageTitle="Revenue Details" />
       <Container className="my-5">
         <Row className="justify-content-center">
@@ -31,7 +31,7 @@ const Revenue = () => {
                       <tr>
                         <th>Name</th>
                         <th>Date</th>
-                        <th>Amount ($)</th>
+                        <th>Amount</th>
                       </tr>
                     </thead>
                     <tbody>
