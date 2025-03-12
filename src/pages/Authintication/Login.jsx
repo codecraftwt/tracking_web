@@ -4,13 +4,14 @@ import { useDispatch } from "react-redux";
 import "react-toastify/dist/ReactToastify.css";
 import { loginUser } from "../../redux/slices/userSlice";
 import { useAuth } from "../../context/AuthContext";
-import { FaEye, FaEyeSlash, FaSpinner } from "react-icons/fa"; // Import eye icons from react-icons
+import { FaEye, FaEyeSlash, FaSpinner } from "react-icons/fa"; 
+import mainlogo from "./assets/Images/mainlogo.png";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
+  const [showPassword, setShowPassword] = useState(false); 
 
   const navigate = useNavigate();
   const { login, setIsAuthenticated } = useAuth();
@@ -51,7 +52,7 @@ const Login = () => {
     >
       <div style={{ textAlign: "center", marginBottom: "30px" }}>
         <img
-          src="src/assets/Images/mainlogo.png"
+          src={mainlogo}
           alt="Netubia"
           style={{
             objectFit: "contain",
@@ -60,6 +61,7 @@ const Login = () => {
             maxWidth: "100%",
           }}
         />
+        
         <p style={{ color: "#fff", fontSize: "26px", fontWeight: "600" }}>
           Welcome back!
         </p>
