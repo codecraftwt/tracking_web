@@ -66,9 +66,9 @@ export const updateUser = createAsyncThunk(
 // Fetch All Users
 export const getAllUsers = createAsyncThunk(
   "user/getAllUsers",
-  async (_, { rejectWithValue }) => {
+  async (adminId, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get("api/users/alluser");
+      const response = await axiosInstance.get(`api/users/alluser/${adminId}`);
       return response.data?.users;
     } catch (error) {
       return rejectWithValue(error.response.data);

@@ -92,7 +92,7 @@ const App = () => {
         return 5;
       case "/profile":
         return 6;
-      case "/listusers":
+      case "/list-users":
         return 7;
       default:
         return -1;
@@ -195,7 +195,7 @@ const App = () => {
               element={<PrivateRoute element={<Profile />} />}
             />
             <Route
-              path="/listusers"
+              path="/list-users/:adminId"
               element={<PrivateRoute element={<Listusers />} />}
             />
             <Route path="*" element={<Navigate to="/" replace />} />

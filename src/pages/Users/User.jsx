@@ -108,7 +108,7 @@ const UserList = ({ users, navigate }) => {
               transition: "0.3s",
               cursor: "pointer",
             }}
-            onClick={() => navigate("/listusers")}
+            onClick={() => navigate(`/list-users/${admin._id}`)} 
           >
             <Card.Body className="d-flex align-items-center justify-content-between">
               <div>
