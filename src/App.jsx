@@ -16,6 +16,7 @@ import { HiUsers } from "react-icons/hi";
 import { BsFileEarmarkBarGraphFill } from "react-icons/bs";
 import { RiVerifiedBadgeFill } from "react-icons/ri";
 import { toast, ToastContainer } from "react-toastify";
+import logo from "./assets/Images/logo.png";
 import "react-toastify/dist/ReactToastify.css";
 import Dashboard from "./pages/Dashboard/Dashboard.jsx";
 import User from "./pages/Users/User.jsx";
@@ -126,13 +127,16 @@ const App = () => {
               className="d-flex align-items-center mb-4"
               style={{ gap: "15px" }}
             >
-              <img src="src/assets/Images/logo.png" alt="Logo" width="40" />
+              <img src={logo} alt="Logo" width="40" />
               <h4
-  className="mb-0"
-  style={{ fontSize: "24px", fontFamily: "'Poppins', sans-serif,fontWeight: 700" }}
->
-  Trackify
-</h4>
+                className="mb-0"
+                style={{
+                  fontSize: "24px",
+                  fontFamily: "'Poppins', sans-serif,fontWeight: 700",
+                }}
+              >
+                Trackify
+              </h4>
             </div>
 
             <nav>
