@@ -18,7 +18,7 @@ const Login = () => {
   const dispatch = useDispatch();
 
   const handleLogin = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
 
     if (!email || !password) return;
 
