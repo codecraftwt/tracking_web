@@ -8,15 +8,18 @@ export const loginUser = createAsyncThunk(
   async ({ data }, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.post("api/users/login", data);
-      if (response?.data?.user?.role_id !== 2) {
-        const errorMessage =
-          "You do not have the required permissions to log in.";
+      const user = response?.data?.user;
+
+      if (![1, 2].includes(user?.role_id)) {
+        const errorMessage = "You do not have the required permissions to log in.";
         toast.error(errorMessage);
         return rejectWithValue({ message: errorMessage });
       }
+
       localStorage.setItem("token", response?.data?.token);
-      localStorage.setItem("user", JSON.stringify(response?.data?.user));
+      localStorage.setItem("user", JSON.stringify(user));
       toast.success(response?.data?.message);
+
       return response.data;
     } catch (error) {
       toast.error(error?.response?.data?.message);
@@ -208,6 +211,7 @@ const userSlice = createSlice({
       })
       .addCase(getAllUsers.fulfilled, (state, action) => {
         state.loading = false;
+        console.log('##################',action.payload);
         state.usersList = action.payload;
       })
       .addCase(getAllUsers.rejected, (state, action) => {

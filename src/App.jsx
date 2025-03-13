@@ -6,7 +6,6 @@ import {
   Route,
   Link,
   useLocation,
-  useNavigate,
   Navigate,
 } from "react-router-dom";
 import "./App.css";
@@ -28,18 +27,17 @@ import ManagePlans from "./pages/Plans/ManagePlans.jsx";
 import RegisterAdmin from "./pages/TodaysActiveUsers/RegisterAdmin.jsx";
 import { AuthProvider } from "./context/AuthContext.jsx";
 import PrivateRoute from "./context/PrivateRoute.jsx";
+import AdminDashboard from "./pages/Dashboard/AdminDashboard.jsx";
+import PaymentPlans from "./pages/Plans/PaymentPlans.jsx";
+import TranscationHistory from "./pages/Plans/TranscationHistory.jsx";
 
-const SidebarLink = ({ to, icon: Icon, label, badge }) => {
+const SidebarLink = ({ to, icon: Icon, label }) => {
   const location = useLocation();
   const isActive = location.pathname === to;
   return (
     <li
-      style={{
-        marginBlock: 5,
-        paddingBlock: 5,
-        position: "relative",
-      }}
       className={isActive ? "active-sidebar-item" : ""}
+      style={{ marginBlock: 5, paddingBlock: 5 }}
     >
       <Link
         to={to}
@@ -49,7 +47,6 @@ const SidebarLink = ({ to, icon: Icon, label, badge }) => {
           backgroundColor: isActive ? "#fff" : "transparent",
           height: 44.6,
           padding: "10px",
-          paddingRight: "0px",
           borderTopLeftRadius: "25px",
           borderBottomLeftRadius: "25px",
           marginRight: "-17px",
@@ -62,8 +59,6 @@ const SidebarLink = ({ to, icon: Icon, label, badge }) => {
             fontSize: "16px",
             fontWeight: 600,
             fontFamily: "Poppins, sans-serif",
-            lineHeight: "24px",
-            paddingLeft: 2,
             color: isActive ? "#000" : "#fff",
           }}
         >
@@ -76,6 +71,10 @@ const SidebarLink = ({ to, icon: Icon, label, badge }) => {
 
 const App = () => {
   const location = useLocation();
+  const userData = JSON.parse(localStorage.getItem("user"));
+  const role_id = userData?.role_id;
+
+  console.log("role_id ------------------->", role_id);
 
   const getActiveIndex = () => {
     switch (location.pathname) {
@@ -132,7 +131,8 @@ const App = () => {
                 className="mb-0"
                 style={{
                   fontSize: "24px",
-                  fontFamily: "'Poppins', sans-serif,fontWeight: 700",
+                  fontFamily: "'Poppins', sans-serif",
+                  fontWeight: 700,
                 }}
               >
                 Trackify
@@ -141,32 +141,74 @@ const App = () => {
 
             <nav>
               <ul className="list-unstyled" style={{ marginTop: "120px" }}>
-                <SidebarLink
-                  to="/dashboard"
-                  icon={MdDashboard}
-                  label="Dashboard"
-                />
-                <SidebarLink
-                  to="/user"
-                  icon={HiUsers}
-                  label="All Admin's Details"
-                />
-                <SidebarLink
-                  to="/revenue"
-                  icon={BsFileEarmarkBarGraphFill}
-                  label="Revenue Details"
-                />
-                <SidebarLink
-                  to="/add-admin"
-                  icon={HiUsers}
-                  label="Add New Admins"
-                />
-                <SidebarLink
-                  to="/manage-plans"
-                  icon={RiVerifiedBadgeFill}
-                  label="Manage Plans"
-                />
-                <SidebarLink to="/profile" icon={CgProfile} label="Profile" />
+                {role_id === 2 && (
+                  <>
+                    <SidebarLink
+                      to="/dashboard"
+                      icon={MdDashboard}
+                      label="Dashboard"
+                    />
+                    <SidebarLink
+                      to="/user"
+                      icon={HiUsers}
+                      label="All Admin's Details"
+                    />
+                    <SidebarLink
+                      to="/revenue"
+                      icon={BsFileEarmarkBarGraphFill}
+                      label="Revenue Details"
+                    />
+                    <SidebarLink
+                      to="/add-admin"
+                      icon={HiUsers}
+                      label="Add New Admins"
+                    />
+                    <SidebarLink
+                      to="/manage-plans"
+                      icon={RiVerifiedBadgeFill}
+                      label="Manage Plans"
+                    />
+                    <SidebarLink
+                      to="/profile"
+                      icon={CgProfile}
+                      label="Profile"
+                    />
+                  </>
+                )}
+                {role_id === 1 && (
+                  <>
+                    <SidebarLink
+                      to="/admindashboard"
+                      icon={MdDashboard}
+                      label="Admin Dashboard"
+                    />
+                    <SidebarLink
+                      to="/user"
+                      icon={HiUsers}
+                      label="All Users Details"
+                    />
+                    <SidebarLink
+                      to="/add-admin"
+                      icon={HiUsers}
+                      label="Add New Users"
+                    />
+                    <SidebarLink
+                      to="/payment-plans"
+                      icon={RiVerifiedBadgeFill}
+                      label="Payment Plans"
+                    />
+                    <SidebarLink
+                      to="/transactionhistory"
+                      icon={RiVerifiedBadgeFill}
+                      label="Transaction History"
+                    />
+                    <SidebarLink
+                      to="/profile"
+                      icon={CgProfile}
+                      label="Profile"
+                    />
+                  </>
+                )}
               </ul>
             </nav>
           </div>
@@ -179,34 +221,74 @@ const App = () => {
             <Route path="/" element={<Login />} />
             <Route
               path="/dashboard"
-              element={<PrivateRoute element={<Dashboard />} />}
+              element={
+                <PrivateRoute element={<Dashboard />} allowedRoles={[2]} />
+              }
             />
-            <Route path="/user" element={<PrivateRoute element={<User />} />} />
+            <Route
+              path="/user"
+              element={
+                <PrivateRoute element={<User />} allowedRoles={[2, 1]} />
+              }
+            />
             <Route
               path="/manage-plans"
-              element={<PrivateRoute element={<ManagePlans />} />}
+              element={
+                <PrivateRoute element={<ManagePlans />} allowedRoles={[2]} />
+              }
             />
             <Route
               path="/add-admin"
-              element={<PrivateRoute element={<RegisterAdmin />} />}
+              element={
+                <PrivateRoute
+                  element={<RegisterAdmin />}
+                  allowedRoles={[2, 1]}
+                />
+              }
             />
             <Route
               path="/revenue"
-              element={<PrivateRoute element={<Reports />} />}
+              element={
+                <PrivateRoute element={<Reports />} allowedRoles={[2]} />
+              }
             />
             <Route
               path="/profile"
-              element={<PrivateRoute element={<Profile />} />}
+              element={
+                <PrivateRoute element={<Profile />} allowedRoles={[2, 1]} />
+              }
             />
             <Route
               path="/list-users/:adminId"
-              element={<PrivateRoute element={<Listusers />} />}
+              element={
+                <PrivateRoute element={<Listusers />} allowedRoles={[2]} />
+              }
+            />
+            <Route
+              path="/admindashboard"
+              element={
+                <PrivateRoute element={<AdminDashboard />} allowedRoles={[1]} />
+              }
+            />
+            <Route
+              path="/payment-plans"
+              element={
+                <PrivateRoute element={<PaymentPlans />} allowedRoles={[1]} />
+              }
+            />
+            <Route
+              path="/transactionhistory"
+              element={
+                <PrivateRoute
+                  element={<TranscationHistory />}
+                  allowedRoles={[1]}
+                />
+              }
             />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </AuthProvider>
       </div>
-
       <ToastContainer />
     </div>
   );

@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { loginUser } from "../../redux/slices/userSlice";
 import { useAuth } from "../../context/AuthContext";
 import { FaEye, FaEyeSlash, FaSpinner } from "react-icons/fa"; 
 import mainlogo from "../../../src/assets/Images/mainlogo.png";
+
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -13,24 +15,37 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false); 
 
   const navigate = useNavigate();
-  const { login, setIsAuthenticated } = useAuth();
+  const { login } = useAuth(); // Use `login` from context
   const dispatch = useDispatch();
 
   const handleLogin = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    if (!email || !password) return;
+    if (!email || !password) {
+      toast.error("Please fill in all fields!");
+      return;
+    }
 
     setLoading(true);
     try {
-      const response = await dispatch(
-        loginUser({ data: { email, password } })
-      ).unwrap();
+      const response = await dispatch(loginUser({ data: { email, password } })).unwrap();
 
-      setIsAuthenticated(true);
-      navigate("/dashboard");
+      if (response.token) {
+        login(response.token, response.user); // Set auth state and user role
+        toast.success("Login successful!");
+
+        // Redirect user based on role
+        if (response.user.role_id === 1) {
+          navigate("/admindashboard");
+        } else {
+          navigate("/dashboard");
+        }
+      } else {
+        toast.error(response.message || "Invalid credentials!");
+      }
     } catch (error) {
       console.error("Login failed:", error);
+      toast.error("Login failed. Please check your credentials.");
     } finally {
       setLoading(false);
     }
@@ -116,19 +131,19 @@ const Login = () => {
             style={{
               width: "100%",
               padding: "14px",
+              paddingRight: "40px", // Keep space for the icon
               marginBottom: "25px",
               borderRadius: "8px",
               border: "1px solid #A8D8FF",
               fontSize: "16px",
               boxSizing: "border-box",
-              paddingRight: "40px",
             }}
           />
           <div
             style={{
               position: "absolute",
               right: "15px",
-              top: "33%",
+              top: "50%",
               transform: "translateY(-50%)",
               cursor: "pointer",
             }}

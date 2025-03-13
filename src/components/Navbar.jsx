@@ -4,7 +4,7 @@ import { logoutUser } from "../redux/slices/userSlice";
 import { useAuth } from "../context/AuthContext";
 import { Modal, Button } from "react-bootstrap";
 
-function Navbar({ username = "SA", pageTitle = "" }) {
+function Navbar({ username = "W", pageTitle = "" }) {
   const [showLogout, setShowLogout] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const userInitial = username.slice(0, 2).toUpperCase();

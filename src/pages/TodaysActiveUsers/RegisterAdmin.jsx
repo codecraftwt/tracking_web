@@ -9,7 +9,10 @@ import { registerUser, updateUser } from "../../redux/slices/userSlice";
 const RegisterAdmin = () => {
   const location = useLocation();
   const dispatch = useDispatch();
-  const editingUser = location.state?.admin || null; // Access the passed userData
+  const userDataa = JSON.parse(localStorage.getItem("user"));
+  const role_id = userDataa?.role_id;
+
+  const editingUser = location.state?.user || null;
   const profileEditing = location.state?.profileEditing || false;
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -63,6 +66,13 @@ const RegisterAdmin = () => {
     setPreviewImage(null);
   };
 
+  const getRoleBasedLabel = (label) => {
+    if (role_id === 1) {
+      return label.replace("Admin", "User");
+    }
+    return label;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -74,9 +84,9 @@ const RegisterAdmin = () => {
     payload.append("address", formData.address);
     payload.append("isActive", formData.status === "active" ? true : false);
     if (editingUser) {
-      payload.append("role_id", editingUser.role_id); // Keep existing role_id
+      payload.append("role_id", editingUser.role_id); 
     } else {
-      payload.append("role_id", 1); // Assign role_id 1 for new admin
+      payload.append("role_id", 1);
     }
 
     if (formData.avtar) {
@@ -103,14 +113,14 @@ const RegisterAdmin = () => {
 
   return (
     <div className="bg-white min-vh-100">
-      <Navbar pageTitle={editingUser ? "Edit Admin" : "Add New Admin"} />
+      <Navbar pageTitle={editingUser ? getRoleBasedLabel("Edit Admin") : getRoleBasedLabel("Add New Admin")} />
       <main className="container py-4">
         <section>
           <div className="row justify-content-center formStyle">
             <div className="col-md-8 col-lg-8">
               <div className="shadow-sm p-4 rounded bg-light">
                 <h4 className="text-center my-4 text-primary">
-                  {editingUser ? "Edit Admin Details" : "Register New Admin"}
+                  {editingUser ? getRoleBasedLabel("Edit Admin Details") : getRoleBasedLabel("Register New Admin")}
                 </h4>
                 <form onSubmit={handleSubmit}>
                   {[
@@ -234,7 +244,7 @@ const RegisterAdmin = () => {
                   )}
 
                   <button type="submit" className="btn btn-primary w-100 mt-2">
-                    {editingUser ? "Update Admin" : "Register Admin"}
+                    {editingUser ? getRoleBasedLabel("Update Admin") : getRoleBasedLabel("Register Admin")}
                   </button>
                 </form>
               </div>

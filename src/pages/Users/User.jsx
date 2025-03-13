@@ -14,7 +14,7 @@ import Navbar from "../../components/Navbar";
 import { BiSearch, BiUserPlus, BiPencil } from "react-icons/bi";
 import { FaUser } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { getAllAdmins } from "../../redux/slices/userSlice";
+import { getAllAdmins, getAllUsers } from "../../redux/slices/userSlice";
 import { useDispatch, useSelector } from "react-redux";
 import Loader from "../../components/Loader";
 import CustomButton from "../../components/CustomButton";
@@ -24,32 +24,47 @@ const User = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
 
-  const admins = useSelector((state) => state.UserData.adminList) || [];
-  const loading = useSelector((state) => state.UserData.loadingAdmin);
   const dispatch = useDispatch();
+  const userData = JSON.parse(localStorage.getItem("user"));
+  const role_id = userData?.role_id;
 
   useEffect(() => {
-    dispatch(getAllAdmins());
-  }, [dispatch]);
+    if (role_id === 1) {
+      dispatch(getAllUsers(userData?._id));
+    } else if (role_id === 2) {
+      dispatch(getAllAdmins());
+    }
+  }, [dispatch, role_id]);
 
-  const activeAdmins = admins.filter((admin) => admin.isActive);
-  const inactiveAdmins = admins.filter((admin) => !admin.isActive);
+  const users =
+    useSelector((state) =>
+      role_id === 1 ? state.UserData.usersList : state.UserData.adminList
+    ) || [];
 
-  const filteredActiveAdmins = activeAdmins.filter(
-    (admin) =>
-      admin.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      admin.email.toLowerCase().includes(searchQuery.toLowerCase())
+  const loading = useSelector((state) =>
+    role_id === 1 ? state.UserData.loadingUser : state.UserData.loadingAdmin
   );
 
-  const filteredInactiveAdmins = inactiveAdmins.filter(
-    (admin) =>
-      admin.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      admin.email.toLowerCase().includes(searchQuery.toLowerCase())
+  const activeUsers = users.filter((user) => user.isActive);
+  const inactiveUsers = users.filter((user) => !user.isActive);
+
+  const filteredActiveUsers = activeUsers.filter(
+    (user) =>
+      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const filteredInactiveUsers = inactiveUsers.filter(
+    (user) =>
+      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
     <div>
-      <Navbar pageTitle="All Admin's Details" />
+      <Navbar
+        pageTitle={role_id === 1 ? "All User's Details" : "All Admin's Details"}
+      />
 
       <main className="container my-4">
         <Row className="justify-content-center">
@@ -62,32 +77,44 @@ const User = () => {
                   <BiSearch />
                 </InputGroup.Text>
                 <FormControl
-                  placeholder="Search admins..."
+                  placeholder={`Search ${
+                    role_id === 1 ? "users" : "admins"
+                  }...`}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   style={{ borderLeft: "none", background: "#f8f9fa" }}
                 />
-              </InputGroup>             
+              </InputGroup>
 
               <CustomButton
                 handleClick={() => navigate("/add-admin")}
-                text="Add Admin"
+                text={role_id === 1 ? "Add User" : "Add Admin"}
                 icon={BiUserPlus}
               />
             </div>
             <Tabs activeKey={key} onSelect={(k) => setKey(k)} className="mb-3">
-              <Tab eventKey="active" title="Active Admins" className="p-3">
+              <Tab
+                eventKey="active"
+                title={role_id === 1 ? "Active Users" : "Active Admins"}
+                className="p-3"
+              >
                 <UserList
-                  users={filteredActiveAdmins}
+                  users={filteredActiveUsers}
                   navigate={navigate}
                   loading={loading}
+                  role_id={role_id}
                 />
               </Tab>
-              <Tab eventKey="inactive" title="Inactive Admins" className="p-3">
+              <Tab
+                eventKey="inactive"
+                title={role_id === 1 ? "Inactive Users" : "Inactive Admins"}
+                className="p-3"
+              >
                 <UserList
-                  users={filteredInactiveAdmins}
+                  users={filteredInactiveUsers}
                   navigate={navigate}
                   loading={loading}
+                  role_id={role_id}
                 />
               </Tab>
             </Tabs>
@@ -98,17 +125,17 @@ const User = () => {
   );
 };
 
-const UserList = ({ users, navigate, loading }) => {
+const UserList = ({ users, navigate, loading, role_id }) => {
   if (loading) {
-    return <Loader text="Getting admins" />;
+    return <Loader text={role_id === 1 ? "Getting users" : "Getting admins"} />;
   }
 
   return (
     <ListGroup>
       {users.length > 0 ? (
-        users.map((admin) => (
+        users.map((user) => (
           <Card
-            key={admin._id}
+            key={user._id}
             className="mb-3 shadow-sm user-card"
             style={{
               border: "1px solid #ddd",
@@ -116,14 +143,14 @@ const UserList = ({ users, navigate, loading }) => {
               transition: "0.3s",
               cursor: "pointer",
             }}
-            onClick={() => navigate(`/list-users/${admin._id}`)}
+            onClick={() => navigate(`/list-users/${user._id}`)}
           >
             <Card.Body className="d-flex align-items-center justify-content-between">
               <div className="d-flex align-items-center">
-                {admin?.avtar ? (
+                {user?.avtar ? (
                   <img
-                    src={admin?.avtar}
-                    alt="Admin Avtar"
+                    src={user?.avtar}
+                    alt="User Avatar"
                     style={{
                       width: "40px",
                       height: "40px",
@@ -151,9 +178,9 @@ const UserList = ({ users, navigate, loading }) => {
                     className="mb-1"
                     style={{ fontWeight: "600", color: "#2c3e50" }}
                   >
-                    {admin.name}
+                    {user.name}
                   </h6>
-                  <p className="text-muted small mb-0">{admin.email}</p>
+                  <p className="text-muted small mb-0">{user.email}</p>
                 </div>
               </div>
               <span
@@ -166,7 +193,7 @@ const UserList = ({ users, navigate, loading }) => {
                 }}
                 onClick={(e) => {
                   e.stopPropagation();
-                  navigate("/add-admin", { state: { admin } });
+                  navigate("/add-admin", { state: { user } });
                 }}
               >
                 <BiPencil className="text-white fs-5" />
@@ -175,7 +202,7 @@ const UserList = ({ users, navigate, loading }) => {
           </Card>
         ))
       ) : (
-        <p className="text-center text-muted">No admins found.</p>
+        <p className="text-center text-muted">No users found.</p>
       )}
     </ListGroup>
   );
