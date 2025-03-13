@@ -5,8 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { loginUser } from "../../redux/slices/userSlice";
 import { useAuth } from "../../context/AuthContext";
 import { FaEye, FaEyeSlash, FaSpinner } from "react-icons/fa"; 
-import mainlogo from "./assets/Images/mainlogo.png";
-
+import mainlogo from "../../../src/assets/Images/mainlogo.png";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -53,7 +52,7 @@ const Login = () => {
       <div style={{ textAlign: "center", marginBottom: "30px" }}>
         <img
           src={mainlogo}
-          alt="Netubia"
+          alt="mainlogo"
           style={{
             objectFit: "contain",
             height: "110px",
