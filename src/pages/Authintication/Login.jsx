@@ -31,10 +31,10 @@ const Login = () => {
       const response = await dispatch(loginUser({ data: { email, password } })).unwrap();
 
       if (response.token) {
-        login(response.token, response.user); // Set auth state and user role
-        toast.success("Login successful!");
+        login(response.token, response.user); 
+ 
 
-        // Redirect user based on role
+
         if (response.user.role_id === 1) {
           navigate("/admindashboard");
         } else {
@@ -143,7 +143,7 @@ const Login = () => {
             style={{
               position: "absolute",
               right: "15px",
-              top: "50%",
+              top: "33%",
               transform: "translateY(-50%)",
               cursor: "pointer",
             }}

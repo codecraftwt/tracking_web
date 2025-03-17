@@ -146,7 +146,7 @@ const AdminDashboard = () => {
                 <Col xs={12} sm={6}>
                   <button
                     className="btn btn-outline-secondary w-100 py-2 rounded-3 fw-bold"
-                    onClick={() => navigate("/manage-plans")}
+                    onClick={() => navigate("/payment-plans")}
                   >
                     Payment Plans
                   </button>

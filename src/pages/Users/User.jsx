@@ -63,7 +63,7 @@ const User = () => {
   return (
     <div>
       <Navbar
-        pageTitle={role_id === 1 ? "All User's Details" : "All Admin's Details"}
+        pageTitle={role_id === 1 ? "All User's Details" : "All organization's Details"}
       />
 
       <main className="container my-4">
@@ -143,7 +143,13 @@ const UserList = ({ users, navigate, loading, role_id }) => {
               transition: "0.3s",
               cursor: "pointer",
             }}
-            onClick={() => navigate(`/list-users/${user._id}`)}
+            onClick={() => {
+              if (role_id === 1) {
+                navigate(`/trackingdata`);
+              } else if (role_id === 2) {
+                navigate(`/list-users/${user._id}`);
+              }
+            }}
           >
             <Card.Body className="d-flex align-items-center justify-content-between">
               <div className="d-flex align-items-center">

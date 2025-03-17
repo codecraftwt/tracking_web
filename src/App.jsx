@@ -30,6 +30,8 @@ import PrivateRoute from "./context/PrivateRoute.jsx";
 import AdminDashboard from "./pages/Dashboard/AdminDashboard.jsx";
 import PaymentPlans from "./pages/Plans/PaymentPlans.jsx";
 import TranscationHistory from "./pages/Plans/TranscationHistory.jsx";
+import TrackingData from "./pages/Users/TrackingData.jsx";
+import Locations from "./pages/Users/Locations.jsx";
 
 const SidebarLink = ({ to, icon: Icon, label }) => {
   const location = useLocation();
@@ -151,18 +153,18 @@ const App = () => {
                     <SidebarLink
                       to="/user"
                       icon={HiUsers}
-                      label="All Admin's Details"
+                      label="All organization's Details"
                     />
                     <SidebarLink
                       to="/revenue"
                       icon={BsFileEarmarkBarGraphFill}
                       label="Revenue Details"
                     />
-                    <SidebarLink
+                    {/* <SidebarLink
                       to="/add-admin"
                       icon={HiUsers}
                       label="Add New Admins"
-                    />
+                    /> */}
                     <SidebarLink
                       to="/manage-plans"
                       icon={RiVerifiedBadgeFill}
@@ -187,11 +189,11 @@ const App = () => {
                       icon={HiUsers}
                       label="All Users Details"
                     />
-                    <SidebarLink
+                    {/* <SidebarLink
                       to="/add-admin"
                       icon={HiUsers}
                       label="Add New Users"
-                    />
+                    /> */}
                     <SidebarLink
                       to="/payment-plans"
                       icon={RiVerifiedBadgeFill}
@@ -281,6 +283,24 @@ const App = () => {
               element={
                 <PrivateRoute
                   element={<TranscationHistory />}
+                  allowedRoles={[1]}
+                />
+              }
+            />
+             <Route
+              path="/trackingdata"
+              element={
+                <PrivateRoute
+                  element={<TrackingData />}
+                  allowedRoles={[1]}
+                />
+              }
+            />
+              <Route
+              path="/locations"
+              element={
+                <PrivateRoute
+                  element={<Locations />}
                   allowedRoles={[1]}
                 />
               }

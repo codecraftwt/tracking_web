@@ -42,6 +42,7 @@ const ManagePlans = () => {
     "Premium Plan",
     "Enterprise Plan",
     "Custom Plan",
+    "Add on Plan",
   ];
 
   useEffect(() => {
