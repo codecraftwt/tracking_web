@@ -2,99 +2,126 @@ import { useLocation } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import {
   GoogleMap,
-  LoadScript,
-  Polyline,
+  useJsApiLoader,
   Marker,
+  DirectionsRenderer,
 } from "@react-google-maps/api";
 import Navbar from "../../components/Navbar";
 
 const mapContainerStyle = {
   width: "100%",
-  height: "100vh",
+  height: "90vh",
 };
 
-const polylineOptions = {
-  strokeColor: "#0000FF",
-  strokeOpacity: 1,
-  strokeWeight: 4,
-};
-
+const GOOGLE_MAPS_APIKEY = "AIzaSyCzAtEFCqCmNC-fmQLmFsJr9YLCmHoL6T8"; 
 const Locations = () => {
   const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
-  const start = queryParams.get("start");
-  const end = queryParams.get("end");
-
+  const { locations } = location.state || {};
   const [coordinates, setCoordinates] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [directions, setDirections] = useState(null);
   const mapRef = useRef(null);
 
-  useEffect(() => {
-    getCoordinates();
-  }, [start, end, location.search]);
- 
-    const getCoordinates = async () => {
-      if (!start || !end) return;
-
-      try {
-        setLoading(true);
-        const geocode = async (address) => {
-          const response = await fetch(
-            `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
-              address
-            )}&key=AIzaSyCzAtEFCqCmNC-fmQLmFsJr9YLCmHoL6T8`
-          );
-          const data = await response.json();
-          return data.status === "OK"
-            ? data.results[0]?.geometry.location
-            : null;
-        };
-
-        const [startCoords, endCoords] = await Promise.all([
-          geocode(start),
-          geocode(end),
-        ]);
-
-        if (startCoords && endCoords) {
-          setCoordinates([startCoords, endCoords]);
-        }
-      } catch (error) {
-        console.error("Error fetching coordinates:", error);
-      } finally {
-        setLoading(false); // Ensure loading is set to false after fetch
-      }
-    };   
-
-  
+  const { isLoaded, loadError } = useJsApiLoader({
+    googleMapsApiKey: GOOGLE_MAPS_APIKEY,
+    libraries: ["places"],
+  });
 
   useEffect(() => {
-    if (mapRef.current && coordinates.length === 2) {
-      const bounds = new window.google.maps.LatLngBounds();
-      coordinates.forEach((coord) => bounds.extend(coord));
-      mapRef.current.fitBounds(bounds);
+    if (locations?.length) {
+      const coords = locations.map((loc) => ({
+        lat: loc.latitude,
+        lng: loc.longitude,
+      }));
+      setCoordinates(coords);
     }
-  }, [coordinates]);
+  }, [locations]);
+
+  useEffect(() => {
+    if (isLoaded && coordinates.length > 1) {
+      const directionsService = new window.google.maps.DirectionsService();
+      directionsService.route(
+        {
+          origin: coordinates[0], 
+          destination: coordinates[coordinates.length - 1], 
+          waypoints: coordinates
+            .slice(1, -1)
+            .map((coord) => ({ location: coord, stopover: false })), 
+          travelMode: window.google.maps.TravelMode.DRIVING, 
+        },
+        (result, status) => {
+          if (status === "OK") {
+            setDirections(result);
+          } else {
+            console.error("Error fetching directions:", status);
+          }
+        }
+      );
+    }
+  }, [isLoaded, coordinates]);
+
+  const handleMapLoad = (map) => {
+    mapRef.current = map;
+  };
+
+  if (loadError) return <div>Error loading maps</div>;
+  if (!isLoaded) return <div>Loading Maps...</div>;
 
   return (
     <div className="bg-white min-vh-100">
       <Navbar pageTitle="Location" showBackButton={true} />
-      <main className="container my-4">
-        <LoadScript googleMapsApiKey="AIzaSyCzAtEFCqCmNC-fmQLmFsJr9YLCmHoL6T8">
-          <GoogleMap
-            mapContainerStyle={mapContainerStyle}
-            onLoad={(map) => (mapRef.current = map)}
-            zoom={10}
-            center={coordinates[0] || { lat: 37.7749, lng: -122.4194 }}
-          >
-            {!loading && coordinates.length === 2 && (
-              <>
-                <Marker position={coordinates[0]} label="Start" />
-                <Marker position={coordinates[1]} label="End" />
-                <Polyline path={coordinates} options={polylineOptions} />
-              </>
-            )}
-          </GoogleMap>
-        </LoadScript>
+      <main
+        className="container-fluid p-0"
+        style={{ height: "calc(100vh - 56px)" }}
+      >
+        <GoogleMap
+          mapContainerStyle={mapContainerStyle}
+          onLoad={handleMapLoad}
+          options={{
+            streetViewControl: false,
+            mapTypeControl: false,
+            fullscreenControl: false,
+            center: coordinates.length ? coordinates[0] : { lat: 0, lng: 0 },
+            zoom: 14,
+          }}
+        >
+          {/* ✅ Start Marker (Blue) */}
+          {coordinates.length > 0 && (
+            <Marker
+              position={coordinates[0]}
+              title="Start Location"
+              icon={{
+                url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+                scaledSize: new window.google.maps.Size(40, 40),
+              }}
+            />
+          )}
+
+          {coordinates.length > 1 && (
+            <Marker
+              position={coordinates[coordinates.length - 1]}
+              title="End Location"
+              icon={{
+                url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png",
+                scaledSize: new window.google.maps.Size(40, 40),
+              }}
+            />
+          )}
+
+          {directions && (
+            <DirectionsRenderer
+              directions={directions}
+              options={{
+                polylineOptions: {
+                  strokeColor: "#0000FF", 
+                  strokeOpacity: 0.8,
+                  strokeWeight: 4,
+                },
+                suppressMarkers: false, 
+                suppressPolylines:false,
+              }}
+            />
+          )}
+        </GoogleMap>
       </main>
     </div>
   );

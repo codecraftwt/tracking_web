@@ -84,10 +84,11 @@ const RegisterAdmin = () => {
     payload.append("address", formData.address);
     payload.append("isActive", formData.status === "active" ? true : false);
     if (editingUser) {
-      payload.append("role_id", editingUser.role_id); 
+      payload.append("role_id", editingUser.role_id);
     } else {
-      payload.append("role_id", 1);
+      payload.append("role_id", role_id === 2 ? 1 : 0);
     }
+    
 
     if (formData.avtar) {
       payload.append("avtar", formData.avtar);

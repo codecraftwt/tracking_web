@@ -9,22 +9,30 @@ import {
   Button,
   Row,
   Col,
+  Modal,
 } from "react-bootstrap";
 import Navbar from "../../components/Navbar";
-import { BiSearch, BiUserPlus, BiPencil } from "react-icons/bi";
+import { BiSearch, BiUserPlus, BiPencil, BiTrash } from "react-icons/bi";
 import { FaUser } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { getAllAdmins, getAllUsers } from "../../redux/slices/userSlice";
+import {
+  getAllAdmins,
+  getAllUsers,
+  deleteUser,
+} from "../../redux/slices/userSlice";
 import { useDispatch, useSelector } from "react-redux";
 import Loader from "../../components/Loader";
 import CustomButton from "../../components/CustomButton";
+import { toast } from "react-toastify";
 
 const User = () => {
   const [key, setKey] = useState("active");
   const [searchQuery, setSearchQuery] = useState("");
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
   const navigate = useNavigate();
-
   const dispatch = useDispatch();
+
   const userData = JSON.parse(localStorage.getItem("user"));
   const role_id = userData?.role_id;
 
@@ -60,10 +68,29 @@ const User = () => {
       user.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const handleDeleteUser = () => {
+    dispatch(deleteUser(selectedUser._id))
+      .unwrap()
+      .then(() => {
+        setShowDeleteModal(false);
+        // Refresh data after deletion
+        if (role_id === 1) {
+          dispatch(getAllUsers(userData?._id));
+        } else if (role_id === 2) {
+          dispatch(getAllAdmins());
+        }
+      })
+      .catch((error) => {
+        toast.error("Failed to delete user");
+      });
+  };
+
   return (
     <div>
       <Navbar
-        pageTitle={role_id === 1 ? "All User's Details" : "All organization's Details"}
+        pageTitle={
+          role_id === 1 ? "All User's Details" : "All organization's Details"
+        }
       />
 
       <main className="container my-4">
@@ -92,6 +119,7 @@ const User = () => {
                 icon={BiUserPlus}
               />
             </div>
+
             <Tabs activeKey={key} onSelect={(k) => setKey(k)} className="mb-3">
               <Tab
                 eventKey="active"
@@ -103,6 +131,10 @@ const User = () => {
                   navigate={navigate}
                   loading={loading}
                   role_id={role_id}
+                  onDeleteClick={(user) => {
+                    setSelectedUser(user);
+                    setShowDeleteModal(true);
+                  }}
                 />
               </Tab>
               <Tab
@@ -115,17 +147,40 @@ const User = () => {
                   navigate={navigate}
                   loading={loading}
                   role_id={role_id}
+                  onDeleteClick={(user) => {
+                    setSelectedUser(user);
+                    setShowDeleteModal(true);
+                  }}
                 />
               </Tab>
             </Tabs>
           </Col>
         </Row>
       </main>
+
+      {/* Delete Confirmation Modal */}
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
+  <Modal.Header closeButton className="bg-danger text-white">
+    <Modal.Title>Confirm Delete</Modal.Title>
+  </Modal.Header>
+  <Modal.Body className="text-center">
+    <p className="h5">Are you sure you want to delete <strong>{selectedUser?.name}</strong>?</p>
+    <p className="text-muted">This action cannot be undone.</p>
+  </Modal.Body>
+  <Modal.Footer className="justify-content-center">
+    <Button variant="outline-secondary" onClick={() => setShowDeleteModal(false)}>
+      Cancel
+    </Button>
+    <Button variant="danger" onClick={handleDeleteUser} className="ms-3">
+      Delete
+    </Button>
+  </Modal.Footer>
+</Modal>
     </div>
   );
 };
 
-const UserList = ({ users, navigate, loading, role_id }) => {
+const UserList = ({ users, navigate, loading, role_id, onDeleteClick }) => {
   if (loading) {
     return <Loader text={role_id === 1 ? "Getting users" : "Getting admins"} />;
   }
@@ -145,7 +200,7 @@ const UserList = ({ users, navigate, loading, role_id }) => {
             }}
             onClick={() => {
               if (role_id === 1) {
-                navigate(`/trackingdata`);
+                navigate("/trackingdata", { state: { item: user } });
               } else if (role_id === 2) {
                 navigate(`/list-users/${user._id}`);
               }
@@ -189,21 +244,40 @@ const UserList = ({ users, navigate, loading, role_id }) => {
                   <p className="text-muted small mb-0">{user.email}</p>
                 </div>
               </div>
-              <span
-                className="d-flex align-items-center justify-content-center"
-                style={{
-                  width: "36px",
-                  height: "36px",
-                  borderRadius: "8px",
-                  backgroundColor: "#007bff",
-                }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate("/add-admin", { state: { user } });
-                }}
-              >
-                <BiPencil className="text-white fs-5" />
-              </span>
+              <div className="d-flex gap-2">
+                <span
+                  className="d-flex align-items-center justify-content-center"
+                  style={{
+                    width: "28px",
+                    height: "28px",
+                    borderRadius: "8px",
+                    backgroundColor: "#007bff",
+                    cursor: "pointer",
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate("/add-admin", { state: { user } });
+                  }}
+                >
+                  <BiPencil className="text-white fs-6" />
+                </span>
+                <span
+                  className="d-flex align-items-center justify-content-center"
+                  style={{
+                    width: "28px",
+                    height: "28px",
+                    borderRadius: "8px",
+                    backgroundColor: "tomato",
+                    cursor: "pointer",
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDeleteClick(user);
+                  }}
+                >
+                  <BiTrash className="text-white fs-6" />
+                </span>
+              </div>
             </Card.Body>
           </Card>
         ))

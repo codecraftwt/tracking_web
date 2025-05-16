@@ -11,7 +11,8 @@ export const loginUser = createAsyncThunk(
       const user = response?.data?.user;
 
       if (![1, 2].includes(user?.role_id)) {
-        const errorMessage = "You do not have the required permissions to log in.";
+        const errorMessage =
+          "You do not have the required permissions to log in.";
         toast.error(errorMessage);
         return rejectWithValue({ message: errorMessage });
       }
@@ -129,6 +130,21 @@ export const getAllAdmins = createAsyncThunk(
     }
   }
 );
+export const getUserTrack = createAsyncThunk(
+  "user/trackRecord",
+  async ({ id, date = "" }, { rejectWithValue }) => {
+    try {
+      const url = date
+        ? `api/tracks/usertrack/${id}?date=${date}`
+        : `api/tracks/usertrack/${id}`;
+
+      const response = await axiosInstance.get(url);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
 
 // User Slice
 const userSlice = createSlice({
@@ -139,6 +155,7 @@ const userSlice = createSlice({
     usersList: [],
     adminList: [],
     userCounts: {},
+    userTrackInfo: [],
     error: null,
   },
   reducers: {
@@ -146,6 +163,7 @@ const userSlice = createSlice({
       state.userInfo = {};
       state.usersList = [];
       state.adminList = [];
+      state.userTrackInfo = [];
       (state.userCounts = {}), (state.error = null);
       state.loading = false;
       localStorage.removeItem("token");
@@ -154,6 +172,18 @@ const userSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      .addCase(getUserTrack.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getUserTrack.fulfilled, (state, action) => {
+        state.loading = false;
+        state.userTrackInfo = action.payload?.user;
+      })
+      .addCase(getUserTrack.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
       // Handle Login
       .addCase(loginUser.pending, (state) => {
         state.loading = true;
@@ -211,7 +241,6 @@ const userSlice = createSlice({
       })
       .addCase(getAllUsers.fulfilled, (state, action) => {
         state.loading = false;
-        console.log('##################',action.payload);
         state.usersList = action.payload;
       })
       .addCase(getAllUsers.rejected, (state, action) => {
@@ -241,6 +270,21 @@ const userSlice = createSlice({
         state.userCounts = action.payload.count;
       })
       .addCase(getUserCounts.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      .addCase(deleteUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.usersList = state.usersList.filter(
+          (item) => item._id != action.payload.user._id
+        );
+      })
+      .addCase(deleteUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

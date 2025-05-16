@@ -15,7 +15,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false); 
 
   const navigate = useNavigate();
-  const { login } = useAuth(); // Use `login` from context
+  const { login } = useAuth(); 
   const dispatch = useDispatch();
 
   const handleLogin = async (e) => {
