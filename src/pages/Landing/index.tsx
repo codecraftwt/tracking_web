@@ -1,8 +1,8 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Container, Navbar, Nav, Button, Row, Col } from 'react-bootstrap';
-import { motion } from 'framer-motion';
-import { FaRoute, FaMapMarkedAlt, FaCamera } from 'react-icons/fa';
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { Container, Navbar, Nav, Button, Row, Col } from "react-bootstrap";
+import { motion } from "framer-motion";
+import { FaRoute, FaMapMarkedAlt, FaCamera } from "react-icons/fa";
 import logo333 from "../../../src/assets/Images/logo333.png";
 
 const Landing = () => {
@@ -12,42 +12,60 @@ const Landing = () => {
     <div
       className="min-vh-100 d-flex flex-column"
       style={{
-        background: 'linear-gradient(135deg, #4A90E2, #2563EB, #1E3A8A)',
-        color: '#fff',
+        background: "linear-gradient(135deg, #4A90E2, #2563EB, #1E3A8A)",
+        color: "#fff",
       }}
     >
-      <Navbar
-        expand="lg"
-        className="shadow-sm"
-        style={{
-          background: 'rgba(255, 255, 255, 0.1)',
-          backdropFilter: 'blur(10px)',
-          WebkitBackdropFilter: 'blur(10px)',
-          borderBottom: '1px solid rgba(255,255,255,0.2)',
-        }}
-      >
-        <Container>
-        <img
-            src={logo333}
-            alt="mainlogo"
-            style={{ height: "60px", marginBottom: "5px" ,paddingRight:"10px"}}
-          />
-          <Navbar.Brand style={{ color: '#fff', fontWeight: 'bold' }}>
-            Team Trackify
-          </Navbar.Brand>
-          <Navbar.Toggle aria-controls="basic-navbar-nav" className="bg-white" />
-          <Navbar.Collapse id="basic-navbar-nav" className="justify-content-end">
-            <Nav>
-              <Nav.Link onClick={() => navigate('/login')} className="text-white">
-                Login
-              </Nav.Link>
-              <Nav.Link onClick={() => navigate('/contact')} className="text-white">
-                Contact Us
-              </Nav.Link>
-            </Nav>
-          </Navbar.Collapse>
-        </Container>
-      </Navbar>
+     <Navbar
+  expand="lg"
+  className="shadow-sm"
+  style={{
+    background: "rgba(255, 255, 255, 0.1)",
+    backdropFilter: "blur(10px)",
+    WebkitBackdropFilter: "blur(10px)",
+    borderBottom: "1px solid rgba(255,255,255,0.2)",
+  }}
+>
+  <Container>
+    <img
+      src={logo333}
+      alt="mainlogo"
+      style={{
+        height: "60px",
+        marginBottom: "5px",
+        paddingRight: "10px",
+      }}
+    />
+    <Navbar.Brand style={{ color: "#fff", fontWeight: "bold" }}>
+      Team Trackify
+    </Navbar.Brand>
+    <Navbar.Toggle
+      aria-controls="basic-navbar-nav"
+      className="bg-white"
+    />
+    <Navbar.Collapse
+      id="basic-navbar-nav"
+      className="justify-content-end"
+    >
+      <Nav className="d-flex gap-2">
+        <button
+          className="btn btn-outline-light rounded-pill px-4"
+          onClick={() => navigate("/login")}
+        >
+          Login
+        </button>
+        <button
+          className="btn btn-outline-light rounded-pill px-4"
+          onClick={() => navigate("/contact")}
+          // style={{ backgroundColor: "#2563EB", borderColor: "#fff" }}
+        >
+          Contact Us
+        </button>
+      </Nav>
+    </Navbar.Collapse>
+  </Container>
+</Navbar>
+
 
       <Container className="flex-grow-1 d-flex align-items-center">
         <Row className="w-100 align-items-center">
@@ -62,12 +80,13 @@ const Landing = () => {
             </motion.h1>
             <motion.p
               className="lead mb-4"
-              style={{ color: '#e0e0e0' }}
+              style={{ color: "#e0e0e0" }}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4, duration: 0.6 }}
             >
-              Track users, monitor routes, and capture location-tagged images with precision.
+              Track users, monitor routes, and capture location-tagged images
+              with precision.
             </motion.p>
             <motion.div
               initial={{ opacity: 0, y: 10 }}
@@ -77,7 +96,7 @@ const Landing = () => {
               <Button
                 variant="light"
                 size="lg"
-                onClick={() => navigate('/login')}
+                onClick={() => navigate("/login")}
                 className="me-3 px-4 fw-semibold"
               >
                 Get Started
@@ -85,7 +104,7 @@ const Landing = () => {
               <Button
                 variant="outline-light"
                 size="lg"
-                onClick={() => navigate('/contact')}
+                onClick={() => navigate("/contact")}
                 className="px-4 fw-semibold"
               >
                 Contact Us
@@ -120,16 +139,21 @@ const Landing = () => {
         </Row>
       </Container>
 
-      <footer className="text-center py-3 mt-auto" style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}>
+      <footer
+        className="text-center py-3 mt-auto"
+        style={{ backgroundColor: "rgba(255, 255, 255, 0.05)" }}
+      >
         <div className="d-flex justify-content-center align-items-center gap-3">
-          <small className="text-light">© {new Date().getFullYear()} Team Trackify. All rights reserved.</small>
+          <small className="text-light">
+            © {new Date().getFullYear()} Team Trackify. All rights reserved.
+          </small>
           <span className="text-light">|</span>
-          <a 
-            href="/privacy-policy" 
+          <a
+            href="/privacy-policy"
             className="text-light text-decoration-none"
             onClick={(e) => {
               e.preventDefault();
-              navigate('/privacy-policy');
+              navigate("/privacy-policy");
             }}
           >
             Privacy Policy
@@ -146,15 +170,15 @@ const FeatureCard = ({ icon, title, description }) => (
     className="rounded-4 p-4 text-center"
     style={{
       width: 180,
-      background: 'rgba(255,255,255,0.1)',
-      boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
-      color: '#fff',
-      border: '1px solid rgba(255,255,255,0.2)',
+      background: "rgba(255,255,255,0.1)",
+      boxShadow: "0 4px 15px rgba(0,0,0,0.2)",
+      color: "#fff",
+      border: "1px solid rgba(255,255,255,0.2)",
     }}
   >
     <div className="mb-3">{icon}</div>
     <h5 className="fw-semibold mb-2">{title}</h5>
-    <p className="small" style={{ color: '#dcdcdc' }}>
+    <p className="small" style={{ color: "#dcdcdc" }}>
       {description}
     </p>
   </motion.div>
