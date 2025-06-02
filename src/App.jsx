@@ -32,6 +32,9 @@ import PaymentPlans from "./pages/Plans/PaymentPlans.jsx";
 import TranscationHistory from "./pages/Plans/TranscationHistory.jsx";
 import TrackingData from "./pages/Users/TrackingData.jsx";
 import Locations from "./pages/Users/Locations.jsx";
+import Landing from "./pages/Landing/index.tsx";
+import Contact from "./pages/Contact/index.tsx";
+import PrivacyPolicy from "./pages/PrivacyPolicy/index.tsx";
 
 const SidebarLink = ({ to, icon: Icon, label }) => {
   const location = useLocation();
@@ -111,7 +114,7 @@ const App = () => {
         fontFamily: "Poppins, sans-serif",
       }}
     >
-      {location.pathname !== "/" && (
+      {location.pathname !== "/" && location.pathname !== "/contact" && location.pathname !== "/login" && location.pathname !== "/privacy-policy" && (
         <aside
           className="text-white p-3"
           style={{
@@ -220,7 +223,10 @@ const App = () => {
       <div style={{ flexGrow: 1, overflowY: "auto" }}>
         <AuthProvider>
           <Routes>
-            <Route path="/" element={<Login />} />
+            <Route path="/" element={<Landing />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route
               path="/dashboard"
               element={
