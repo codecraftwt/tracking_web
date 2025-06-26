@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 
 import Navbar from "../../components/Navbar";
-import { AiOutlineCloseCircle } from "react-icons/ai";
+import { AiOutlineCloseCircle, AiOutlineUser, AiOutlineMail, AiOutlineLock, AiOutlinePhone, AiOutlineHome, AiOutlineCamera } from "react-icons/ai";
 import { registerUser, updateUser } from "../../redux/slices/userSlice";
 
 const RegisterAdmin = () => {
@@ -115,139 +115,260 @@ const RegisterAdmin = () => {
   return (
     <div className="bg-white min-vh-100">
       <Navbar pageTitle={editingUser ? getRoleBasedLabel("Edit Admin") : getRoleBasedLabel("Add New Admin")} />
-      <main className="container py-4">
+      <main className="container py-5">
         <section>
-          <div className="row justify-content-center formStyle">
-            <div className="col-md-8 col-lg-8">
-              <div className="shadow-sm p-4 rounded bg-light">
-                <h4 className="text-center my-4 text-primary">
-                  {editingUser ? getRoleBasedLabel("Edit Admin Details") : getRoleBasedLabel("Register New Admin")}
-                </h4>
-                <form onSubmit={handleSubmit}>
-                  {[
-                    {
-                      label: "Full Name",
-                      name: "fullName",
-                      type: "text",
-                      placeholder: "Enter a full name",
-                    },
-                    {
-                      label: "Email",
-                      name: "email",
-                      type: "email",
-                      placeholder: "Enter an email",
-                    },
-                    ...(editingUser
-                      ? []
-                      : [
-                          {
-                            label: "Password",
-                            name: "password",
-                            type: "password",
-                            placeholder: "Enter a password",
-                          },
-                          {
-                            label: "Confirm Password",
-                            name: "confirmPassword",
-                            type: "password",
-                            placeholder: "Confirm password",
-                          },
-                        ]),
-                    {
-                      label: "Mobile Number",
-                      name: "mobile",
-                      type: "text",
-                      placeholder: "Enter a mobile number",
-                    },
-                    {
-                      label: "Address",
-                      name: "address",
-                      type: "text",
-                      placeholder: "Enter an address",
-                    },
-                  ].map((field, index) => (
-                    <div className="mb-3" key={index}>
-                      <label className="form-label fw-bold">
-                        {field.label}
-                      </label>
-                      <input
-                        type={field.type}
-                        name={field.name}
-                        placeholder={field.placeholder}
-                        className="form-control"
-                        value={formData[field.name]}
-                        onChange={handleChange}
-                        required={
-                          field.name !== "password" &&
-                          field.name !== "confirmPassword"
-                        }
-                      />
+          <div className="row justify-content-center">
+            <div className="col-md-10 col-lg-8">
+              <div className="card shadow border-0" style={{ borderRadius: '15px' }}>
+                <div className="card-header bg-primary text-white text-center py-4" style={{ borderRadius: '15px 15px 0 0' }}>
+                  <h4 className="mb-0 fw-bold">
+                    <AiOutlineUser className="me-2" />
+                    {editingUser ? getRoleBasedLabel("Edit Admin Details") : getRoleBasedLabel("Register New Admin")}
+                  </h4>
+                </div>
+                
+                <div className="card-body p-5">
+                  <form onSubmit={handleSubmit}>
+                    {/* Full Name */}
+                    <div className="mb-4">
+                      <div className="form-group">
+                        <label className="form-label fw-semibold text-dark mb-2">
+                          <AiOutlineUser className="me-2 text-primary" />
+                          Full Name
+                        </label>
+                        <input
+                          type="text"
+                          name="fullName"
+                          className="form-control form-control-lg"
+                          placeholder="Enter full name"
+                          value={formData.fullName}
+                          onChange={handleChange}
+                          required
+                          style={{ borderRadius: '8px', border: '1px solid #e0e0e0' }}
+                        />
+                      </div>
                     </div>
-                  ))}
 
-                  <div className="mb-3">
-                    <label className="form-label fw-bold">Status</label>
-                    <div className="d-flex gap-3">
-                      {["Active", "Inactive"].map((status, index) => (
-                        <div className="form-check" key={index}>
-                          <input
-                            type="radio"
-                            name="status"
-                            value={status.toLowerCase()}
-                            checked={formData.status === status.toLowerCase()}
-                            onChange={handleChange}
-                            className="form-check-input"
-                          />
-                          <label className="form-check-label">{status}</label>
+                    {/* Email */}
+                    <div className="mb-4">
+                      <div className="form-group">
+                        <label className="form-label fw-semibold text-dark mb-2">
+                          <AiOutlineMail className="me-2 text-primary" />
+                          Email Address
+                        </label>
+                        <input
+                          type="email"
+                          name="email"
+                          className="form-control form-control-lg"
+                          placeholder="Enter email address"
+                          value={formData.email}
+                          onChange={handleChange}
+                          required
+                          style={{ borderRadius: '8px', border: '1px solid #e0e0e0' }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Password Fields - Only show if not editing */}
+                    {!editingUser && (
+                      <>
+                        <div className="mb-4">
+                          <div className="form-group">
+                            <label className="form-label fw-semibold text-dark mb-2">
+                              <AiOutlineLock className="me-2 text-primary" />
+                              Password
+                            </label>
+                            <input
+                              type="password"
+                              name="password"
+                              className="form-control form-control-lg"
+                              placeholder="Enter password"
+                              value={formData.password}
+                              onChange={handleChange}
+                              required
+                              style={{ borderRadius: '8px', border: '1px solid #e0e0e0' }}
+                            />
+                          </div>
                         </div>
-                      ))}
+
+                        <div className="mb-4">
+                          <div className="form-group">
+                            <label className="form-label fw-semibold text-dark mb-2">
+                              <AiOutlineLock className="me-2 text-primary" />
+                              Confirm Password
+                            </label>
+                            <input
+                              type="password"
+                              name="confirmPassword"
+                              className="form-control form-control-lg"
+                              placeholder="Confirm password"
+                              value={formData.confirmPassword}
+                              onChange={handleChange}
+                              required
+                              style={{ borderRadius: '8px', border: '1px solid #e0e0e0' }}
+                            />
+                          </div>
+                        </div>
+                      </>
+                    )}
+
+                    {/* Mobile Number */}
+                    <div className="mb-4">
+                      <div className="form-group">
+                        <label className="form-label fw-semibold text-dark mb-2">
+                          <AiOutlinePhone className="me-2 text-primary" />
+                          Mobile Number
+                        </label>
+                        <input
+                          type="text"
+                          name="mobile"
+                          className="form-control form-control-lg"
+                          placeholder="Enter mobile number"
+                          value={formData.mobile}
+                          onChange={handleChange}
+                          required
+                          style={{ borderRadius: '8px', border: '1px solid #e0e0e0' }}
+                        />
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="mb-3">
-                    <label className="form-label fw-bold">Profile Photo</label>
-                    <input
-                      type="file"
-                      className="form-control"
-                      onChange={handleImageChange}
-                      accept="image/*"
-                    />
-                  </div>
-
-                  {previewImage && (
-                    <div className="mb-3 text-center position-relative d-inline-block">
-                      <img
-                        src={previewImage}
-                        alt="Preview"
-                        className="img-thumbnail"
-                        style={{
-                          width: "80px",
-                          height: "80px",
-                          objectFit: "cover",
-                          borderRadius: "10px",
-                          marginRight: "8px",
-                        }}
-                      />
-                      <AiOutlineCloseCircle
-                        className="position-absolute"
-                        style={{
-                          top: "-8px",
-                          right: "-8px",
-                          cursor: "pointer",
-                          fontSize: "20px",
-                          color: "red",
-                          background: "white",
-                          borderRadius: "50%",
-                        }}
-                        onClick={removeImage}
-                      />
+                    {/* Address */}
+                    <div className="mb-4">
+                      <div className="form-group">
+                        <label className="form-label fw-semibold text-dark mb-2">
+                          <AiOutlineHome className="me-2 text-primary" />
+                          Address
+                        </label>
+                        <input
+                          type="text"
+                          name="address"
+                          className="form-control form-control-lg"
+                          placeholder="Enter address"
+                          value={formData.address}
+                          onChange={handleChange}
+                          required
+                          style={{ borderRadius: '8px', border: '1px solid #e0e0e0' }}
+                        />
+                      </div>
                     </div>
-                  )}
 
-                  <button type="submit" className="btn btn-primary w-100 mt-2">
-                    {editingUser ? getRoleBasedLabel("Update Admin") : getRoleBasedLabel("Register Admin")}
-                  </button>
-                </form>
+                    {/* Status Section */}
+                    <div className="mb-4">
+                      <label className="form-label fw-semibold text-dark mb-3">
+                        Account Status
+                      </label>
+                      <div className="d-flex gap-4">
+                        {[
+                          { value: "active", label: "Active", color: "success" },
+                          { value: "inactive", label: "Inactive", color: "secondary" }
+                        ].map((status, index) => (
+                          <div className="form-check" key={index}>
+                            <input
+                              type="radio"
+                              name="status"
+                              value={status.value}
+                              checked={formData.status === status.value}
+                              onChange={handleChange}
+                              className="form-check-input"
+                              style={{ transform: 'scale(1.3)', marginTop: '2px' }}
+                            />
+                            <label className="form-check-label fw-medium ms-2">
+                              <span className={`badge bg-${status.color} px-3 py-2`}>
+                                {status.label}
+                              </span>
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Profile Photo Section */}
+                    <div className="mb-4">
+                      <label className="form-label fw-semibold text-dark mb-3">
+                        <AiOutlineCamera className="me-2 text-primary" />
+                        Profile Photo
+                      </label>
+                      
+                      <div className="row align-items-center">
+                        <div className="col-md-8">
+                          <input
+                            type="file"
+                            className="form-control form-control-lg"
+                            onChange={handleImageChange}
+                            accept="image/*"
+                            style={{ borderRadius: '8px', border: '1px solid #e0e0e0' }}
+                          />
+                          <div className="form-text text-muted mt-1">
+                            Upload a profile picture (JPG, PNG, GIF up to 5MB)
+                          </div>
+                        </div>
+                        
+                        {previewImage && (
+                          <div className="col-md-4 text-center">
+                            <div className="position-relative d-inline-block">
+                              <img
+                                src={previewImage}
+                                alt="Profile Preview"
+                                className="img-thumbnail"
+                                style={{
+                                  width: "100px",
+                                  height: "100px",
+                                  objectFit: "cover",
+                                  borderRadius: "50%",
+                                  border: "3px solid #007bff",
+                                  boxShadow: "0 4px 15px rgba(0,0,0,0.1)"
+                                }}
+                              />
+                              <button
+                                type="button"
+                                className="btn btn-danger btn-sm position-absolute"
+                                style={{
+                                  top: "-8px",
+                                  right: "-8px",
+                                  borderRadius: "50%",
+                                  width: "30px",
+                                  height: "30px",
+                                  padding: "0",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center"
+                                }}
+                                onClick={removeImage}
+                              >
+                                <AiOutlineCloseCircle />
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Submit Button */}
+                    <div className="d-grid gap-2 mt-5">
+                      <button 
+                        type="submit" 
+                        className="btn btn-primary btn-lg fw-bold"
+                        style={{ 
+                          borderRadius: '10px',
+                          padding: '15px 30px',
+                          fontSize: '18px',
+                          boxShadow: '0 4px 15px rgba(0, 123, 255, 0.3)',
+                          transition: 'all 0.3s ease'
+                        }}
+                        onMouseOver={(e) => {
+                          e.target.style.transform = 'translateY(-2px)';
+                          e.target.style.boxShadow = '0 6px 20px rgba(0, 123, 255, 0.4)';
+                        }}
+                        onMouseOut={(e) => {
+                          e.target.style.transform = 'translateY(0)';
+                          e.target.style.boxShadow = '0 4px 15px rgba(0, 123, 255, 0.3)';
+                        }}
+                      >
+                        {editingUser ? getRoleBasedLabel("Update Admin") : getRoleBasedLabel("Register Admin")}
+                      </button>
+                    </div>
+                  </form>
+                </div>
               </div>
             </div>
           </div>

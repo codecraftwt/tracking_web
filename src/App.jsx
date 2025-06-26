@@ -15,7 +15,7 @@ import { HiUsers } from "react-icons/hi";
 import { BsFileEarmarkBarGraphFill } from "react-icons/bs";
 import { RiVerifiedBadgeFill } from "react-icons/ri";
 import { toast, ToastContainer } from "react-toastify";
-import logo from "./assets/Images/logo.png";
+import logo from "./assets/Images/logo31.png";
 import "react-toastify/dist/ReactToastify.css";
 import Dashboard from "./pages/Dashboard/Dashboard.jsx";
 import User from "./pages/Users/User.jsx";
@@ -40,31 +40,31 @@ const SidebarLink = ({ to, icon: Icon, label }) => {
   const location = useLocation();
   const isActive = location.pathname === to;
   return (
-    <li
-      className={isActive ? "active-sidebar-item" : ""}
-      style={{ marginBlock: 5, paddingBlock: 5 }}
-    >
+    <li className="mb-3">
       <Link
         to={to}
-        className="text-decoration-none d-flex align-items-center"
+        className={`text-decoration-none d-flex align-items-center p-2 rounded-2 transition-all ${
+          isActive 
+            ? "bg-white text-primary shadow-sm" 
+            : "text-white"
+        }`}
         style={{
           gap: "10px",
-          backgroundColor: isActive ? "#fff" : "transparent",
-          height: 44.6,
-          padding: "10px",
-          borderTopLeftRadius: "25px",
-          borderBottomLeftRadius: "25px",
-          marginRight: "-17px",
-          paddingLeft: 15,
+          transition: "all 0.3s ease",
+          border: isActive ? "1px solid rgba(59, 130, 246, 0.2)" : "1px solid transparent",
         }}
       >
-        <Icon size={22} color={isActive ? "#192233" : "#fff"} />
+        <div className={`p-1 rounded-2 ${isActive ? "bg-primary" : "bg-white bg-opacity-10"}`}>
+          <Icon 
+            size={18} 
+            color={isActive ? "#fff" : "#fff"} 
+          />
+        </div>
         <span
           style={{
-            fontSize: "16px",
-            fontWeight: 600,
+            fontSize: "14px",
+            fontWeight: isActive ? "600" : "500",
             fontFamily: "Poppins, sans-serif",
-            color: isActive ? "#000" : "#fff",
           }}
         >
           {label}
@@ -112,40 +112,77 @@ const App = () => {
         display: "flex",
         height: "100vh",
         fontFamily: "Poppins, sans-serif",
+        background: "#f8fafc",
       }}
     >
       {location.pathname !== "/" && location.pathname !== "/contact" && location.pathname !== "/login" && location.pathname !== "/privacy-policy" && (
         <aside
-          className="text-white p-3"
+          className="p-3"
           style={{
-            minWidth: "290px",
-            backgroundColor: "#4A90E2",
+            minWidth: "280px",
+            background: "linear-gradient(135deg, #3B82F6, #2563EB)",
             minHeight: "100vh",
             display: "flex",
             flexDirection: "column",
             justifyContent: "space-between",
+            boxShadow: "4px 0 20px rgba(0, 0, 0, 0.1)",
+            position: "relative",
+            overflow: "hidden",
           }}
         >
-          <div>
+          {/* Background Pattern */}
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: "radial-gradient(circle at 20% 80%, rgba(255,255,255,0.1) 0%, transparent 50%)",
+              pointerEvents: "none",
+            }}
+          />
+
+          <div style={{ position: "relative", zIndex: 1 }}>
+            {/* Logo Section */}
             <div
-              className="d-flex align-items-center mb-4"
-              style={{ gap: "15px" }}
+              className="d-flex align-items-center mb-4 p-2 rounded-3"
+              style={{
+                background: "rgba(255, 255, 255, 0.15)",
+                backdropFilter: "blur(10px)",
+                border: "1px solid rgba(255, 255, 255, 0.2)",
+                gap: "12px",
+              }}
             >
-              <img src={logo} alt="Logo" width="40" />
-              <h4
-                className="mb-0"
+              <div
+                className="p-1 rounded-2"
                 style={{
-                  fontSize: "24px",
-                  fontFamily: "'Poppins', sans-serif",
-                  fontWeight: 700,
+                  background: "rgba(255, 255, 255, 0.2)",
+                  backdropFilter: "blur(5px)",
                 }}
               >
-                Trackify
-              </h4>
+                <img src={logo} alt="Logo" width="30" />
+              </div>
+              <div>
+                <h5
+                  className="mb-0 text-white"
+                  style={{
+                    fontSize: "20px",
+                    fontFamily: "Poppins, sans-serif",
+                    fontWeight: 700,
+                  }}
+                >
+                  Team Trackify
+                </h5>
+                <small className="text-white text-opacity-75" style={{ fontSize: "11px" }}>
+                  Admin Panel
+                </small>
+              </div>
             </div>
 
+            {/* Navigation */}
             <nav>
-              <ul className="list-unstyled" style={{ marginTop: "120px" }}>
+              <ul className="list-unstyled" style={{ marginTop: "25px" }}>
                 {role_id === 2 && (
                   <>
                     <SidebarLink
@@ -156,27 +193,22 @@ const App = () => {
                     <SidebarLink
                       to="/user"
                       icon={HiUsers}
-                      label="All organization's Details"
+                      label="Organization Details"
                     />
                     <SidebarLink
                       to="/revenue"
                       icon={BsFileEarmarkBarGraphFill}
-                      label="Revenue Details"
+                      label="Revenue Analytics"
                     />
-                    {/* <SidebarLink
-                      to="/add-admin"
-                      icon={HiUsers}
-                      label="Add New Admins"
-                    /> */}
                     <SidebarLink
                       to="/manage-plans"
                       icon={RiVerifiedBadgeFill}
-                      label="Manage Plans"
+                      label="Plan Management"
                     />
                     <SidebarLink
                       to="/profile"
                       icon={CgProfile}
-                      label="Profile"
+                      label="Profile Settings"
                     />
                   </>
                 )}
@@ -190,13 +222,8 @@ const App = () => {
                     <SidebarLink
                       to="/user"
                       icon={HiUsers}
-                      label="All Users Details"
+                      label="User Management"
                     />
-                    {/* <SidebarLink
-                      to="/add-admin"
-                      icon={HiUsers}
-                      label="Add New Users"
-                    /> */}
                     <SidebarLink
                       to="/payment-plans"
                       icon={RiVerifiedBadgeFill}
@@ -210,17 +237,40 @@ const App = () => {
                     <SidebarLink
                       to="/profile"
                       icon={CgProfile}
-                      label="Profile"
+                      label="Profile Settings"
                     />
                   </>
                 )}
               </ul>
             </nav>
           </div>
+
+          {/* Footer Section */}
+          <div style={{ position: "relative", zIndex: 1 }}>
+            <div
+              className="p-2 rounded-3 text-center"
+              style={{
+                background: "rgba(255, 255, 255, 0.1)",
+                backdropFilter: "blur(10px)",
+                border: "1px solid rgba(255, 255, 255, 0.2)",
+              }}
+            >
+              <small className="text-white text-opacity-75">
+                © 2024 Team Trackify
+              </small>
+            </div>
+          </div>
         </aside>
       )}
 
-      <div style={{ flexGrow: 1, overflowY: "auto" }}>
+      {/* Main Content Area */}
+      <div 
+        style={{ 
+          flexGrow: 1, 
+          overflowY: "auto",
+          background: "#f8fafc",
+        }}
+      >
         <AuthProvider>
           <Routes>
             <Route path="/" element={<Landing />} />

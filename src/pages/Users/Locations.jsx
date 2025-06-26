@@ -13,7 +13,7 @@ const mapContainerStyle = {
   height: "90vh",
 };
 
-const GOOGLE_MAPS_APIKEY = "AIzaSyCzAtEFCqCmNC-fmQLmFsJr9YLCmHoL6T8"; 
+const GOOGLE_MAPS_APIKEY = "AIzaSyBO02PT60O5rJxH4QuRQc_hmbtUjuTN3jI"; 
 const Locations = () => {
   const location = useLocation();
   const { locations } = location.state || {};
