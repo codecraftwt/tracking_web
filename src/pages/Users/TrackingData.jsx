@@ -2,7 +2,14 @@ import React, { useState, useEffect } from "react";
 import Navbar from "../../components/Navbar";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { FaCalendarAlt, FaEye, FaRoute, FaClock, FaMapMarkerAlt, FaArrowRight } from "react-icons/fa";
+import {
+  FaCalendarAlt,
+  FaEye,
+  FaRoute,
+  FaClock,
+  FaMapMarkerAlt,
+  FaArrowRight,
+} from "react-icons/fa";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -19,7 +26,8 @@ const TrackingData = () => {
   const [loading, setLoading] = useState(false);
 
   // Check if user is coming back from `/locations`
-  const isReturningFromLocations = sessionStorage.getItem("returningFromLocations") === "true";
+  const isReturningFromLocations =
+    sessionStorage.getItem("returningFromLocations") === "true";
 
   // Function to get stored date, reset only if coming from a different page
   const getStoredDate = () => {
@@ -49,9 +57,9 @@ const TrackingData = () => {
   useEffect(() => {
     if (selectedDate) {
       setLoading(true);
-      dispatch(getUserTrack({ id: trackData?._id, date: formattedDate })).finally(() =>
-        setLoading(false)
-      );
+      dispatch(
+        getUserTrack({ id: trackData?._id, date: formattedDate })
+      ).finally(() => setLoading(false));
     }
   }, [selectedDate, dispatch, trackData?._id, formattedDate]);
 
@@ -59,7 +67,19 @@ const TrackingData = () => {
   const handleDateChange = (date) => {
     setSelectedDate(date);
     localStorage.setItem("selectedDate", date);
+    setShowCalendar(false); // Close calendar after selection
   };
+
+  // Clear filter and show latest data
+  const clearFilter = () => {
+    const today = new Date();
+    setSelectedDate(today);
+    localStorage.removeItem("selectedDate"); // Remove stored date
+    setShowCalendar(false);
+  };
+
+  // Check if current date is today
+  const isToday = selectedDate.toDateString() === new Date().toDateString();
 
   // Handle navigation to locations page
   const handleViewLocations = (locations) => {
@@ -69,7 +89,9 @@ const TrackingData = () => {
 
   // Filter data based on selected date
   const filteredData = data?.filter((item) => {
-    return new Date(item.createdAt).toDateString() === selectedDate.toDateString();
+    return (
+      new Date(item.createdAt).toDateString() === selectedDate.toDateString()
+    );
   });
 
   const formatTime = (timestamp) => {
@@ -90,9 +112,17 @@ const TrackingData = () => {
             <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap">
               <div className="d-flex align-items-center mb-2 mb-sm-0">
                 <FaRoute className="me-2" style={{ color: "#3B82F6" }} />
-                <h5 className="fw-bold mb-0" style={{ color: "#374151" }}>
-                  Tracking Routes
-                </h5>
+                <div>
+                  <h5 className="fw-bold mb-0" style={{ color: "#374151" }}>
+                    Tracking Routes
+                  </h5>
+                  <small className="text-muted">
+                    {isToday 
+                      ? "Showing latest tracking data" 
+                      : `Showing data for ${selectedDate.toLocaleDateString()}`
+                    }
+                  </small>
+                </div>
               </div>
               <Badge
                 bg="primary"
@@ -104,54 +134,100 @@ const TrackingData = () => {
             </div>
 
             {/* Date Filter Section */}
-            <Card className="border-0 shadow-sm mb-4" style={{ borderRadius: "12px" }}>
+            <Card
+              className="border-0 shadow-sm mb-4"
+              style={{ borderRadius: "12px" }}
+            >
               <Card.Body className="p-4">
                 <div className="d-flex justify-content-between align-items-center flex-wrap gap-3">
                   <div className="d-flex align-items-center">
-                    <FaCalendarAlt className="me-2" style={{ color: "#3B82F6" }} />
+                    <FaCalendarAlt
+                      className="me-2"
+                      style={{ color: "#3B82F6" }}
+                    />
                     <span className="fw-semibold" style={{ color: "#374151" }}>
-                      {selectedDate.toLocaleDateString('en-US', { 
-                        weekday: 'long', 
-                        year: 'numeric', 
-                        month: 'long', 
-                        day: 'numeric' 
+                      {selectedDate.toLocaleDateString("en-US", {
+                        weekday: "long",
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
                       })}
                     </span>
+                    {!isToday && (
+                      <Badge
+                        bg="warning"
+                        className="ms-2 px-2 py-1"
+                        style={{ fontSize: "10px" }}
+                      >
+                        Filtered
+                      </Badge>
+                    )}
                   </div>
-                  
-                  <Button
-                    variant="outline-primary"
-                    className="d-flex align-items-center"
-                    onClick={() => setShowCalendar(!showCalendar)}
-                    style={{ borderRadius: "8px" }}
-                  >
-                    <FaCalendarAlt className="me-2" />
-                    Change Date
-                  </Button>
+
+                  <div className="d-flex align-items-center gap-2">
+                    {!isToday && (
+                      <Button
+                        variant="outline-secondary"
+                        size="sm"
+                        onClick={clearFilter}
+                        className="d-flex align-items-center"
+                        style={{ borderRadius: "8px" }}
+                      >
+                        <FaArrowRight className="me-1" />
+                        Clear Filter
+                      </Button>
+                    )}
+                    <div style={{ position: "relative" }}>
+                      <Button
+                        variant="outline-primary"
+                        className="d-flex align-items-center"
+                        onClick={() => setShowCalendar(!showCalendar)}
+                        style={{ borderRadius: "8px" }}
+                      >
+                        <FaCalendarAlt className="me-2" />
+                        Change Date
+                      </Button>
+                      
+                      {showCalendar && (
+                        <div 
+                          style={{ 
+                            position: "absolute", 
+                            top: "100%", 
+                            right: 0, 
+                            zIndex: 1000,
+                            marginTop: "8px"
+                          }}
+                        >
+                          <DatePicker
+                            selected={selectedDate}
+                            onChange={handleDateChange}
+                            inline
+                            style={{
+                              borderRadius: "8px",
+                              border: "1px solid #e5e7eb",
+                              backgroundColor: "white",
+                              boxShadow: "0 4px 12px rgba(0,0,0,0.15)"
+                            }}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
-                
-                {showCalendar && (
-                  <div className="mt-3">
-                    <DatePicker
-                      selected={selectedDate}
-                      onChange={handleDateChange}
-                      className="form-control"
-                      placeholderText="Select a date"
-                      style={{ 
-                        borderRadius: "8px",
-                        border: "1px solid #e5e7eb"
-                      }}
-                    />
-                  </div>
-                )}
               </Card.Body>
             </Card>
 
             {/* Loading State */}
             {loading && (
-              <Card className="border-0 shadow-sm text-center py-5" style={{ borderRadius: "12px" }}>
+              <Card
+                className="border-0 shadow-sm text-center py-5"
+                style={{ borderRadius: "12px" }}
+              >
                 <Card.Body>
-                  <div className="spinner-border text-primary mb-3" role="status">
+                  <div
+                    className="spinner-border text-primary mb-3"
+                    role="status"
+                  >
                     <span className="visually-hidden">Loading...</span>
                   </div>
                   <h6 className="text-muted">Loading tracking data...</h6>
@@ -161,7 +237,10 @@ const TrackingData = () => {
 
             {/* Empty State */}
             {!loading && filteredData?.length === 0 && (
-              <Card className="border-0 shadow-sm text-center py-5" style={{ borderRadius: "12px" }}>
+              <Card
+                className="border-0 shadow-sm text-center py-5"
+                style={{ borderRadius: "12px" }}
+              >
                 <Card.Body>
                   <FaRoute size={48} className="text-muted mb-3" />
                   <h6 className="text-muted">No tracking records found</h6>
@@ -176,9 +255,9 @@ const TrackingData = () => {
             {!loading && filteredData?.length > 0 && (
               <div className="d-flex flex-column gap-3">
                 {filteredData.map((data, index) => (
-                  <Card 
-                    key={data.id} 
-                    className="border-0 shadow-sm" 
+                  <Card
+                    key={`${data._id || data.id || 'track'}-${index}-${data.createdAt}`}
+                    className="border-0 shadow-sm"
                     style={{ borderRadius: "12px" }}
                   >
                     <Card.Body className="p-4">
@@ -189,7 +268,10 @@ const TrackingData = () => {
                               <FaRoute size={20} style={{ color: "#3B82F6" }} />
                             </div>
                             <div>
-                              <h6 className="fw-semibold mb-1" style={{ color: "#1f2937" }}>
+                              <h6
+                                className="fw-semibold mb-1"
+                                style={{ color: "#1f2937" }}
+                              >
                                 Tracking Session #{index + 1}
                               </h6>
                               <small className="text-muted">
@@ -201,22 +283,38 @@ const TrackingData = () => {
                           <div className="row">
                             <div className="col-md-6 mb-2">
                               <div className="d-flex align-items-center">
-                                <FaClock className="me-2" style={{ color: "#22C55E" }} />
+                                <FaClock
+                                  className="me-2"
+                                  style={{ color: "#22C55E" }}
+                                />
                                 <div>
-                                  <small className="text-muted d-block">Check In</small>
-                                  <span className="fw-semibold" style={{ color: "#374151" }}>
+                                  <small className="text-muted d-block">
+                                    Check In
+                                  </small>
+                                  <span
+                                    className="fw-semibold"
+                                    style={{ color: "#374151" }}
+                                  >
                                     {formatTime(data?.createdAt)}
                                   </span>
                                 </div>
                               </div>
                             </div>
-                            
+
                             <div className="col-md-6 mb-2">
                               <div className="d-flex align-items-center">
-                                <FaClock className="me-2" style={{ color: "#F59E0B" }} />
+                                <FaClock
+                                  className="me-2"
+                                  style={{ color: "#F59E0B" }}
+                                />
                                 <div>
-                                  <small className="text-muted d-block">Check Out</small>
-                                  <span className="fw-semibold" style={{ color: "#374151" }}>
+                                  <small className="text-muted d-block">
+                                    Check Out
+                                  </small>
+                                  <span
+                                    className="fw-semibold"
+                                    style={{ color: "#374151" }}
+                                  >
                                     {formatTime(data.end_at)}
                                   </span>
                                 </div>
@@ -225,7 +323,10 @@ const TrackingData = () => {
                           </div>
 
                           <div className="d-flex align-items-center">
-                            <FaMapMarkerAlt className="me-2" style={{ color: "#3B82F6" }} />
+                            <FaMapMarkerAlt
+                              className="me-2"
+                              style={{ color: "#3B82F6" }}
+                            />
                             <small className="text-muted">
                               {data?.locations?.length || 0} locations tracked
                             </small>
@@ -236,9 +337,9 @@ const TrackingData = () => {
                           variant="primary"
                           className="d-flex align-items-center"
                           onClick={() => handleViewLocations(data?.locations)}
-                          style={{ 
+                          style={{
                             borderRadius: "8px",
-                            whiteSpace: "nowrap"
+                            whiteSpace: "nowrap",
                           }}
                         >
                           <FaEye className="me-2" />

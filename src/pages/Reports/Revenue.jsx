@@ -9,7 +9,8 @@ import {
   FaCalendarAlt, 
   FaSearch,
   FaChartLine,
-  FaFilter
+  FaFilter,
+  FaRupeeSign
 } from "react-icons/fa";
 
 const Revenue = () => {
@@ -17,41 +18,41 @@ const Revenue = () => {
   const [filterMonth, setFilterMonth] = useState("all");
 
   const paidUsers = [
-    { 
-      name: "John Doe", 
-      date: "2025-03-01", 
-      amount: 100,
-      status: "completed",
-      plan: "Premium"
-    },
-    { 
-      name: "Jane Smith", 
-      date: "2025-03-02", 
-      amount: 200,
-      status: "completed",
-      plan: "Enterprise"
-    },
-    { 
-      name: "Mike Johnson", 
-      date: "2025-03-03", 
-      amount: 150,
-      status: "completed",
-      plan: "Standard"
-    },
-    { 
-      name: "Sarah Wilson", 
-      date: "2025-03-04", 
-      amount: 300,
-      status: "completed",
-      plan: "Enterprise"
-    },
-    { 
-      name: "David Brown", 
-      date: "2025-03-05", 
-      amount: 75,
-      status: "completed",
-      plan: "Basic"
-    },
+    // { 
+    //   name: "John Doe", 
+    //   date: "2025-03-01", 
+    //   amount: 100,
+    //   status: "completed",
+    //   plan: "Premium"
+    // },
+    // { 
+    //   name: "Jane Smith", 
+    //   date: "2025-03-02", 
+    //   amount: 200,
+    //   status: "completed",
+    //   plan: "Enterprise"
+    // },
+    // { 
+    //   name: "Mike Johnson", 
+    //   date: "2025-03-03", 
+    //   amount: 150,
+    //   status: "completed",
+    //   plan: "Standard"
+    // },
+    // { 
+    //   name: "Sarah Wilson", 
+    //   date: "2025-03-04", 
+    //   amount: 300,
+    //   status: "completed",
+    //   plan: "Enterprise"
+    // },
+    // { 
+    //   name: "David Brown", 
+    //   date: "2025-03-05", 
+    //   amount: 75,
+    //   status: "completed",
+    //   plan: "Basic"
+    // },
   ];
 
   // Calculate total revenue dynamically
@@ -113,11 +114,11 @@ const Revenue = () => {
                             color: "#22C55E"
                           }}
                         >
-                          <FaDollarSign size={14} />
+                          <FaRupeeSign size={14} />
                         </div>
                       </div>
                       <h6 className="fw-bold mb-0" style={{ color: "#1f2937", fontSize: "1.1rem" }}>
-                        ${totalRevenue.toLocaleString()}
+                       {totalRevenue.toLocaleString()}
                       </h6>
                       <p className="text-muted mb-0" style={{ fontSize: "0.7rem" }}>Total Revenue</p>
                     </Card.Body>
@@ -161,7 +162,7 @@ const Revenue = () => {
                         </div>
                       </div>
                       <h6 className="fw-bold mb-0" style={{ color: "#1f2937", fontSize: "1.1rem" }}>
-                        ${averageRevenue.toFixed(0)}
+                        {averageRevenue.toFixed(0)}
                       </h6>
                       <p className="text-muted mb-0" style={{ fontSize: "0.7rem" }}>Average Revenue</p>
                     </Card.Body>
@@ -292,8 +293,8 @@ const Revenue = () => {
                         className="text-primary px-3 py-2 rounded-pill"
                         style={{ fontSize: "14px" }}
                       >
-                        <FaDollarSign className="me-2" />
-                        ${totalRevenue.toLocaleString()}
+                        <FaRupeeSign className="me-2" />
+                       {totalRevenue.toLocaleString()}
                       </Badge>
                     </div>
                   </div>
@@ -382,7 +383,7 @@ const Revenue = () => {
                             </td>
                             <td className="border-0 p-3 text-end">
                               <span className="fw-bold text-success fs-6">
-                                ${user.amount.toLocaleString()}
+                               {user.amount.toLocaleString()}
                               </span>
                             </td>
                             <td className="border-0 p-3 text-center">
@@ -403,7 +404,7 @@ const Revenue = () => {
                   {filteredUsers.length === 0 && (
                     <div className="text-center py-5">
                       <div className="mb-3">
-                        <FaDollarSign size={48} className="text-muted" />
+                      <FaRupeeSign size={48} className="text-muted" />
                       </div>
                       <h6 className="text-muted">No revenue data found</h6>
                       <p className="text-muted small">

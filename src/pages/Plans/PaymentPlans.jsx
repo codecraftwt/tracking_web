@@ -366,7 +366,6 @@ const PaymentPlans = () => {
                               e.currentTarget.style.transform = "scale(1)";
                             }}
                           >
-                            {/* <FaDollarSign className="me-1" style={{ color: getPlanColor(plan.name) }} /> */}
                             <h3
                               className="fw-bold mb-0"
                               style={{ color: getPlanColor(plan.name) }}

@@ -1,12 +1,13 @@
 import { useLocation } from "react-router-dom";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import {
   GoogleMap,
   useJsApiLoader,
   Marker,
-  DirectionsRenderer,
+  Polyline,
 } from "@react-google-maps/api";
 import Navbar from "../../components/Navbar";
+import "./Locations.css"; // We'll create this CSS file
 
 const mapContainerStyle = {
   width: "100%",
@@ -14,11 +15,13 @@ const mapContainerStyle = {
 };
 
 const GOOGLE_MAPS_APIKEY = "AIzaSyBO02PT60O5rJxH4QuRQc_hmbtUjuTN3jI"; 
+
 const Locations = () => {
   const location = useLocation();
   const { locations } = location.state || {};
   const [coordinates, setCoordinates] = useState([]);
-  const [directions, setDirections] = useState(null);
+  const [mapCenter, setMapCenter] = useState({ lat: 0, lng: 0 });
+  const [mapZoom, setMapZoom] = useState(14);
   const mapRef = useRef(null);
 
   const { isLoaded, loadError } = useJsApiLoader({
@@ -26,49 +29,101 @@ const Locations = () => {
     libraries: ["places"],
   });
 
+  // Process locations and set coordinates
   useEffect(() => {
     if (locations?.length) {
       const coords = locations.map((loc) => ({
-        lat: loc.latitude,
-        lng: loc.longitude,
-      }));
+        lat: parseFloat(loc.latitude),
+        lng: parseFloat(loc.longitude),
+        timestamp: loc.timestamp || loc.createdAt,
+        accuracy: loc.accuracy
+      })).filter(coord => coord.lat && coord.lng); // Filter out invalid coordinates
+      
       setCoordinates(coords);
+      
+      // Set map center to the middle of the route
+      if (coords.length > 0) {
+        const midIndex = Math.floor(coords.length / 2);
+        setMapCenter(coords[midIndex]);
+        
+        // Calculate appropriate zoom level based on route distance
+        if (coords.length > 1 && window.google && window.google.maps) {
+          const bounds = new window.google.maps.LatLngBounds();
+          coords.forEach(coord => bounds.extend(coord));
+          const ne = bounds.getNorthEast();
+          const sw = bounds.getSouthWest();
+          const latDiff = Math.abs(ne.lat() - sw.lat());
+          const lngDiff = Math.abs(ne.lng() - sw.lng());
+          const maxDiff = Math.max(latDiff, lngDiff);
+          
+          // Set zoom based on the maximum difference
+          if (maxDiff > 0.1) setMapZoom(10);
+          else if (maxDiff > 0.05) setMapZoom(12);
+          else if (maxDiff > 0.01) setMapZoom(14);
+          else setMapZoom(16);
+        }
+      }
     }
   }, [locations]);
 
-  useEffect(() => {
-    if (isLoaded && coordinates.length > 1) {
-      const directionsService = new window.google.maps.DirectionsService();
-      directionsService.route(
-        {
-          origin: coordinates[0], 
-          destination: coordinates[coordinates.length - 1], 
-          waypoints: coordinates
-            .slice(1, -1)
-            .map((coord) => ({ location: coord, stopover: false })), 
-          travelMode: window.google.maps.TravelMode.DRIVING, 
-        },
-        (result, status) => {
-          if (status === "OK") {
-            setDirections(result);
-          } else {
-            console.error("Error fetching directions:", status);
-          }
-        }
-      );
-    }
-  }, [isLoaded, coordinates]);
-
-  const handleMapLoad = (map) => {
+  const handleMapLoad = useCallback((map) => {
     mapRef.current = map;
+    
+    // Fit bounds to show all markers
+    if (coordinates.length > 0 && window.google && window.google.maps) {
+      const bounds = new window.google.maps.LatLngBounds();
+      coordinates.forEach(coord => bounds.extend(coord));
+      map.fitBounds(bounds);
+      
+      // Add some padding to the bounds
+      const listener = window.google.maps.event.addListenerOnce(map, 'bounds_changed', () => {
+        map.setZoom(Math.min(map.getZoom(), 16));
+      });
+    }
+  }, [coordinates]);
+
+  // Custom marker icons
+  const startIcon = {
+    url: "http://maps.google.com/mapfiles/ms/icons/green-dot.png",
+    scaledSize: window.google && window.google.maps ? new window.google.maps.Size(32, 32) : undefined,
+    anchor: window.google && window.google.maps ? new window.google.maps.Point(16, 32) : undefined
   };
 
-  if (loadError) return <div>Error loading maps</div>;
-  if (!isLoaded) return <div>Loading Maps...</div>;
+  const endIcon = {
+    url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png",
+    scaledSize: window.google && window.google.maps ? new window.google.maps.Size(32, 32) : undefined,
+    anchor: window.google && window.google.maps ? new window.google.maps.Point(16, 32) : undefined
+  };
+
+  const waypointIcon = {
+    url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+    scaledSize: window.google && window.google.maps ? new window.google.maps.Size(24, 24) : undefined,
+    anchor: window.google && window.google.maps ? new window.google.maps.Point(12, 24) : undefined
+  };
+
+  if (loadError) return (
+    <div className="min-vh-100 d-flex align-items-center justify-content-center error-container">
+      <div className="text-center">
+        <h4>Error loading maps</h4>
+        <p className="text-light">Please check your internet connection</p>
+      </div>
+    </div>
+  );
+  
+  if (!isLoaded) return (
+    <div className="min-vh-100 d-flex align-items-center justify-content-center loading-container">
+      <div className="text-center">
+        <div className="spinner-border text-light mb-3" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+        <h4>Loading Maps...</h4>
+      </div>
+    </div>
+  );
 
   return (
     <div className="bg-white min-vh-100">
-      <Navbar pageTitle="Location" showBackButton={true} />
+      <Navbar pageTitle="Route Tracking" showBackButton={true} />
       <main
         className="container-fluid p-0"
         style={{ height: "calc(100vh - 56px)" }}
@@ -76,52 +131,120 @@ const Locations = () => {
         <GoogleMap
           mapContainerStyle={mapContainerStyle}
           onLoad={handleMapLoad}
+          center={mapCenter}
+          zoom={mapZoom}
           options={{
             streetViewControl: false,
-            mapTypeControl: false,
-            fullscreenControl: false,
-            center: coordinates.length ? coordinates[0] : { lat: 0, lng: 0 },
-            zoom: 14,
+            mapTypeControl: true,
+            fullscreenControl: true,
+            zoomControl: true,
+            scaleControl: true,
+            styles: [
+              {
+                featureType: "poi",
+                elementType: "labels",
+                stylers: [{ visibility: "off" }]
+              }
+            ]
           }}
         >
-          {/* ✅ Start Marker (Blue) */}
+          {/* Route Polyline */}
+          {coordinates.length > 1 && (
+            <Polyline
+              path={coordinates}
+              options={{
+                strokeColor: "#3B82F6",
+                strokeOpacity: 0.8,
+                strokeWeight: 4,
+                geodesic: true,
+                icons: window.google && window.google.maps ? [
+                  {
+                    icon: {
+                      path: window.google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+                      scale: 3,
+                      strokeColor: "#3B82F6"
+                    },
+                    offset: "50%",
+                    repeat: "100px"
+                  }
+                ] : undefined
+              }}
+            />
+          )}
+
+          {/* Start Marker */}
           {coordinates.length > 0 && (
             <Marker
               position={coordinates[0]}
               title="Start Location"
-              icon={{
-                url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
-                scaledSize: new window.google.maps.Size(40, 40),
+              icon={startIcon}
+              label={{
+                text: "START",
+                className: "marker-label start-label",
+                color: "white",
+                fontSize: "12px",
+                fontWeight: "bold"
               }}
             />
           )}
 
+          {/* End Marker */}
           {coordinates.length > 1 && (
             <Marker
               position={coordinates[coordinates.length - 1]}
               title="End Location"
-              icon={{
-                url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png",
-                scaledSize: new window.google.maps.Size(40, 40),
-              }}
-            />
-          )}
-
-          {directions && (
-            <DirectionsRenderer
-              directions={directions}
-              options={{
-                polylineOptions: {
-                  strokeColor: "#0000FF", 
-                  strokeOpacity: 0.8,
-                  strokeWeight: 4,
-                },
-                suppressMarkers: false, 
-                suppressPolylines:false,
+              icon={endIcon}
+              label={{
+                text: "END",
+                className: "marker-label end-label",
+                color: "white",
+                fontSize: "12px",
+                fontWeight: "bold"
               }}
             />
           )}
         </GoogleMap>
+
+        {/* Route Information Panel */}
+        {coordinates.length > 0 && (
+          <div 
+            className="position-absolute top-0 end-0 m-3 p-3 route-info-panel rounded"
+            style={{ 
+              maxWidth: "300px",
+              zIndex: 1000
+            }}
+          >
+            <h6 className="fw-bold mb-2">Route Information</h6>
+            <div className="small">
+              <div className="d-flex justify-content-between mb-1">
+                <span>Total Points:</span>
+                <span className="fw-semibold">{coordinates.length}</span>
+              </div>
+              <div className="d-flex justify-content-between mb-1">
+                <span>Start Time:</span>
+                <span className="fw-semibold">
+                  {coordinates[0]?.timestamp ? 
+                    new Date(coordinates[0].timestamp).toLocaleTimeString() : 
+                    'N/A'
+                  }
+                </span>
+              </div>
+              <div className="d-flex justify-content-between mb-1">
+                <span>End Time:</span>
+                <span className="fw-semibold">
+                  {coordinates[coordinates.length - 1]?.timestamp ? 
+                    new Date(coordinates[coordinates.length - 1].timestamp).toLocaleTimeString() : 
+                    'N/A'
+                  }
+                </span>
+              </div>
+              <div className="d-flex justify-content-between">
+                <span>Route Type:</span>
+                <span className="fw-semibold text-primary">GPS Tracking</span>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );

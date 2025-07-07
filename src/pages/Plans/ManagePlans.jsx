@@ -383,7 +383,7 @@ const ManagePlans = () => {
                                 <td className="border-0 p-3" style={{ background: rowBg }}>
                                   <div className="d-flex align-items-center">
                                     <span className="fw-bold text-success">
-                                      ${plan.price}
+                                      {plan.price}
                                     </span>
                                   </div>
                                 </td>
@@ -644,7 +644,7 @@ const ManagePlans = () => {
             {/* Price */}
             <Form.Group className="mb-4">
               <Form.Label className="fw-semibold text-dark mb-2">
-                Price ($)
+                Price (₹)
               </Form.Label>
               <Form.Control
                 type="number"

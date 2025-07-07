@@ -17,6 +17,7 @@ import {
   FaArrowUp,
   FaArrowDown,
   FaCalendarAlt,
+  FaRupeeSign
 } from "react-icons/fa";
 
 const Dashboard = () => {
@@ -199,7 +200,7 @@ const Dashboard = () => {
             </motion.section>
             <motion.section variants={itemVariants} className="mb-5">
               <div className="d-flex align-items-center mb-4">
-                <FaDollarSign className="me-2" style={{ color: "#3B82F6" }} />
+                <FaRupeeSign className="me-2" style={{ color: "#3B82F6" }} />
                 <h5 className="fw-bold mb-0" style={{ color: "#374151" }}>
                   Revenue Overview
                 </h5>
@@ -219,7 +220,7 @@ const Dashboard = () => {
       <div>
         <h6 className="text-white-50 mb-1">Total Revenue</h6>
         <h2 className="fw-bold mb-0">
-          ${revenueData.total.toLocaleString()}
+          {revenueData.total.toLocaleString()}
         </h2>
       </div>
       <div className="text-end">
@@ -249,7 +250,7 @@ const Dashboard = () => {
           <div className="d-flex align-items-center justify-content-between">
             <div>
               <h5 className="fw-bold mb-1">
-                ${revenueData.thisMonth.toLocaleString()}
+                {revenueData.thisMonth.toLocaleString()}
               </h5>
               <p className="text-white-50 small mb-0">This Month</p>
             </div>
@@ -268,7 +269,7 @@ const Dashboard = () => {
           <div className="d-flex align-items-center justify-content-between">
             <div>
               <h5 className="fw-bold mb-1">
-                ${revenueData.lastMonth.toLocaleString()}
+                {revenueData.lastMonth.toLocaleString()}
               </h5>
               <p className="text-white-50 small mb-0">Last Month</p>
             </div>
