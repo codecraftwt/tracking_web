@@ -73,3 +73,12 @@
 .route-info-panel::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
 } 
+
+
+.marker-label {
+  font-weight: bold;
+  background: white;
+  padding: 2px 5px;
+  border-radius: 4px;
+  white-space: nowrap;
+}

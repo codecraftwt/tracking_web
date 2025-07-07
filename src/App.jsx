@@ -35,6 +35,7 @@ import Locations from "./pages/Users/Locations.jsx";
 import Landing from "./pages/Landing/index.tsx";
 import Contact from "./pages/Contact/index.tsx";
 import PrivacyPolicy from "./pages/PrivacyPolicy/index.tsx";
+import ActiveUserLocations from "./pages/Users/ActiveUserLocations.jsx";
 
 const SidebarLink = ({ to, icon: Icon, label }) => {
   const location = useLocation();
@@ -44,21 +45,22 @@ const SidebarLink = ({ to, icon: Icon, label }) => {
       <Link
         to={to}
         className={`text-decoration-none d-flex align-items-center p-2 rounded-2 transition-all ${
-          isActive 
-            ? "bg-white text-primary shadow-sm" 
-            : "text-white"
+          isActive ? "bg-white text-primary shadow-sm" : "text-white"
         }`}
         style={{
           gap: "10px",
           transition: "all 0.3s ease",
-          border: isActive ? "1px solid rgba(59, 130, 246, 0.2)" : "1px solid transparent",
+          border: isActive
+            ? "1px solid rgba(59, 130, 246, 0.2)"
+            : "1px solid transparent",
         }}
       >
-        <div className={`p-1 rounded-2 ${isActive ? "bg-primary" : "bg-white bg-opacity-10"}`}>
-          <Icon 
-            size={18} 
-            color={isActive ? "#fff" : "#fff"} 
-          />
+        <div
+          className={`p-1 rounded-2 ${
+            isActive ? "bg-primary" : "bg-white bg-opacity-10"
+          }`}
+        >
+          <Icon size={18} color={isActive ? "#fff" : "#fff"} />
         </div>
         <span
           style={{
@@ -115,158 +117,165 @@ const App = () => {
         background: "#f8fafc",
       }}
     >
-      {location.pathname !== "/" && location.pathname !== "/contact" && location.pathname !== "/login" && location.pathname !== "/privacy-policy" && (
-        <aside
-          className="p-3"
-          style={{
-            minWidth: "280px",
-            background: "linear-gradient(135deg, #3B82F6, #2563EB)",
-            minHeight: "100vh",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "space-between",
-            boxShadow: "4px 0 20px rgba(0, 0, 0, 0.1)",
-            position: "relative",
-            overflow: "hidden",
-          }}
-        >
-          {/* Background Pattern */}
-          <div
+      {location.pathname !== "/" &&
+        location.pathname !== "/contact" &&
+        location.pathname !== "/login" &&
+        location.pathname !== "/privacy-policy" && (
+          <aside
+            className="p-3"
             style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: "radial-gradient(circle at 20% 80%, rgba(255,255,255,0.1) 0%, transparent 50%)",
-              pointerEvents: "none",
+              minWidth: "280px",
+              background: "linear-gradient(135deg, #3B82F6, #2563EB)",
+              minHeight: "100vh",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              boxShadow: "4px 0 20px rgba(0, 0, 0, 0.1)",
+              position: "relative",
+              overflow: "hidden",
             }}
-          />
-
-          <div style={{ position: "relative", zIndex: 1 }}>
-            {/* Logo Section */}
+          >
+            {/* Background Pattern */}
             <div
-              className="d-flex align-items-center mb-4 p-2 rounded-3"
               style={{
-                background: "rgba(255, 255, 255, 0.15)",
-                backdropFilter: "blur(10px)",
-                border: "1px solid rgba(255, 255, 255, 0.2)",
-                gap: "12px",
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                background:
+                  "radial-gradient(circle at 20% 80%, rgba(255,255,255,0.1) 0%, transparent 50%)",
+                pointerEvents: "none",
               }}
-            >
+            />
+
+            <div style={{ position: "relative", zIndex: 1 }}>
+              {/* Logo Section */}
               <div
-                className="p-1 rounded-2"
+                className="d-flex align-items-center mb-4 p-2 rounded-3"
                 style={{
-                  background: "rgba(255, 255, 255, 0.2)",
-                  backdropFilter: "blur(5px)",
+                  background: "rgba(255, 255, 255, 0.15)",
+                  backdropFilter: "blur(10px)",
+                  border: "1px solid rgba(255, 255, 255, 0.2)",
+                  gap: "12px",
                 }}
               >
-                <img src={logo} alt="Logo" width="30" />
-              </div>
-              <div>
-                <h5
-                  className="mb-0 text-white"
+                <div
+                  className="p-1 rounded-2"
                   style={{
-                    fontSize: "20px",
-                    fontFamily: "Poppins, sans-serif",
-                    fontWeight: 700,
+                    background: "rgba(255, 255, 255, 0.2)",
+                    backdropFilter: "blur(5px)",
                   }}
                 >
-                  Team Trackify
-                </h5>
-                <small className="text-white text-opacity-75" style={{ fontSize: "11px" }}>
-                  Admin Panel
+                  <img src={logo} alt="Logo" width="30" />
+                </div>
+                <div>
+                  <h5
+                    className="mb-0 text-white"
+                    style={{
+                      fontSize: "20px",
+                      fontFamily: "Poppins, sans-serif",
+                      fontWeight: 700,
+                    }}
+                  >
+                    Team Trackify
+                  </h5>
+                  <small
+                    className="text-white text-opacity-75"
+                    style={{ fontSize: "11px" }}
+                  >
+                    Admin Panel
+                  </small>
+                </div>
+              </div>
+
+              {/* Navigation */}
+              <nav>
+                <ul className="list-unstyled" style={{ marginTop: "25px" }}>
+                  {role_id === 2 && (
+                    <>
+                      <SidebarLink
+                        to="/dashboard"
+                        icon={MdDashboard}
+                        label="Dashboard"
+                      />
+                      <SidebarLink
+                        to="/user"
+                        icon={HiUsers}
+                        label="Organization Details"
+                      />
+                      <SidebarLink
+                        to="/revenue"
+                        icon={BsFileEarmarkBarGraphFill}
+                        label="Revenue Analytics"
+                      />
+                      <SidebarLink
+                        to="/manage-plans"
+                        icon={RiVerifiedBadgeFill}
+                        label="Plan Management"
+                      />
+                      <SidebarLink
+                        to="/profile"
+                        icon={CgProfile}
+                        label="Profile Settings"
+                      />
+                    </>
+                  )}
+                  {role_id === 1 && (
+                    <>
+                      <SidebarLink
+                        to="/admindashboard"
+                        icon={MdDashboard}
+                        label="Admin Dashboard"
+                      />
+                      <SidebarLink
+                        to="/user"
+                        icon={HiUsers}
+                        label="User Management"
+                      />
+                      <SidebarLink
+                        to="/payment-plans"
+                        icon={RiVerifiedBadgeFill}
+                        label="Payment Plans"
+                      />
+                      <SidebarLink
+                        to="/transactionhistory"
+                        icon={RiVerifiedBadgeFill}
+                        label="Transaction History"
+                      />
+                      <SidebarLink
+                        to="/profile"
+                        icon={CgProfile}
+                        label="Profile Settings"
+                      />
+                    </>
+                  )}
+                </ul>
+              </nav>
+            </div>
+
+            {/* Footer Section */}
+            <div style={{ position: "relative", zIndex: 1 }}>
+              <div
+                className="p-2 rounded-3 text-center"
+                style={{
+                  background: "rgba(255, 255, 255, 0.1)",
+                  backdropFilter: "blur(10px)",
+                  border: "1px solid rgba(255, 255, 255, 0.2)",
+                }}
+              >
+                <small className="text-white text-opacity-75">
+                  © {new Date().getFullYear()} Team Trackify
                 </small>
               </div>
             </div>
-
-            {/* Navigation */}
-            <nav>
-              <ul className="list-unstyled" style={{ marginTop: "25px" }}>
-                {role_id === 2 && (
-                  <>
-                    <SidebarLink
-                      to="/dashboard"
-                      icon={MdDashboard}
-                      label="Dashboard"
-                    />
-                    <SidebarLink
-                      to="/user"
-                      icon={HiUsers}
-                      label="Organization Details"
-                    />
-                    <SidebarLink
-                      to="/revenue"
-                      icon={BsFileEarmarkBarGraphFill}
-                      label="Revenue Analytics"
-                    />
-                    <SidebarLink
-                      to="/manage-plans"
-                      icon={RiVerifiedBadgeFill}
-                      label="Plan Management"
-                    />
-                    <SidebarLink
-                      to="/profile"
-                      icon={CgProfile}
-                      label="Profile Settings"
-                    />
-                  </>
-                )}
-                {role_id === 1 && (
-                  <>
-                    <SidebarLink
-                      to="/admindashboard"
-                      icon={MdDashboard}
-                      label="Admin Dashboard"
-                    />
-                    <SidebarLink
-                      to="/user"
-                      icon={HiUsers}
-                      label="User Management"
-                    />
-                    <SidebarLink
-                      to="/payment-plans"
-                      icon={RiVerifiedBadgeFill}
-                      label="Payment Plans"
-                    />
-                    <SidebarLink
-                      to="/transactionhistory"
-                      icon={RiVerifiedBadgeFill}
-                      label="Transaction History"
-                    />
-                    <SidebarLink
-                      to="/profile"
-                      icon={CgProfile}
-                      label="Profile Settings"
-                    />
-                  </>
-                )}
-              </ul>
-            </nav>
-          </div>
-
-          {/* Footer Section */}
-          <div style={{ position: "relative", zIndex: 1 }}>
-            <div
-              className="p-2 rounded-3 text-center"
-              style={{
-                background: "rgba(255, 255, 255, 0.1)",
-                backdropFilter: "blur(10px)",
-                border: "1px solid rgba(255, 255, 255, 0.2)",
-              }}
-            >
-              <small className="text-white text-opacity-75">
-                © 2024 Team Trackify
-              </small>
-            </div>
-          </div>
-        </aside>
-      )}
+          </aside>
+        )}
 
       {/* Main Content Area */}
-      <div 
-        style={{ 
-          flexGrow: 1, 
+      <div
+        style={{
+          flexGrow: 1,
           overflowY: "auto",
           background: "#f8fafc",
         }}
@@ -343,20 +352,23 @@ const App = () => {
                 />
               }
             />
-             <Route
+            <Route
               path="/trackingdata"
               element={
-                <PrivateRoute
-                  element={<TrackingData />}
-                  allowedRoles={[1]}
-                />
+                <PrivateRoute element={<TrackingData />} allowedRoles={[1]} />
               }
             />
-              <Route
+            <Route
               path="/locations"
               element={
+                <PrivateRoute element={<Locations />} allowedRoles={[1]} />
+              }
+            />
+            <Route
+              path="/active-locations"
+              element={
                 <PrivateRoute
-                  element={<Locations />}
+                  element={<ActiveUserLocations />}
                   allowedRoles={[1]}
                 />
               }

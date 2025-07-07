@@ -3,7 +3,15 @@ import { useDispatch, useSelector } from "react-redux";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 
 import Navbar from "../../components/Navbar";
-import { AiOutlineCloseCircle, AiOutlineUser, AiOutlineMail, AiOutlineLock, AiOutlinePhone, AiOutlineHome, AiOutlineCamera } from "react-icons/ai";
+import {
+  AiOutlineCloseCircle,
+  AiOutlineUser,
+  AiOutlineMail,
+  AiOutlineLock,
+  AiOutlinePhone,
+  AiOutlineHome,
+  AiOutlineCamera,
+} from "react-icons/ai";
 import { registerUser, updateUser } from "../../redux/slices/userSlice";
 
 const RegisterAdmin = () => {
@@ -88,7 +96,6 @@ const RegisterAdmin = () => {
     } else {
       payload.append("role_id", role_id === 2 ? 1 : 0);
     }
-    
 
     if (formData.avtar) {
       payload.append("avtar", formData.avtar);
@@ -114,37 +121,57 @@ const RegisterAdmin = () => {
 
   return (
     <div className="bg-white min-vh-100">
-      <Navbar pageTitle={editingUser ? getRoleBasedLabel("Edit Admin") : getRoleBasedLabel("Add New Admin")} />
+      <Navbar
+        pageTitle={
+          editingUser
+            ? getRoleBasedLabel("Edit Admin")
+            : getRoleBasedLabel("Add New Admin")
+        }
+      />
       <main className="container py-5">
         <section>
           <div className="row justify-content-center">
             <div className="col-md-10 col-lg-8">
-              <div className="card shadow border-0" style={{ borderRadius: '15px' }}>
-                <div className="card-header bg-primary text-white text-center py-4" style={{ borderRadius: '15px 15px 0 0' }}>
-                  <h4 className="mb-0 fw-bold">
+              <div
+                className="card shadow border-0"
+                style={{ borderRadius: "15px" }}
+              >
+                <div
+                  className="card-header bg-primary text-white text-center py-4"
+                  style={{ borderRadius: "15px 15px 0 0" }}
+                >
+                  <h4 className="mb-0 fw-bold" style={{ fontSize: "1.2rem" }}>
                     <AiOutlineUser className="me-2" />
-                    {editingUser ? getRoleBasedLabel("Edit Admin Details") : getRoleBasedLabel("Register New Admin")}
+                    {editingUser
+                      ? getRoleBasedLabel("Edit Admin Details")
+                      : getRoleBasedLabel("Register New Admin")}
                   </h4>
                 </div>
-                
+
                 <div className="card-body p-5">
                   <form onSubmit={handleSubmit}>
                     {/* Full Name */}
                     <div className="mb-4">
                       <div className="form-group">
-                        <label className="form-label fw-semibold text-dark mb-2">
+                        <label
+                          className="form-label fw-semibold text-dark mb-2"
+                          style={{ fontSize: "0.9rem" }}
+                        >
                           <AiOutlineUser className="me-2 text-primary" />
                           Full Name
                         </label>
                         <input
                           type="text"
                           name="fullName"
-                          className="form-control form-control-lg"
+                          className="form-control form-control-sm"
                           placeholder="Enter full name"
                           value={formData.fullName}
                           onChange={handleChange}
                           required
-                          style={{ borderRadius: '8px', border: '1px solid #e0e0e0' }}
+                          style={{
+                            borderRadius: "8px",
+                            border: "1px solid #e0e0e0",
+                          }}
                         />
                       </div>
                     </div>
@@ -159,12 +186,15 @@ const RegisterAdmin = () => {
                         <input
                           type="email"
                           name="email"
-                          className="form-control form-control-lg"
+                          className="form-control form-control-sm"
                           placeholder="Enter email address"
                           value={formData.email}
                           onChange={handleChange}
                           required
-                          style={{ borderRadius: '8px', border: '1px solid #e0e0e0' }}
+                          style={{
+                            borderRadius: "8px",
+                            border: "1px solid #e0e0e0",
+                          }}
                         />
                       </div>
                     </div>
@@ -181,12 +211,15 @@ const RegisterAdmin = () => {
                             <input
                               type="password"
                               name="password"
-                              className="form-control form-control-lg"
+                              className="form-control form-control-sm"
                               placeholder="Enter password"
                               value={formData.password}
                               onChange={handleChange}
                               required
-                              style={{ borderRadius: '8px', border: '1px solid #e0e0e0' }}
+                              style={{
+                                borderRadius: "8px",
+                                border: "1px solid #e0e0e0",
+                              }}
                             />
                           </div>
                         </div>
@@ -200,12 +233,15 @@ const RegisterAdmin = () => {
                             <input
                               type="password"
                               name="confirmPassword"
-                              className="form-control form-control-lg"
+                              className="form-control form-control-sm"
                               placeholder="Confirm password"
                               value={formData.confirmPassword}
                               onChange={handleChange}
                               required
-                              style={{ borderRadius: '8px', border: '1px solid #e0e0e0' }}
+                              style={{
+                                borderRadius: "8px",
+                                border: "1px solid #e0e0e0",
+                              }}
                             />
                           </div>
                         </div>
@@ -222,12 +258,15 @@ const RegisterAdmin = () => {
                         <input
                           type="text"
                           name="mobile"
-                          className="form-control form-control-lg"
+                          className="form-control form-control-sm"
                           placeholder="Enter mobile number"
                           value={formData.mobile}
                           onChange={handleChange}
                           required
-                          style={{ borderRadius: '8px', border: '1px solid #e0e0e0' }}
+                          style={{
+                            borderRadius: "8px",
+                            border: "1px solid #e0e0e0",
+                          }}
                         />
                       </div>
                     </div>
@@ -242,12 +281,15 @@ const RegisterAdmin = () => {
                         <input
                           type="text"
                           name="address"
-                          className="form-control form-control-lg"
+                          className="form-control form-control-sm"
                           placeholder="Enter address"
                           value={formData.address}
                           onChange={handleChange}
                           required
-                          style={{ borderRadius: '8px', border: '1px solid #e0e0e0' }}
+                          style={{
+                            borderRadius: "8px",
+                            border: "1px solid #e0e0e0",
+                          }}
                         />
                       </div>
                     </div>
@@ -259,8 +301,16 @@ const RegisterAdmin = () => {
                       </label>
                       <div className="d-flex gap-4">
                         {[
-                          { value: "active", label: "Active", color: "success" },
-                          { value: "inactive", label: "Inactive", color: "secondary" }
+                          {
+                            value: "active",
+                            label: "Active",
+                            color: "success",
+                          },
+                          {
+                            value: "inactive",
+                            label: "Inactive",
+                            color: "secondary",
+                          },
                         ].map((status, index) => (
                           <div className="form-check" key={index}>
                             <input
@@ -270,10 +320,15 @@ const RegisterAdmin = () => {
                               checked={formData.status === status.value}
                               onChange={handleChange}
                               className="form-check-input"
-                              style={{ transform: 'scale(1.3)', marginTop: '2px' }}
+                              style={{
+                                transform: "scale(1.3)",
+                                marginTop: "2px",
+                              }}
                             />
                             <label className="form-check-label fw-medium ms-2">
-                              <span className={`badge bg-${status.color} px-3 py-2`}>
+                              <span
+                                className={`badge bg-${status.color} px-3 py-2`}
+                              >
                                 {status.label}
                               </span>
                             </label>
@@ -288,21 +343,24 @@ const RegisterAdmin = () => {
                         <AiOutlineCamera className="me-2 text-primary" />
                         Profile Photo
                       </label>
-                      
+
                       <div className="row align-items-center">
                         <div className="col-md-8">
                           <input
                             type="file"
-                            className="form-control form-control-lg"
+                            className="form-control form-control-sm"
                             onChange={handleImageChange}
                             accept="image/*"
-                            style={{ borderRadius: '8px', border: '1px solid #e0e0e0' }}
+                            style={{
+                              borderRadius: "8px",
+                              border: "1px solid #e0e0e0",
+                            }}
                           />
                           <div className="form-text text-muted mt-1">
                             Upload a profile picture (JPG, PNG, GIF up to 5MB)
                           </div>
                         </div>
-                        
+
                         {previewImage && (
                           <div className="col-md-4 text-center">
                             <div className="position-relative d-inline-block">
@@ -316,7 +374,7 @@ const RegisterAdmin = () => {
                                   objectFit: "cover",
                                   borderRadius: "50%",
                                   border: "3px solid #007bff",
-                                  boxShadow: "0 4px 15px rgba(0,0,0,0.1)"
+                                  boxShadow: "0 4px 15px rgba(0,0,0,0.1)",
                                 }}
                               />
                               <button
@@ -331,7 +389,7 @@ const RegisterAdmin = () => {
                                   padding: "0",
                                   display: "flex",
                                   alignItems: "center",
-                                  justifyContent: "center"
+                                  justifyContent: "center",
                                 }}
                                 onClick={removeImage}
                               >
@@ -345,26 +403,30 @@ const RegisterAdmin = () => {
 
                     {/* Submit Button */}
                     <div className="d-grid gap-2 mt-5">
-                      <button 
-                        type="submit" 
-                        className="btn btn-primary btn-lg fw-bold"
-                        style={{ 
-                          borderRadius: '10px',
-                          padding: '15px 30px',
-                          fontSize: '18px',
-                          boxShadow: '0 4px 15px rgba(0, 123, 255, 0.3)',
-                          transition: 'all 0.3s ease'
+                      <button
+                        type="submit"
+                        className="btn btn-primary btn-sm fw-bold"
+                        style={{
+                          borderRadius: "10px",
+                          padding: "10px 20px",
+                          fontSize: "0.95rem",
+                          boxShadow: "0 4px 15px rgba(0, 123, 255, 0.3)",
+                          transition: "all 0.3s ease",
                         }}
                         onMouseOver={(e) => {
-                          e.target.style.transform = 'translateY(-2px)';
-                          e.target.style.boxShadow = '0 6px 20px rgba(0, 123, 255, 0.4)';
+                          e.target.style.transform = "translateY(-2px)";
+                          e.target.style.boxShadow =
+                            "0 6px 20px rgba(0, 123, 255, 0.4)";
                         }}
                         onMouseOut={(e) => {
-                          e.target.style.transform = 'translateY(0)';
-                          e.target.style.boxShadow = '0 4px 15px rgba(0, 123, 255, 0.3)';
+                          e.target.style.transform = "translateY(0)";
+                          e.target.style.boxShadow =
+                            "0 4px 15px rgba(0, 123, 255, 0.3)";
                         }}
                       >
-                        {editingUser ? getRoleBasedLabel("Update Admin") : getRoleBasedLabel("Register Admin")}
+                        {editingUser
+                          ? getRoleBasedLabel("Update Admin")
+                          : getRoleBasedLabel("Register Admin")}
                       </button>
                     </div>
                   </form>

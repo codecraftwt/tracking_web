@@ -114,6 +114,12 @@
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
 }
 
+.react-calendar__month-view__weekdays__weekday abbr {
+  text-decoration: none !important;
+}
+
+
+
 /* Loading animation for active states */
 @keyframes pulse {
   0% {

@@ -145,25 +145,25 @@ const AdminDashboard = () => {
           <Col lg={11}>
             {/* Stats Cards */}
             <motion.section variants={itemVariants} className="mb-5">
-            <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap">
-  {/* Left Side: Icon + Title */}
-  <div className="d-flex align-items-center mb-2 mb-sm-0">
-    <FaChartLine className="me-2" style={{ color: "#3B82F6" }} />
-    <h5 className="fw-bold mb-0" style={{ color: "#374151" }}>
-      Tracking Overview
-    </h5>
-  </div>
+              <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+                {/* Left Side: Icon + Title */}
+                <div className="d-flex align-items-center mb-2 mb-sm-0">
+                  <FaChartLine className="me-2" style={{ color: "#3B82F6" }} />
+                  <h5 className="fw-bold mb-0" style={{ color: "#374151" }}>
+                    Tracking Overview
+                  </h5>
+                </div>
 
-  {/* Right Side: Badge */}
-  <Badge
-    bg="primary"
-    className="px-3 py-2 rounded-pill"
-    style={{ fontSize: "14px", whiteSpace: "nowrap" }}
-  >
-    <FaBell className="me-2" />
-    Live Updates
-  </Badge>
-</div>
+                {/* Right Side: Badge */}
+                <Badge
+                  bg="primary"
+                  className="px-3 py-2 rounded-pill"
+                  style={{ fontSize: "14px", whiteSpace: "nowrap" }}
+                >
+                  <FaBell className="me-2" />
+                  Live Updates
+                </Badge>
+              </div>
               <Row className="g-4">
                 {userStats.map((stat, index) => (
                   <Col key={index} xs={12} sm={6} lg={3}>
@@ -180,6 +180,15 @@ const AdminDashboard = () => {
                         style={{
                           borderRadius: "12px",
                           backgroundColor: "#fff",
+                          cursor:
+                            stat.key === "checkedInUsers"
+                              ? "pointer"
+                              : "default",
+                        }}
+                        onClick={() => {
+                          if (stat.key === "checkedInUsers") {
+                            navigate("/active-locations"); // 👈 Navigate here
+                          }
                         }}
                       >
                         <Card.Body className="p-4">

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import Navbar from "../../components/Navbar";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import Calendar from "react-calendar";
+import "react-calendar/dist/Calendar.css";
 import {
   FaCalendarAlt,
   FaEye,
@@ -13,17 +15,24 @@ import {
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { getUserTrack } from "../../redux/slices/userSlice";
+import {
+  getUserTrack,
+  getUserTrackedDates,
+} from "../../redux/slices/userSlice";
 import { Card, Badge, Button } from "react-bootstrap";
+import { formatDateLocal } from "../../utils/dateFormat";
 
 const TrackingData = () => {
   const dispatch = useDispatch();
   const data = useSelector((state) => state.UserData.userTrackInfo);
+  const trackedDates = useSelector((state) => state.UserData.trackedDates);
   const location = useLocation();
   const navigate = useNavigate();
   const trackData = location.state?.item;
   const [showCalendar, setShowCalendar] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  console.log("data from the user of tracking data", trackedDates);
 
   // Check if user is coming back from `/locations`
   const isReturningFromLocations =
@@ -63,10 +72,15 @@ const TrackingData = () => {
     }
   }, [selectedDate, dispatch, trackData?._id, formattedDate]);
 
+  useEffect(() => {
+    dispatch(getUserTrackedDates(trackData?._id));
+  }, [dispatch, trackData?._id]);
+
   // Save selected date to localStorage when user changes it
   const handleDateChange = (date) => {
     setSelectedDate(date);
     localStorage.setItem("selectedDate", date);
+    setShowCalendar(false);
     setShowCalendar(false); // Close calendar after selection
   };
 
@@ -117,10 +131,9 @@ const TrackingData = () => {
                     Tracking Routes
                   </h5>
                   <small className="text-muted">
-                    {isToday 
-                      ? "Showing latest tracking data" 
-                      : `Showing data for ${selectedDate.toLocaleDateString()}`
-                    }
+                    {isToday
+                      ? "Showing latest tracking data"
+                      : `Showing data for ${selectedDate.toLocaleDateString()}`}
                   </small>
                 </div>
               </div>
@@ -164,56 +177,49 @@ const TrackingData = () => {
                     )}
                   </div>
 
-                  <div className="d-flex align-items-center gap-2">
-                    {!isToday && (
-                      <Button
-                        variant="outline-secondary"
-                        size="sm"
-                        onClick={clearFilter}
-                        className="d-flex align-items-center"
-                        style={{ borderRadius: "8px" }}
-                      >
-                        <FaArrowRight className="me-1" />
-                        Clear Filter
-                      </Button>
-                    )}
-                    <div style={{ position: "relative" }}>
-                      <Button
-                        variant="outline-primary"
-                        className="d-flex align-items-center"
-                        onClick={() => setShowCalendar(!showCalendar)}
-                        style={{ borderRadius: "8px" }}
-                      >
-                        <FaCalendarAlt className="me-2" />
-                        Change Date
-                      </Button>
-                      
-                      {showCalendar && (
-                        <div 
-                          style={{ 
-                            position: "absolute", 
-                            top: "100%", 
-                            right: 0, 
-                            zIndex: 1000,
-                            marginTop: "8px"
-                          }}
-                        >
-                          <DatePicker
-                            selected={selectedDate}
-                            onChange={handleDateChange}
-                            inline
-                            style={{
-                              borderRadius: "8px",
-                              border: "1px solid #e5e7eb",
-                              backgroundColor: "white",
-                              boxShadow: "0 4px 12px rgba(0,0,0,0.15)"
-                            }}
-                          />
-                        </div>
-                      )}
-                    </div>
-                  </div>
+                  <Button
+                    variant="outline-primary"
+                    className="d-flex align-items-center"
+                    onClick={() => setShowCalendar(!showCalendar)}
+                    style={{ borderRadius: "8px" }}
+                  >
+                    <FaCalendarAlt className="me-2" />
+                    Change Date
+                  </Button>
                 </div>
+
+                {showCalendar && (
+                  <div className="mt-3 p-3 bg-white">
+                    <Calendar
+                      onChange={handleDateChange}
+                      value={selectedDate}
+                      maxDate={new Date()}
+                      tileClassName="text-dark"
+                      next2Label={null}
+                      prev2Label={null}
+                      tileContent={({ date, view }) => {
+                        if (view === "month") {
+                          const dateStr = formatDateLocal(date);
+                          if (trackedDates.includes(dateStr)) {
+                            return (
+                              <div
+                                style={{
+                                  height: 6,
+                                  width: 6,
+                                  borderRadius: "50%",
+                                  backgroundColor: "#0047b3",
+                                  margin: "0 auto",
+                                  marginTop: 2,
+                                }}
+                              />
+                            );
+                          }
+                        }
+                        return null;
+                      }}
+                    />
+                  </div>
+                )}
               </Card.Body>
             </Card>
 
@@ -256,7 +262,9 @@ const TrackingData = () => {
               <div className="d-flex flex-column gap-3">
                 {filteredData.map((data, index) => (
                   <Card
-                    key={`${data._id || data.id || 'track'}-${index}-${data.createdAt}`}
+                    key={`${data._id || data.id || "track"}-${index}-${
+                      data.createdAt
+                    }`}
                     className="border-0 shadow-sm"
                     style={{ borderRadius: "12px" }}
                   >

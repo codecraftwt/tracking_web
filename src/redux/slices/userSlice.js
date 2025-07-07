@@ -146,6 +146,38 @@ export const getUserTrack = createAsyncThunk(
   }
 );
 
+// Fetch all tracked dates for a user
+export const getUserTrackedDates = createAsyncThunk(
+  "user/getUserTrackedDates",
+  async (userId, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(
+        `api/tracks/user/${userId}/tracked-dates`
+      );
+      return response.data.trackedDates; // returns array of "YYYY-MM-DD" strings
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+export const getActiveUserLocations = createAsyncThunk(
+  "user/getActiveUserLocations",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(
+        "api/tracks/admin/active-user-locations"
+      );
+      return response.data.users; // Array of users with latest locations
+    } catch (error) {
+      toast.error(
+        error?.response?.data?.message || "Failed to fetch locations"
+      );
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
 // User Slice
 const userSlice = createSlice({
   name: "user",
@@ -157,6 +189,12 @@ const userSlice = createSlice({
     userCounts: {},
     userTrackInfo: [],
     error: null,
+    trackedDates: [],
+    trackedDatesLoading: false,
+    trackedDatesError: null,
+    activeUserLocations: [],
+    activeUserLocationsLoading: false,
+    activeUserLocationsError: null,
   },
   reducers: {
     logoutUser: (state) => {
@@ -287,6 +325,32 @@ const userSlice = createSlice({
       .addCase(deleteUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+
+      .addCase(getUserTrackedDates.pending, (state) => {
+        state.trackedDatesLoading = true;
+        state.trackedDatesError = null;
+      })
+      .addCase(getUserTrackedDates.fulfilled, (state, action) => {
+        state.trackedDatesLoading = false;
+        state.trackedDates = action.payload; // array of dates as strings
+      })
+      .addCase(getUserTrackedDates.rejected, (state, action) => {
+        state.trackedDatesLoading = false;
+        state.trackedDatesError = action.payload;
+      })
+
+      .addCase(getActiveUserLocations.pending, (state) => {
+        state.activeUserLocationsLoading = true;
+        state.activeUserLocationsError = null;
+      })
+      .addCase(getActiveUserLocations.fulfilled, (state, action) => {
+        state.activeUserLocationsLoading = false;
+        state.activeUserLocations = action.payload;
+      })
+      .addCase(getActiveUserLocations.rejected, (state, action) => {
+        state.activeUserLocationsLoading = false;
+        state.activeUserLocationsError = action.payload;
       });
   },
 });
