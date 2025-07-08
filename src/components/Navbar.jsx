@@ -35,7 +35,7 @@ function Navbar({ username = "W", pageTitle = "", showBackButton = false }) {
             <div
               style={{
                 cursor: "pointer",
-                fontSize: "24px",
+                fontSize: "20px",
                 color: "#212529",
                 marginRight: "12px", // Space between back icon and title
               }}
@@ -45,7 +45,7 @@ function Navbar({ username = "W", pageTitle = "", showBackButton = false }) {
             </div>
           )}
           {/* Page title */}
-          <h1 style={{ paddingTop: 8 }} className="fs-4 fw-bold">
+          <h1 style={{ paddingTop: 8 }} className="fs-5 fw-bold">
             {pageTitle}
           </h1>
         </div>
@@ -116,20 +116,20 @@ function Navbar({ username = "W", pageTitle = "", showBackButton = false }) {
       <Modal show={showModal} onHide={() => setShowModal(false)} centered>
         <Modal.Header
           closeButton
-          style={{ 
-            background: "linear-gradient(135deg, #3B82F6, #2563EB)", 
+          style={{
+            background: "linear-gradient(135deg, #3B82F6, #2563EB)",
             borderBottom: "none",
             borderTopLeftRadius: "12px",
-            borderTopRightRadius: "12px"
+            borderTopRightRadius: "12px",
           }}
           className="text-white"
         >
           <Modal.Title className="fw-bold d-flex align-items-center gap-2">
-            <div 
+            <div
               className="p-2 rounded-3"
-              style={{ 
+              style={{
                 background: "rgba(255, 255, 255, 0.2)",
-                backdropFilter: "blur(10px)"
+                backdropFilter: "blur(10px)",
               }}
             >
               <FaSignOutAlt size={18} />
@@ -137,39 +137,40 @@ function Navbar({ username = "W", pageTitle = "", showBackButton = false }) {
             Confirm Logout
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body 
+        <Modal.Body
           className="text-center p-5"
           style={{ background: "#f8fafc" }}
         >
-          <div 
+          <div
             className="mx-auto mb-4 p-3 rounded-circle d-flex align-items-center justify-content-center"
-            style={{ 
-              width: "80px", 
+            style={{
+              width: "80px",
               height: "80px",
               background: "linear-gradient(135deg, #FEE2E2, #FECACA)",
-              border: "3px solid #FCA5A5"
+              border: "3px solid #FCA5A5",
             }}
           >
             <FaSignOutAlt size={32} color="#DC2626" />
           </div>
-          
+
           <h4 className="fw-bold text-dark mb-3">Ready to Sign Out?</h4>
           <p className="text-secondary mb-0 fs-6" style={{ lineHeight: "1.6" }}>
-            You will be logged out of your account and redirected to the login page.
+            You will be logged out of your account and redirected to the login
+            page.
           </p>
         </Modal.Body>
-        <Modal.Footer 
+        <Modal.Footer
           className="d-flex justify-content-center gap-3 p-4 border-top"
           style={{ background: "#f8fafc" }}
         >
           <Button
             variant="light"
             className="px-4 py-2 fw-semibold rounded-3 border-0"
-            style={{ 
+            style={{
               background: "#ffffff",
               color: "#6B7280",
               boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-              minWidth: "140px"
+              minWidth: "140px",
             }}
             onClick={() => setShowModal(false)}
           >
@@ -179,13 +180,13 @@ function Navbar({ username = "W", pageTitle = "", showBackButton = false }) {
             variant="danger"
             className="px-4 py-2 fw-semibold rounded-3 border-0 d-flex align-items-center gap-2"
             onClick={handleLogout}
-            style={{ 
+            style={{
               background: "linear-gradient(135deg, #DC2626, #B91C1C)",
               boxShadow: "0 4px 15px rgba(220, 38, 38, 0.3)",
-              minWidth: "140px"
+              minWidth: "140px",
             }}
           >
-            <FaSignOutAlt size={16} /> 
+            <FaSignOutAlt size={16} />
             Log Out
           </Button>
         </Modal.Footer>

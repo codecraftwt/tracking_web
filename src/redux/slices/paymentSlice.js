@@ -1,14 +1,14 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axiosInstance from '../../utils/AxiosInstance';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import axiosInstance from "../../utils/AxiosInstance";
 
 // Async thunks for API calls
 export const createPaymentOrder = createAsyncThunk(
-  'payment/createOrder',
+  "payment/createOrder",
   async ({ adminId, planId }, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post('/api/payments/create-order', {
+      const response = await axiosInstance.post("/api/payments/create-order", {
         adminId,
-        planId
+        planId,
       });
       return response.data;
     } catch (error) {
@@ -18,15 +18,21 @@ export const createPaymentOrder = createAsyncThunk(
 );
 
 export const verifyPayment = createAsyncThunk(
-  'payment/verifyPayment',
-  async ({ razorpayOrderId, razorpayPaymentId, razorpaySignature, paymentId }, { rejectWithValue }) => {
+  "payment/verifyPayment",
+  async (
+    { razorpayOrderId, razorpayPaymentId, razorpaySignature, paymentId },
+    { rejectWithValue }
+  ) => {
     try {
-      const response = await axiosInstance.post('/api/payments/verify-payment', {
-        razorpayOrderId,
-        razorpayPaymentId,
-        razorpaySignature,
-        paymentId
-      });
+      const response = await axiosInstance.post(
+        "/api/payments/verify-payment",
+        {
+          razorpayOrderId,
+          razorpayPaymentId,
+          razorpaySignature,
+          paymentId,
+        }
+      );
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
@@ -35,10 +41,12 @@ export const verifyPayment = createAsyncThunk(
 );
 
 export const getPaymentHistory = createAsyncThunk(
-  'payment/getHistory',
+  "payment/getHistory",
   async (adminId, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get(`/api/payments/history/${adminId}`);
+      const response = await axiosInstance.get(
+        `/api/payments/history/${adminId}`
+      );
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
@@ -47,7 +55,7 @@ export const getPaymentHistory = createAsyncThunk(
 );
 
 export const getPaymentById = createAsyncThunk(
-  'payment/getPaymentById',
+  "payment/getPaymentById",
   async (paymentId, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get(`/api/payments/${paymentId}`);
@@ -60,50 +68,50 @@ export const getPaymentById = createAsyncThunk(
 
 // Test API call
 export const testPaymentAPI = createAsyncThunk(
-  'payment/testAPI',
+  "payment/testAPI",
   async (testData, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post('/api/payments/test', testData);
+      const response = await axiosInstance.post("/api/payments/test", testData);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }
   }
-);  
+);
 
 const initialState = {
   // Order creation
   orderLoading: false,
   orderError: null,
   orderData: null,
-  
+
   // Payment verification
   verificationLoading: false,
   verificationError: null,
   verificationData: null,
-  
+
   // Payment history
   historyLoading: false,
   historyError: null,
   paymentHistory: [],
-  
+
   // Payment details
   paymentDetailsLoading: false,
   paymentDetailsError: null,
   paymentDetails: null,
-  
+
   // Test API
   testLoading: false,
   testError: null,
   testData: null,
-  
+
   // General payment state
-  paymentStatus: 'idle', // idle, processing, success, failed
-  currentPayment: null
+  paymentStatus: "idle", // idle, processing, success, failed
+  currentPayment: null,
 };
 
 const paymentSlice = createSlice({
-  name: 'payment',
+  name: "payment",
   initialState,
   reducers: {
     clearPaymentState: (state) => {
@@ -112,7 +120,7 @@ const paymentSlice = createSlice({
       state.historyError = null;
       state.paymentDetailsError = null;
       state.testError = null;
-      state.paymentStatus = 'idle';
+      state.paymentStatus = "idle";
     },
     setPaymentStatus: (state, action) => {
       state.paymentStatus = action.payload;
@@ -124,7 +132,7 @@ const paymentSlice = createSlice({
     clearVerificationData: (state) => {
       state.verificationData = null;
       state.verificationError = null;
-    }
+    },
   },
   extraReducers: (builder) => {
     // Create Order
@@ -132,17 +140,17 @@ const paymentSlice = createSlice({
       .addCase(createPaymentOrder.pending, (state) => {
         state.orderLoading = true;
         state.orderError = null;
-        state.paymentStatus = 'processing';
+        state.paymentStatus = "processing";
       })
       .addCase(createPaymentOrder.fulfilled, (state, action) => {
         state.orderLoading = false;
         state.orderData = action.payload;
-        state.paymentStatus = 'success';
+        state.paymentStatus = "success";
       })
       .addCase(createPaymentOrder.rejected, (state, action) => {
         state.orderLoading = false;
         state.orderError = action.payload;
-        state.paymentStatus = 'failed';
+        state.paymentStatus = "failed";
       });
 
     // Verify Payment
@@ -154,12 +162,12 @@ const paymentSlice = createSlice({
       .addCase(verifyPayment.fulfilled, (state, action) => {
         state.verificationLoading = false;
         state.verificationData = action.payload;
-        state.paymentStatus = 'success';
+        state.paymentStatus = "success";
       })
       .addCase(verifyPayment.rejected, (state, action) => {
         state.verificationLoading = false;
         state.verificationError = action.payload;
-        state.paymentStatus = 'failed';
+        state.paymentStatus = "failed";
       });
 
     // Get Payment History
@@ -206,14 +214,14 @@ const paymentSlice = createSlice({
         state.testLoading = false;
         state.testError = action.payload;
       });
-  }
+  },
 });
 
-export const { 
-  clearPaymentState, 
-  setPaymentStatus, 
-  clearOrderData, 
-  clearVerificationData 
+export const {
+  clearPaymentState,
+  setPaymentStatus,
+  clearOrderData,
+  clearVerificationData,
 } = paymentSlice.actions;
 
-export default paymentSlice.reducer; 
+export default paymentSlice.reducer;

@@ -10,7 +10,7 @@ import {
   Row,
   Col,
   Modal,
-  Badge
+  Badge,
 } from "react-bootstrap";
 import Navbar from "../../components/Navbar";
 import { BiSearch, BiUserPlus, BiPencil, BiTrash } from "react-icons/bi";
@@ -20,6 +20,7 @@ import {
   getAllAdmins,
   getAllUsers,
   deleteUser,
+  getUserById,
 } from "../../redux/slices/userSlice";
 import { useDispatch, useSelector } from "react-redux";
 import Loader from "../../components/Loader";
@@ -31,20 +32,36 @@ const User = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [showLimitModal, setShowLimitModal] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const userData = JSON.parse(localStorage.getItem("user"));
+  const userData = useSelector((state) => state.UserData.userInfo);
   const role_id = userData?.role_id;
 
-  useEffect(() => {
-    if (role_id === 1) {
-      dispatch(getAllUsers(userData?._id));
-    } else if (role_id === 2) {
-      dispatch(getAllAdmins());
-    }
-  }, [dispatch, role_id]);
+  const maxUser = userData?.currentPaymentId?.maxUser; // Get the maxUser limit
+  const totalUsers = useSelector((state) => state.UserData.totalUsers);
 
+  console.log("maximum users ---->", maxUser);
+
+  console.log("totalUsers --->", totalUsers);
+
+  const canCreateUser = totalUsers < maxUser; // If totalActiveUsers exceed maxUser, disable button
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (role_id === 1 && userData?._id) {
+        await Promise.all([
+          dispatch(getUserById(userData._id)),
+          dispatch(getAllUsers(userData._id)),
+        ]);
+      } else if (role_id === 2) {
+        await dispatch(getAllAdmins());
+      }
+    };
+
+    fetchData();
+  }, [dispatch, role_id, userData?._id]);
   const users =
     useSelector((state) =>
       role_id === 1 ? state.UserData.usersList : state.UserData.adminList
@@ -87,6 +104,16 @@ const User = () => {
       });
   };
 
+  const handleCloseModal = () => setShowLimitModal(false);
+
+  // Modal show handler when the button is clicked
+  const handleShowModal = () => setShowLimitModal(true);
+
+  // Navigate to the subscription page
+  const handleNavigateToSubscription = () => {
+    navigate("/payment-plans"); // Adjust the path as needed for your subscription page
+  };
+
   return (
     <div className="min-vh-100" style={{ background: "#f8fafc" }}>
       <Navbar
@@ -99,31 +126,36 @@ const User = () => {
         <Row className="justify-content-center">
           <Col lg={11}>
             {/* Search and Add Section */}
-            <Card className="border-0 shadow-sm mb-4" style={{ borderRadius: "16px" }}>
+            <Card
+              className="border-0 shadow-sm mb-4"
+              style={{ borderRadius: "16px" }}
+            >
               <Card.Body className="p-4">
                 <Row className="align-items-center">
                   <Col md={8}>
                     <InputGroup>
-                      <InputGroup.Text 
+                      <InputGroup.Text
                         className="border-0"
-                        style={{ 
+                        style={{
                           background: "rgba(59, 130, 246, 0.1)",
                           color: "#3B82F6",
                           borderTopLeftRadius: "12px",
-                          borderBottomLeftRadius: "12px"
+                          borderBottomLeftRadius: "12px",
                         }}
                       >
                         <BiSearch size={18} />
                       </InputGroup.Text>
                       <FormControl
-                        placeholder={`Search ${role_id === 1 ? "users" : "organizations"}...`}
+                        placeholder={`Search ${
+                          role_id === 1 ? "users" : "organizations"
+                        }...`}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="border-0"
-                        style={{ 
+                        style={{
                           background: "rgba(59, 130, 246, 0.05)",
                           borderTopRightRadius: "12px",
-                          borderBottomRightRadius: "12px"
+                          borderBottomRightRadius: "12px",
                         }}
                       />
                     </InputGroup>
@@ -132,9 +164,13 @@ const User = () => {
                     <Button
                       variant="primary"
                       className="px-4 py-2 fw-semibold rounded-3"
-                      onClick={() => navigate("/add-admin")}
+                      onClick={
+                        canCreateUser
+                          ? () => navigate("/add-admin")
+                          : handleShowModal
+                      } // Show modal if user has reached max
                       style={{
-                        background: "linear-gradient(135deg, #3B82F6, #2563EB)"
+                        background: "linear-gradient(135deg, #3B82F6, #2563EB)",
                       }}
                     >
                       <BiUserPlus className="me-2" size={18} />
@@ -146,11 +182,14 @@ const User = () => {
             </Card>
 
             {/* Tabs Section */}
-            <Card className="border-0 shadow-sm" style={{ borderRadius: "16px" }}>
+            <Card
+              className="border-0 shadow-sm"
+              style={{ borderRadius: "16px" }}
+            >
               <Card.Body className="p-0">
-                <Tabs 
-                  activeKey={key} 
-                  onSelect={(k) => setKey(k)} 
+                <Tabs
+                  activeKey={key}
+                  onSelect={(k) => setKey(k)}
                   className="border-0"
                 >
                   <Tab
@@ -158,7 +197,11 @@ const User = () => {
                     title={
                       <div className="d-flex align-items-center gap-2 px-3 py-2">
                         <FaUsers size={16} />
-                        <span>{role_id === 1 ? "Active Users" : "Active Organizations"}</span>
+                        <span>
+                          {role_id === 1
+                            ? "Active Users"
+                            : "Active Organizations"}
+                        </span>
                         <Badge bg="success" className="ms-2 rounded-pill">
                           {filteredActiveUsers.length}
                         </Badge>
@@ -183,7 +226,11 @@ const User = () => {
                     title={
                       <div className="d-flex align-items-center gap-2 px-3 py-2">
                         <FaUserShield size={16} />
-                        <span>{role_id === 1 ? "Inactive Users" : "Inactive Organizations"}</span>
+                        <span>
+                          {role_id === 1
+                            ? "Inactive Users"
+                            : "Inactive Organizations"}
+                        </span>
                         <Badge bg="secondary" className="ms-2 rounded-pill">
                           {filteredInactiveUsers.length}
                         </Badge>
@@ -211,17 +258,17 @@ const User = () => {
       </main>
 
       {/* Delete Confirmation Modal */}
-      <Modal 
-        show={showDeleteModal} 
-        onHide={() => setShowDeleteModal(false)} 
+      <Modal
+        show={showDeleteModal}
+        onHide={() => setShowDeleteModal(false)}
         centered
         size="sm"
       >
         <Modal.Header
           closeButton
-          style={{ 
+          style={{
             background: "linear-gradient(135deg, #DC2626, #B91C1C)",
-            borderBottom: "none"
+            borderBottom: "none",
           }}
           className="text-white rounded-top"
         >
@@ -230,7 +277,7 @@ const User = () => {
             Confirm Delete
           </Modal.Title>
         </Modal.Header>
-        
+
         <Modal.Body className="text-center p-4">
           <div className="mb-3">
             <div
@@ -247,7 +294,7 @@ const User = () => {
             This action cannot be undone. All data will be permanently removed.
           </p>
         </Modal.Body>
-        
+
         <Modal.Footer className="d-flex justify-content-center gap-2 p-4 border-top">
           <Button
             variant="outline-secondary"
@@ -256,13 +303,13 @@ const User = () => {
           >
             Cancel
           </Button>
-          
+
           <Button
             variant="danger"
             className="px-4 py-2 fw-semibold rounded-3"
             onClick={handleDeleteUser}
             style={{
-              background: "linear-gradient(135deg, #DC2626, #B91C1C)"
+              background: "linear-gradient(135deg, #DC2626, #B91C1C)",
             }}
           >
             <BiTrash className="me-2" />
@@ -270,13 +317,79 @@ const User = () => {
           </Button>
         </Modal.Footer>
       </Modal>
+
+      {/* Modal for the user limit message */}
+      <Modal show={showLimitModal} onHide={handleCloseModal} centered size="sm">
+        <Modal.Header
+          closeButton
+          style={{
+            background: "linear-gradient(135deg, #DC2626, #B91C1C)",
+            borderBottom: "none",
+          }}
+          className="text-white rounded-top"
+        >
+          <Modal.Title className="fw-bold d-flex align-items-center gap-2">
+            <BiUserPlus size={18} />
+            Max Users Reached
+          </Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body className="text-center p-4">
+          <div className="mb-3">
+            <div
+              className="rounded-circle bg-danger text-white d-flex justify-content-center align-items-center mx-auto"
+              style={{ width: "60px", height: "60px" }}
+            >
+              <BiUserPlus size={24} />
+            </div>
+          </div>
+          <h5 className="fw-bold mb-2" style={{ color: "#1f2937" }}>
+            You have reached the maximum number of users.
+          </h5>
+          <p className="text-muted mb-0">
+            To add more users, please upgrade your plan.
+          </p>
+        </Modal.Body>
+
+        <Modal.Footer className="d-flex justify-content-center gap-2 p-4 border-top">
+          <Button
+            variant="outline-secondary"
+            className="px-4 py-2 fw-semibold rounded-3"
+            onClick={handleCloseModal}
+          >
+            Close
+          </Button>
+
+          <Button
+            variant="danger"
+            className="px-4 py-2 fw-semibold rounded-3"
+            onClick={handleNavigateToSubscription} // Navigate to subscription
+            style={{
+              background: "linear-gradient(135deg, #DC2626, #B91C1C)",
+            }}
+          >
+            Go to Plans
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };
 
-const UserList = ({ users, navigate, loading, role_id, searchQuery, onDeleteClick }) => {
+const UserList = ({
+  users,
+  navigate,
+  loading,
+  role_id,
+  searchQuery,
+  onDeleteClick,
+}) => {
   if (loading) {
-    return <Loader text={role_id === 1 ? "Loading users" : "Loading organizations"} />;
+    return (
+      <Loader
+        text={role_id === 1 ? "Loading users" : "Loading organizations"}
+      />
+    );
   }
 
   if (users.length === 0) {
@@ -285,9 +398,13 @@ const UserList = ({ users, navigate, loading, role_id, searchQuery, onDeleteClic
         <div className="mb-3">
           <FaUsers size={48} className="text-muted" />
         </div>
-        <h6 className="text-muted">No {role_id === 1 ? "users" : "organizations"} found</h6>
+        <h6 className="text-muted">
+          No {role_id === 1 ? "users" : "organizations"} found
+        </h6>
         <p className="text-muted small">
-          {searchQuery ? "Try adjusting your search criteria" : `No ${role_id === 1 ? "users" : "organizations"} available`}
+          {searchQuery
+            ? "Try adjusting your search criteria"
+            : `No ${role_id === 1 ? "users" : "organizations"} available`}
         </p>
       </div>
     );
@@ -303,12 +420,12 @@ const UserList = ({ users, navigate, loading, role_id, searchQuery, onDeleteClic
           transition={{ duration: 0.3 }}
         >
           <Card
-           className="border-0 mb-3"
+            className="border-0 mb-3"
             style={{
               borderRadius: "12px",
-               boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)", 
+              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
               cursor: "pointer",
-              transition: "all 0.3s ease"
+              transition: "all 0.3s ease",
             }}
             onClick={() => {
               if (role_id === 1) {
@@ -319,11 +436,11 @@ const UserList = ({ users, navigate, loading, role_id, searchQuery, onDeleteClic
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = "translateY(-2px)";
-              e.currentTarget.style.boxShadow = "0 8px 25px rgba(0,0,0,0.1)";
+              e.currentTarget.style.boxShadow = "0 8px 16px rgba(0, 0, 0, 0.2)";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = "translateY(0)";
-              e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.1)";
+              e.currentTarget.style.boxShadow = "0 4px 12px rgba(0, 0, 0, 0.1)";
             }}
           >
             <Card.Body className="p-4">
@@ -338,7 +455,7 @@ const UserList = ({ users, navigate, loading, role_id, searchQuery, onDeleteClic
                         height: "50px",
                         borderRadius: "50%",
                         marginRight: "16px",
-                        objectFit: "cover"
+                        objectFit: "cover",
                       }}
                     />
                   ) : (
@@ -349,7 +466,7 @@ const UserList = ({ users, navigate, loading, role_id, searchQuery, onDeleteClic
                         height: "50px",
                         borderRadius: "50%",
                         background: "linear-gradient(135deg, #3B82F6, #2563EB)",
-                        marginRight: "16px"
+                        marginRight: "16px",
                       }}
                     >
                       <FaUser size={20} className="text-white" />
@@ -360,7 +477,7 @@ const UserList = ({ users, navigate, loading, role_id, searchQuery, onDeleteClic
                       {user.name}
                     </h6>
                     <p className="text-muted small mb-0">{user.email}</p>
-                    <Badge 
+                    <Badge
                       bg={user.isActive ? "success" : "secondary"}
                       className="rounded-pill mt-1"
                       style={{ fontSize: "10px" }}
@@ -386,7 +503,7 @@ const UserList = ({ users, navigate, loading, role_id, searchQuery, onDeleteClic
                   >
                     View Details
                   </Button>
-                  
+
                   <Button
                     variant="outline-primary"
                     size="sm"
@@ -398,7 +515,7 @@ const UserList = ({ users, navigate, loading, role_id, searchQuery, onDeleteClic
                   >
                     <BiPencil size={14} />
                   </Button>
-                  
+
                   <Button
                     variant="outline-danger"
                     size="sm"

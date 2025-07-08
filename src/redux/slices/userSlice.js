@@ -71,7 +71,7 @@ export const getAllUsers = createAsyncThunk(
   async (adminId, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get(`api/users/alluser/${adminId}`);
-      return response.data?.users;
+      return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
     }
@@ -185,6 +185,7 @@ const userSlice = createSlice({
     loading: false,
     userInfo: JSON.parse(localStorage.getItem("user")) || {},
     usersList: [],
+    totalUsers: null,
     adminList: [],
     userCounts: {},
     userTrackInfo: [],
@@ -206,6 +207,10 @@ const userSlice = createSlice({
       state.loading = false;
       localStorage.removeItem("token");
       localStorage.removeItem("user");
+    },
+    setUserInfo: (state, action) => {
+      state.userInfo = action.payload; // Set the user info to state (for logged-in user)
+      localStorage.setItem("user", JSON.stringify(action.payload)); // Store in localStorage
     },
   },
   extraReducers: (builder) => {
@@ -272,6 +277,19 @@ const userSlice = createSlice({
         }
       })
 
+      .addCase(getUserById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getUserById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.userInfo = action.payload.user;
+      })
+      .addCase(getUserById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
       // Handle Get All Users
       .addCase(getAllUsers.pending, (state) => {
         state.loading = true;
@@ -279,7 +297,8 @@ const userSlice = createSlice({
       })
       .addCase(getAllUsers.fulfilled, (state, action) => {
         state.loading = false;
-        state.usersList = action.payload;
+        state.usersList = action.payload.users;
+        state.totalUsers = action.payload.userCount;
       })
       .addCase(getAllUsers.rejected, (state, action) => {
         state.loading = false;
