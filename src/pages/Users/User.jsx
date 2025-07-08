@@ -26,6 +26,7 @@ import { useDispatch, useSelector } from "react-redux";
 import Loader from "../../components/Loader";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
+import DeleteConfirmModal from "../../components/modals/DeleteConfirmModal";
 
 const User = () => {
   const [key, setKey] = useState("active");
@@ -258,65 +259,14 @@ const User = () => {
       </main>
 
       {/* Delete Confirmation Modal */}
-      <Modal
+      <DeleteConfirmModal
         show={showDeleteModal}
         onHide={() => setShowDeleteModal(false)}
-        centered
-        size="sm"
-      >
-        <Modal.Header
-          closeButton
-          style={{
-            background: "linear-gradient(135deg, #DC2626, #B91C1C)",
-            borderBottom: "none",
-          }}
-          className="text-white rounded-top"
-        >
-          <Modal.Title className="fw-bold d-flex align-items-center gap-2">
-            <BiTrash />
-            Confirm Delete
-          </Modal.Title>
-        </Modal.Header>
-
-        <Modal.Body className="text-center p-4">
-          <div className="mb-3">
-            <div
-              className="rounded-circle bg-danger text-white d-flex justify-content-center align-items-center mx-auto"
-              style={{ width: "60px", height: "60px" }}
-            >
-              <BiTrash size={24} />
-            </div>
-          </div>
-          <h5 className="fw-bold mb-2" style={{ color: "#1f2937" }}>
-            Delete {selectedUser?.name}?
-          </h5>
-          <p className="text-muted mb-0">
-            This action cannot be undone. All data will be permanently removed.
-          </p>
-        </Modal.Body>
-
-        <Modal.Footer className="d-flex justify-content-center gap-2 p-4 border-top">
-          <Button
-            variant="outline-secondary"
-            className="px-4 py-2 fw-semibold rounded-3"
-            onClick={() => setShowDeleteModal(false)}
-          >
-            Cancel
-          </Button>
-
-          <Button
-            variant="danger"
-            className="px-4 py-2 fw-semibold rounded-3"
-            onClick={handleDeleteUser}
-            style={{
-              background: "linear-gradient(135deg, #DC2626, #B91C1C)",
-            }}
-          >
-            <BiTrash className="me-2" />
-            Delete
-          </Button>
-        </Modal.Footer>
-      </Modal>
+        onConfirm={handleDeleteUser}
+        title="Delete"
+        message={`Delete ${selectedUser?.name}?`}
+        subMessage="This action cannot be undone. All data will be permanently removed."
+      />
 
       {/* Modal for the user limit message */}
       <Modal show={showLimitModal} onHide={handleCloseModal} centered size="sm">

@@ -72,18 +72,35 @@ export const deletePlan = createAsyncThunk(
   }
 );
 
+export const getUsersWithExpiringPlans = createAsyncThunk(
+  "plan/getUsersWithExpiringPlans",
+  async (daysBeforeExpiry = 7, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(
+        `/api/plans/expiring-users?daysBeforeExpiry=${daysBeforeExpiry}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching users with expiring plans:", error);
+      return rejectWithValue(error.response?.data || "An error occurred");
+    }
+  }
+);
+
 // Slice
 const planSlice = createSlice({
   name: "plan",
   initialState: {
     loading: false,
     plansList: [],
+    expiringUsers: [],
     selectedPlan: null,
     error: null,
   },
   reducers: {
     clearPlanStore: (state) => {
       state.plansList = [];
+      state.expiringUsers = [];
       state.selectedPlan = null;
       state.error = null;
       state.loading = false;
@@ -165,6 +182,19 @@ const planSlice = createSlice({
         );
       })
       .addCase(deletePlan.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      .addCase(getUsersWithExpiringPlans.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getUsersWithExpiringPlans.fulfilled, (state, action) => {
+        state.loading = false;
+        state.expiringUsers = action.payload.data || [];
+      })
+      .addCase(getUsersWithExpiringPlans.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

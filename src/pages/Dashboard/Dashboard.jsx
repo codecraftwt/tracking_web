@@ -17,17 +17,21 @@ import {
   FaArrowUp,
   FaArrowDown,
   FaCalendarAlt,
-  FaRupeeSign
+  FaRupeeSign,
 } from "react-icons/fa";
+import ExpiringPlansTable from "./ExpiringPlansTable";
+import { getUsersWithExpiringPlans } from "../../redux/slices/planSlice";
 
 const Dashboard = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const userCounts = useSelector((state) => state.UserData.userCounts);
+  const expiringUsers = useSelector((state) => state.PlanData.expiringUsers);
   const dispatch = useDispatch();
 
   useEffect(() => {
     dispatch(getUserCounts());
+    dispatch(getUsersWithExpiringPlans());
   }, []);
 
   const userStats = [
@@ -198,6 +202,11 @@ const Dashboard = () => {
                 ))}
               </Row>
             </motion.section>
+
+            <motion.section variants={itemVariants} className="mb-5">
+              <ExpiringPlansTable data={expiringUsers} />{" "}
+            </motion.section>
+
             <motion.section variants={itemVariants} className="mb-5">
               <div className="d-flex align-items-center mb-4">
                 <FaRupeeSign className="me-2" style={{ color: "#3B82F6" }} />
@@ -206,81 +215,90 @@ const Dashboard = () => {
                 </h5>
               </div>
               <motion.div variants={cardVariants}>
-              <Card
-  className="border-0 shadow-sm"
-  style={{
-    borderRadius: "16px",
-    background: "linear-gradient(135deg, #334155, #1e293b)", // smoky dark slate tones
-    color: "#fff",
-  }}
->
-  <Card.Body className="p-4">
-    {/* Header Section */}
-    <div className="d-flex justify-content-between align-items-start mb-4">
-      <div>
-        <h6 className="text-white-50 mb-1">Total Revenue</h6>
-        <h2 className="fw-bold mb-0">
-          {revenueData.total.toLocaleString()}
-        </h2>
-      </div>
-      <div className="text-end">
-        <Badge
-          bg="light"
-          text="dark"
-          className="rounded-pill px-2 py-1 mb-2"
-          style={{ fontSize: "12px" }}
-        >
-          <FaArrowUp className="me-1 text-success" size={10} />
-          +{revenueData.thisMonthGrowth}%
-        </Badge>
-        <p className="text-white-50 small mb-0">This Month</p>
-      </div>
-    </div>
+                <Card
+                  className="border-0 shadow-sm"
+                  style={{
+                    borderRadius: "16px",
+                    background: "linear-gradient(135deg, #334155, #1e293b)", // smoky dark slate tones
+                    color: "#fff",
+                  }}
+                >
+                  <Card.Body className="p-4">
+                    {/* Header Section */}
+                    <div className="d-flex justify-content-between align-items-start mb-4">
+                      <div>
+                        <h6 className="text-white-50 mb-1">Total Revenue</h6>
+                        <h2 className="fw-bold mb-0">
+                          {revenueData.total.toLocaleString()}
+                        </h2>
+                      </div>
+                      <div className="text-end">
+                        <Badge
+                          bg="light"
+                          text="dark"
+                          className="rounded-pill px-2 py-1 mb-2"
+                          style={{ fontSize: "12px" }}
+                        >
+                          <FaArrowUp className="me-1 text-success" size={10} />+
+                          {revenueData.thisMonthGrowth}%
+                        </Badge>
+                        <p className="text-white-50 small mb-0">This Month</p>
+                      </div>
+                    </div>
 
-    {/* Monthly Summary Section */}
-    <Row className="g-3">
-      <Col sm={6}>
-        <div
-          className="p-3 rounded-3"
-          style={{
-            background: "rgba(255, 255, 255, 0.08)",
-            backdropFilter: "blur(4px)",
-          }}
-        >
-          <div className="d-flex align-items-center justify-content-between">
-            <div>
-              <h5 className="fw-bold mb-1">
-                {revenueData.thisMonth.toLocaleString()}
-              </h5>
-              <p className="text-white-50 small mb-0">This Month</p>
-            </div>
-            <FaCalendarAlt size={20} className="text-white-50" />
-          </div>
-        </div>
-      </Col>
-      <Col sm={6}>
-        <div
-          className="p-3 rounded-3"
-          style={{
-            background: "rgba(255, 255, 255, 0.08)",
-            backdropFilter: "blur(4px)",
-          }}
-        >
-          <div className="d-flex align-items-center justify-content-between">
-            <div>
-              <h5 className="fw-bold mb-1">
-                {revenueData.lastMonth.toLocaleString()}
-              </h5>
-              <p className="text-white-50 small mb-0">Last Month</p>
-            </div>
-            <FaCalendarAlt size={20} className="text-white-50" />
-          </div>
-        </div>
-      </Col>
-    </Row>
-  </Card.Body>
-</Card>
-
+                    {/* Monthly Summary Section */}
+                    <Row className="g-3">
+                      <Col sm={6}>
+                        <div
+                          className="p-3 rounded-3"
+                          style={{
+                            background: "rgba(255, 255, 255, 0.08)",
+                            backdropFilter: "blur(4px)",
+                          }}
+                        >
+                          <div className="d-flex align-items-center justify-content-between">
+                            <div>
+                              <h5 className="fw-bold mb-1">
+                                {revenueData.thisMonth.toLocaleString()}
+                              </h5>
+                              <p className="text-white-50 small mb-0">
+                                This Month
+                              </p>
+                            </div>
+                            <FaCalendarAlt
+                              size={20}
+                              className="text-white-50"
+                            />
+                          </div>
+                        </div>
+                      </Col>
+                      <Col sm={6}>
+                        <div
+                          className="p-3 rounded-3"
+                          style={{
+                            background: "rgba(255, 255, 255, 0.08)",
+                            backdropFilter: "blur(4px)",
+                          }}
+                        >
+                          <div className="d-flex align-items-center justify-content-between">
+                            <div>
+                              <h5 className="fw-bold mb-1">
+                                {revenueData.lastMonth.toLocaleString()}
+                              </h5>
+                              <p className="text-white-50 small mb-0">
+                                Last Month
+                              </p>
+                            </div>
+                            <FaCalendarAlt
+                              size={20}
+                              className="text-white-50"
+                            />
+                          </div>
+                        </div>
+                      </Col>
+                    </Row>
+                  </Card.Body>
+                </Card>
               </motion.div>
             </motion.section>
 

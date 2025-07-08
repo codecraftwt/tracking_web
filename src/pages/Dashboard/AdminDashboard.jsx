@@ -5,12 +5,7 @@ import { Col, Row } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllUsers, getUserById } from "../../redux/slices/userSlice";
 import { motion } from "framer-motion";
-import {
-  FaUsers,
-  FaUserCheck,
-  FaUserTimes,
-  FaUserClock,
-} from "react-icons/fa";
+import { FaUsers, FaUserCheck, FaUserTimes, FaUserClock } from "react-icons/fa";
 import CurrentPlan from "./CurrentPlan";
 import RecentActivities from "./RecentActivities";
 import StatsCards from "./StatsCards";
@@ -34,7 +29,7 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     dispatch(getAllUsers(userData?._id)).then((response) => {
-      const users = response.payload || [];
+      const users = response.payload.users || [];
 
       const today = new Date().toISOString().split("T")[0];
 

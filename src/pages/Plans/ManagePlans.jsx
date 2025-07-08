@@ -33,6 +33,7 @@ import {
 import Loader from "../../components/Loader";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
+import DeleteConfirmModal from "../../components/modals/DeleteConfirmModal";
 
 const ManagePlans = () => {
   const dispatch = useDispatch();
@@ -47,6 +48,7 @@ const ManagePlans = () => {
     maxUsers: "",
     price: "",
     duration: "",
+    status: "active",
   });
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deletePlanId, setDeletePlanId] = useState(null);
@@ -80,6 +82,7 @@ const ManagePlans = () => {
       maxUsers: "",
       price: "",
       duration: "",
+      status: "",
     });
     setShowModal(true);
   };
@@ -124,6 +127,7 @@ const ManagePlans = () => {
       maxUsers: plan.maxUsers,
       price: plan.price,
       duration: plan.duration || "monthly",
+      status: plan.status || "active",
     });
     setShowModal(true);
   };
@@ -343,20 +347,27 @@ const ManagePlans = () => {
                                   cursor: "pointer",
                                   transition: "all 0.3s ease",
                                 }}
-                                onMouseEnter={e => {
-                                  Array.from(e.currentTarget.children).forEach(td => {
-                                    td.style.background = "rgba(59, 130, 246, 0.1)";
-                                  });
+                                onMouseEnter={(e) => {
+                                  Array.from(e.currentTarget.children).forEach(
+                                    (td) => {
+                                      td.style.background =
+                                        "rgba(59, 130, 246, 0.1)";
+                                    }
+                                  );
                                 }}
-                                onMouseLeave={e => {
-                                  Array.from(e.currentTarget.children).forEach(td => {
-                                    td.style.background = rowBg;
-                                  });
+                                onMouseLeave={(e) => {
+                                  Array.from(e.currentTarget.children).forEach(
+                                    (td) => {
+                                      td.style.background = rowBg;
+                                    }
+                                  );
                                 }}
                               >
-                                <td className="border-0 p-2" style={{ background: rowBg }}>
+                                <td
+                                  className="border-0 p-2"
+                                  style={{ background: rowBg }}
+                                >
                                   <div className="d-flex align-items-center">
-                                
                                     <div>
                                       <div
                                         className="fw-semibold"
@@ -373,21 +384,30 @@ const ManagePlans = () => {
                                     </div>
                                   </div>
                                 </td>
-                                <td className="border-0 p-3" style={{ background: rowBg }}>
+                                <td
+                                  className="border-0 p-3"
+                                  style={{ background: rowBg }}
+                                >
                                   <div className="d-flex align-items-center">
                                     <span className="text-muted">
                                       {plan.minUsers} - {plan.maxUsers}
                                     </span>
                                   </div>
                                 </td>
-                                <td className="border-0 p-3" style={{ background: rowBg }}>
+                                <td
+                                  className="border-0 p-3"
+                                  style={{ background: rowBg }}
+                                >
                                   <div className="d-flex align-items-center">
                                     <span className="fw-bold text-success">
                                       {plan.price}
                                     </span>
                                   </div>
                                 </td>
-                                <td className="border-0 p-3" style={{ background: rowBg }}>
+                                <td
+                                  className="border-0 p-3"
+                                  style={{ background: rowBg }}
+                                >
                                   <div className="d-flex align-items-center">
                                     <Badge
                                       bg="light"
@@ -398,7 +418,10 @@ const ManagePlans = () => {
                                     </Badge>
                                   </div>
                                 </td>
-                                <td className="border-0 p-3 text-center" style={{ background: rowBg }}>
+                                <td
+                                  className="border-0 p-3 text-center"
+                                  style={{ background: rowBg }}
+                                >
                                   <div className="d-flex align-items-center justify-content-center gap-2">
                                     <motion.button
                                       whileHover={{ scale: 1.1 }}
@@ -448,68 +471,23 @@ const ManagePlans = () => {
       </motion.main>
 
       {/* Delete Confirmation Modal */}
-      <Modal
+      <DeleteConfirmModal
         show={showDeleteModal}
         onHide={() => setShowDeleteModal(false)}
-        centered
-        size="sm"
-      >
-        <Modal.Header
-          closeButton
-          style={{
-            background: "linear-gradient(135deg, #DC2626, #B91C1C)",
-            borderBottom: "none",
-          }}
-          className="text-white rounded-top"
-        >
-          <Modal.Title className="fw-bold d-flex align-items-center gap-2">
-            <FaTrash />
-            Confirm Delete
-          </Modal.Title>
-        </Modal.Header>
-
-        <Modal.Body className="text-center p-4">
-          <div className="mb-3">
-            <div
-              className="rounded-circle bg-danger text-white d-flex justify-content-center align-items-center mx-auto"
-              style={{ width: "60px", height: "60px" }}
-            >
-              <FaTrash size={24} />
-            </div>
-          </div>
-          <h5 className="fw-bold mb-2" style={{ color: "#1f2937" }}>
-            Delete this plan?
-          </h5>
-          <p className="text-muted mb-0">
-            This action cannot be undone. The plan will be permanently removed.
-          </p>
-        </Modal.Body>
-
-        <Modal.Footer className="d-flex justify-content-center gap-2 p-4 border-top">
-          <Button
-            variant="outline-secondary"
-            className="px-4 py-2 fw-semibold rounded-3"
-            onClick={() => setShowDeleteModal(false)}
-          >
-            Cancel
-          </Button>
-
-          <Button
-            variant="danger"
-            className="px-4 py-2 fw-semibold rounded-3"
-            onClick={handleConfirmDelete}
-            style={{
-              background: "linear-gradient(135deg, #DC2626, #B91C1C)",
-            }}
-          >
-            <FaTrash className="me-2" />
-            Delete
-          </Button>
-        </Modal.Footer>
-      </Modal>
+        onConfirm={handleConfirmDelete}
+        title="Delete Plan"
+        message="Delete this plan?"
+        subMessage="This action cannot be undone. The plan will be permanently removed."
+      />
 
       {/* Add/Edit Plan Modal */}
-      <Modal show={showModal} onHide={handleClose} centered size="lg" style={{ zIndex: 1050 }}>
+      <Modal
+        show={showModal}
+        onHide={handleClose}
+        centered
+        size="lg"
+        style={{ zIndex: 1050 }}
+      >
         <Modal.Header
           closeButton
           style={{
@@ -540,7 +518,7 @@ const ManagePlans = () => {
                   background: "#f8f9fa",
                   border: "1px solid #e0e0e0",
                   borderRadius: "10px",
-                  fontSize: "16px"
+                  fontSize: "16px",
                 }}
               >
                 <option value="">Select Plan Type</option>
@@ -566,7 +544,7 @@ const ManagePlans = () => {
                   background: "#f8f9fa",
                   border: "1px solid #e0e0e0",
                   borderRadius: "10px",
-                  fontSize: "16px"
+                  fontSize: "16px",
                 }}
               >
                 <option value="">Select Duration</option>
@@ -594,7 +572,7 @@ const ManagePlans = () => {
                   background: "#f8f9fa",
                   border: "1px solid #e0e0e0",
                   borderRadius: "10px",
-                  fontSize: "16px"
+                  fontSize: "16px",
                 }}
               />
             </Form.Group>
@@ -615,7 +593,7 @@ const ManagePlans = () => {
                   background: "#f8f9fa",
                   border: "1px solid #e0e0e0",
                   borderRadius: "10px",
-                  fontSize: "16px"
+                  fontSize: "16px",
                 }}
               />
             </Form.Group>
@@ -636,7 +614,7 @@ const ManagePlans = () => {
                   background: "#f8f9fa",
                   border: "1px solid #e0e0e0",
                   borderRadius: "10px",
-                  fontSize: "16px"
+                  fontSize: "16px",
                 }}
               />
             </Form.Group>
@@ -657,10 +635,33 @@ const ManagePlans = () => {
                   background: "#f8f9fa",
                   border: "1px solid #e0e0e0",
                   borderRadius: "10px",
-                  fontSize: "16px"
+                  fontSize: "16px",
                 }}
               />
             </Form.Group>
+
+            {planData._id && (
+              <Form.Group className="mb-4">
+                <Form.Label className="fw-semibold text-dark mb-2">
+                  Status
+                </Form.Label>
+                <Form.Select
+                  name="status"
+                  value={planData.status || "active"} // default to active if undefined
+                  onChange={handleChange}
+                  className="form-control-lg border-0"
+                  style={{
+                    background: "#f8f9fa",
+                    border: "1px solid #e0e0e0",
+                    borderRadius: "10px",
+                    fontSize: "16px",
+                  }}
+                >
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </Form.Select>
+              </Form.Group>
+            )}
           </Form>
         </Modal.Body>
 
@@ -672,7 +673,7 @@ const ManagePlans = () => {
             style={{
               borderRadius: "10px",
               fontSize: "16px",
-              minWidth: "120px"
+              minWidth: "120px",
             }}
           >
             Cancel
@@ -687,7 +688,7 @@ const ManagePlans = () => {
               borderRadius: "10px",
               fontSize: "16px",
               minWidth: "120px",
-              border: "none"
+              border: "none",
             }}
           >
             <FaPlus className="me-2" />
