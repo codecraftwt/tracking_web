@@ -1,62 +1,118 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom"; // Import useNavigate
 import { useDispatch, useSelector } from "react-redux";
 import { getAllUsers } from "../../redux/slices/userSlice";
 import { BiUser } from "react-icons/bi";
-import { Table, Container, Row, Col, Tabs, Tab } from "react-bootstrap";
+import { Table, Container, Row, Col, Tabs, Tab, Badge } from "react-bootstrap";
 import Navbar from "../../components/Navbar";
 import Loader from "../../components/Loader";
+import { FaRupeeSign, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 
-const UserTable = ({ users, status }) => (
-  <Table striped bordered hover responsive className="tableStyle">
-    <thead>
-      <tr className="tdThStyle">
-        <th>Sr. No.</th>
-        <th>Profile</th>
-        <th>Name</th>
-        <th>Email</th>
-        <th>Mobile Number</th>
-        <th>Status</th>
-        <th>Address</th>
-        <th>Created At</th>
-        <th>Updated At</th>
-      </tr>
-    </thead>
-    <tbody>
-      {users.length > 0 ? (
-        users.map((user, index) => (
-          <tr key={user._id} className="tdThStyle">
-            <td>{index + 1}</td>
-            <td className="text-center">
-              {user.avtar ? (
-                <img
-                  src={user.avtar}
-                  alt="User Avatar"
-                  style={{ width: "50px", height: "50px", borderRadius: "50%" }}
-                />
-              ) : (
-                <BiUser style={{ fontSize: "30px" }} />
-              )}
-            </td>
-            <td>{user.name}</td>
-            <td>{user.email}</td>
-            <td>{user.mobile_no}</td>
-            <td>{status}</td>
-            <td>{user.address}</td>
-            <td>{new Date(user.createdAt).toLocaleDateString()}</td>
-            <td>{new Date(user.updatedAt).toLocaleDateString()}</td>
-          </tr>
-        ))
-      ) : (
-        <tr>
-          <td colSpan="9" className="text-center tdThStyle">
-            No {status.toLowerCase()} users found.
-          </td>
+const UserTable = ({ users, status }) => {
+  const navigate = useNavigate(); // Initialize navigate
+
+  const handleRowClick = (user) => {
+    // Navigate to /trackingdata and pass the user object as state
+    navigate("/trackingdata", { state: { item: user } });
+  };
+
+  return (
+    <Table striped bordered hover responsive className="tableStyle">
+      <thead style={{ background: "rgba(59, 130, 246, 0.05)" }}>
+        <tr className="tdThStyle">
+          <th className="fw-semibold" style={{ color: "#374151" }}>
+            Sr. No.
+          </th>
+          <th className="fw-semibold" style={{ color: "#374151" }}>
+            Profile
+          </th>
+          <th className="fw-semibold" style={{ color: "#374151" }}>
+            Name
+          </th>
+          <th className="fw-semibold" style={{ color: "#374151" }}>
+            Email
+          </th>
+          <th className="fw-semibold" style={{ color: "#374151" }}>
+            Mobile Number
+          </th>
+          <th className="fw-semibold" style={{ color: "#374151" }}>
+            Status
+          </th>
+          <th className="fw-semibold" style={{ color: "#374151" }}>
+            Address
+          </th>
+          <th className="fw-semibold" style={{ color: "#374151" }}>
+            Created At
+          </th>
+          <th className="fw-semibold" style={{ color: "#374151" }}>
+            Updated At
+          </th>
         </tr>
-      )}
-    </tbody>
-  </Table>
-);
+      </thead>
+      <tbody>
+        {users.length > 0 ? (
+          users.map((user, index) => (
+            <tr
+              key={user._id}
+              className="tdThStyle"
+              onClick={() => handleRowClick(user)} // Add onClick to each row
+              style={{ cursor: "pointer" }} // Change cursor on hover
+            >
+              <td>{index + 1}</td>
+              <td className="text-center">
+                {user.avtar ? (
+                  <img
+                    src={user.avtar}
+                    alt="User Avatar"
+                    style={{
+                      width: "50px",
+                      height: "50px",
+                      borderRadius: "50%",
+                      objectFit: "cover",
+                    }}
+                  />
+                ) : (
+                  <BiUser style={{ fontSize: "30px" }} />
+                )}
+              </td>
+              <td>{user.name}</td>
+              <td>{user.email}</td>
+              <td>{user.mobile_no}</td>
+              <td>
+                <Badge
+                  bg={user.isActive ? "success" : "danger"}
+                  className="rounded-pill px-3 py-2"
+                  style={{ fontSize: "12px" }}
+                >
+                  {user.isActive ? (
+                    <>
+                      <FaCheckCircle size={12} className="me-1" />
+                      Active
+                    </>
+                  ) : (
+                    <>
+                      <FaTimesCircle size={12} className="me-1" />
+                      Inactive
+                    </>
+                  )}
+                </Badge>
+              </td>
+              <td>{user.address}</td>
+              <td>{new Date(user.createdAt).toLocaleDateString()}</td>
+              <td>{new Date(user.updatedAt).toLocaleDateString()}</td>
+            </tr>
+          ))
+        ) : (
+          <tr>
+            <td colSpan="9" className="text-center tdThStyle">
+              No {status.toLowerCase()} users found.
+            </td>
+          </tr>
+        )}
+      </tbody>
+    </Table>
+  );
+};
 
 const Listusers = () => {
   const { adminId } = useParams();

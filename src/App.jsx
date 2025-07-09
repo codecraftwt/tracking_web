@@ -355,13 +355,16 @@ const App = () => {
             <Route
               path="/trackingdata"
               element={
-                <PrivateRoute element={<TrackingData />} allowedRoles={[1]} />
+                <PrivateRoute
+                  element={<TrackingData />}
+                  allowedRoles={[1, 2]}
+                />
               }
             />
             <Route
               path="/locations"
               element={
-                <PrivateRoute element={<Locations />} allowedRoles={[1]} />
+                <PrivateRoute element={<Locations />} allowedRoles={[1, 2]} />
               }
             />
             <Route
