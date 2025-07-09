@@ -118,7 +118,9 @@
   text-decoration: none !important;
 }
 
-
+.btn-close {
+  color: white !important; /* Ensure the close button icon is white */
+}
 
 /* Loading animation for active states */
 @keyframes pulse {

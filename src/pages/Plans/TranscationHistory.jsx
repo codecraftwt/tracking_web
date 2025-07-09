@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Navbar from "../../components/Navbar";
 import {
@@ -15,6 +15,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getPaymentHistory } from "../../redux/slices/paymentSlice";
 import { useAuth } from "../../context/AuthContext";
 import Loader from "../../components/Loader";
+import ReceiptModal from "../../components/modals/ReceiptModal";
 
 const TransactionHistory = () => {
   const dispatch = useDispatch();
@@ -22,6 +23,8 @@ const TransactionHistory = () => {
   const { paymentHistory, historyLoading, historyError } = useSelector(
     (state) => state.PaymentData
   );
+  const [selectedTransaction, setSelectedTransaction] = useState(null);
+  const [showReceipt, setShowReceipt] = useState(false);
 
   useEffect(() => {
     if (isAuthenticated && user) {
@@ -165,6 +168,10 @@ const TransactionHistory = () => {
                           e.currentTarget.style.boxShadow =
                             "0 4px 6px rgba(0,0,0,0.05)";
                         }}
+                        onClick={() => {
+                          setSelectedTransaction(transaction);
+                          setShowReceipt(true);
+                        }}
                       >
                         <Card.Body className="p-4">
                           <div className="d-flex justify-content-between align-items-center">
@@ -218,6 +225,17 @@ const TransactionHistory = () => {
                                     {transaction.planId.duration})
                                   </small>
                                 )}
+                                {transaction.isExpired && (
+                                  <small className="text-danger d-block">
+                                    <strong>Expired</strong> (Expires on{" "}
+                                    {formatDate(transaction.expiresAt)})
+                                  </small>
+                                )}
+                                {transaction.remainingDays > 0 && (
+                                  <small className="text-muted d-block">
+                                    {transaction.remainingDays} days remaining
+                                  </small>
+                                )}
                               </div>
                             </div>
 
@@ -267,6 +285,39 @@ const TransactionHistory = () => {
                                   {transaction.paymentMethod}
                                 </small>
                               )}
+                              {/* Add-ons */}
+                              {transaction.addOns &&
+                                transaction.addOns.length > 0 && (
+                                  <div className="mt-3">
+                                    <h6 className="fw-semibold mb-2">
+                                      Add-Ons
+                                    </h6>
+                                    {transaction.addOns.map((addOn, idx) => (
+                                      <div
+                                        key={idx}
+                                        className="d-flex justify-content-between align-items-center"
+                                      >
+                                        <small className="text-muted">
+                                          Upgrade to {addOn.addOnMaxUser} users
+                                        </small>
+                                        <div className="ml-2">
+                                          <span
+                                            className="fw-bold mb-2"
+                                            style={{
+                                              color: getAmountColor(
+                                                transaction.amount
+                                              ),
+                                              fontSize: "18px",
+                                              transition: "all 0.3s ease",
+                                            }}
+                                          >
+                                            +₹{addOn.addOnAmount}
+                                          </span>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
                             </div>
                           </div>
                         </Card.Body>
@@ -293,6 +344,13 @@ const TransactionHistory = () => {
           </div>
         </div>
       </main>
+      {selectedTransaction && (
+        <ReceiptModal
+          transaction={selectedTransaction}
+          show={showReceipt}
+          onHide={() => setShowReceipt(false)}
+        />
+      )}
     </div>
   );
 };

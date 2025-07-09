@@ -297,7 +297,7 @@ const ManagePlans = () => {
                     </div>
                   ) : (
                     <div className="table-responsive">
-                      <Table className="mb-0">
+                      <Table className="mb-0 small">
                         <thead>
                           <tr
                             style={{ background: "rgba(59, 130, 246, 0.05)" }}

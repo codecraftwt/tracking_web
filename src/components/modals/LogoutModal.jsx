@@ -9,15 +9,14 @@ const LogoutModal = ({ showModal, setShowModal, handleLogout }) => {
       show={showModal}
       onHide={() => setShowModal(false)}
       centered
-      animation={false}
+      animation={true}
     >
       <Modal.Header
         closeButton
         style={{
           background: "linear-gradient(135deg, #3B82F6, #2563EB)",
           borderBottom: "none",
-          borderTopLeftRadius: "12px",
-          borderTopRightRadius: "12px",
+          boxShadow: "0 4px 15px rgba(0, 0, 0, 0.1)", // Subtle shadow for depth
         }}
         className="text-white"
       >
@@ -27,9 +26,10 @@ const LogoutModal = ({ showModal, setShowModal, handleLogout }) => {
             style={{
               background: "rgba(255, 255, 255, 0.2)",
               backdropFilter: "blur(10px)",
+              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)", // Slight shadow effect
             }}
           >
-            <FaSignOutAlt size={18} />
+            <FaSignOutAlt size={20} />
           </div>
           Confirm Logout
         </Modal.Title>
@@ -44,8 +44,8 @@ const LogoutModal = ({ showModal, setShowModal, handleLogout }) => {
             background: "linear-gradient(135deg, #FEE2E2, #FECACA)",
             border: "3px solid #FCA5A5",
           }}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
         >
           <FaSignOutAlt size={32} color="#DC2626" />
@@ -70,8 +70,11 @@ const LogoutModal = ({ showModal, setShowModal, handleLogout }) => {
             color: "#6B7280",
             boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
             minWidth: "140px",
+            transition: "all 0.3s ease",
           }}
           onClick={() => setShowModal(false)}
+          onMouseEnter={(e) => (e.target.style.transform = "scale(1.05)")}
+          onMouseLeave={(e) => (e.target.style.transform = "scale(1)")}
         >
           Cancel
         </Button>
@@ -83,7 +86,10 @@ const LogoutModal = ({ showModal, setShowModal, handleLogout }) => {
             background: "linear-gradient(135deg, #DC2626, #B91C1C)",
             boxShadow: "0 4px 15px rgba(220, 38, 38, 0.3)",
             minWidth: "140px",
+            transition: "all 0.3s ease",
           }}
+          onMouseEnter={(e) => (e.target.style.transform = "scale(1.05)")}
+          onMouseLeave={(e) => (e.target.style.transform = "scale(1)")}
         >
           <FaSignOutAlt size={16} />
           Log Out
