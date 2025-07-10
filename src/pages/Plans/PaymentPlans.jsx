@@ -45,6 +45,8 @@ const PaymentPlans = () => {
   const [subscriptionExpiry, setSubscriptionExpiry] = useState(null);
   const [currentPlanDetails, setCurrentPlanDetails] = useState(null);
 
+  const [processingPlanId, setProcessingPlanId] = useState(null);
+
   useEffect(() => {
     dispatch(getAllPlans());
   }, [dispatch]);
@@ -85,6 +87,7 @@ const PaymentPlans = () => {
     plansList?.filter((plan) => plan.name.includes("Add on Plan")) || [];
 
   const handleSubscriptionPayment = async (planId) => {
+    setProcessingPlanId(planId);
     // Check if user has an active (non-expired) subscription
     if (
       hasActiveSubscription &&
@@ -202,10 +205,13 @@ const PaymentPlans = () => {
     } catch (error) {
       console.error("Payment error:", error);
       alert("Payment failed: " + error.message);
+    } finally {
+      setProcessingPlanId(null);
     }
   };
 
   const handleUpgradePlan = async (addOnPlanId) => {
+    setProcessingPlanId(addOnPlanId);
     try {
       if (!user) {
         alert("User not authenticated. Please login.");
@@ -294,6 +300,8 @@ const PaymentPlans = () => {
     } catch (error) {
       console.error("Error in upgrading plan:", error);
       alert("An error occurred while upgrading your plan.");
+    } finally {
+      setProcessingPlanId(null);
     }
   };
 
@@ -570,7 +578,7 @@ const PaymentPlans = () => {
                   e.target.style.boxShadow = "none";
                 }}
               >
-                {orderLoading ? (
+                {processingPlanId === plan._id ? (
                   <>
                     <div
                       className="spinner-border spinner-border-sm me-2"
