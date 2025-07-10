@@ -26,7 +26,14 @@ function Navbar({ username = "W", pageTitle = "", showBackButton = false }) {
   return (
     <div style={{ backgroundColor: "#3479f3" }}>
       <header
-        style={{ borderTopLeftRadius: "35px" }}
+        style={{
+          borderTopLeftRadius: "35px",
+          position: "fixed",
+          top: 0,
+          width: "82%",
+          zIndex: 999,
+          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+        }}
         className="d-flex justify-content-between align-items-center px-4 py-3 bg-white shadow-sm"
       >
         {/* Container for back button and title */}
@@ -119,6 +126,8 @@ function Navbar({ username = "W", pageTitle = "", showBackButton = false }) {
         setShowModal={setShowModal}
         handleLogout={handleLogout}
       />
+
+      <div style={{ paddingTop: "70px" }}></div>
     </div>
   );
 }

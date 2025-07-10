@@ -7,7 +7,7 @@ import {
   Polyline,
 } from "@react-google-maps/api";
 import Navbar from "../../components/Navbar";
-import "./Locations.css"; // We'll create this CSS file
+import "./Locations.css";
 
 const mapContainerStyle = {
   width: "100%",
@@ -29,9 +29,23 @@ const Locations = () => {
     libraries: ["places"],
   });
 
+  // Get icon configuration only when Google Maps is loaded
+  const getIconConfig = useCallback(
+    (color, size = 32) => {
+      if (!isLoaded) return undefined;
+
+      return {
+        url: `http://maps.google.com/mapfiles/ms/icons/${color}-dot.png`,
+        scaledSize: new window.google.maps.Size(size, size),
+        anchor: new window.google.maps.Point(size / 2, size),
+      };
+    },
+    [isLoaded]
+  );
+
   // Process locations and set coordinates
   useEffect(() => {
-    if (locations?.length) {
+    if (isLoaded && locations?.length) {
       const coords = locations
         .map((loc) => ({
           lat: parseFloat(loc.latitude),
@@ -39,17 +53,17 @@ const Locations = () => {
           timestamp: loc.timestamp || loc.createdAt,
           accuracy: loc.accuracy,
         }))
-        .filter((coord) => coord.lat && coord.lng); // Filter out invalid coordinates
+        .filter((coord) => !isNaN(coord.lat) && !isNaN(coord.lng));
 
       setCoordinates(coords);
 
-      // Set map center to the middle of the route
+      // Set map center and zoom level
       if (coords.length > 0) {
         const midIndex = Math.floor(coords.length / 2);
         setMapCenter(coords[midIndex]);
 
-        // Calculate appropriate zoom level based on route distance
-        if (coords.length > 1 && window.google && window.google.maps) {
+        // Calculate bounds and zoom level
+        try {
           const bounds = new window.google.maps.LatLngBounds();
           coords.forEach((coord) => bounds.extend(coord));
           const ne = bounds.getNorthEast();
@@ -58,11 +72,13 @@ const Locations = () => {
           const lngDiff = Math.abs(ne.lng() - sw.lng());
           const maxDiff = Math.max(latDiff, lngDiff);
 
-          // Set zoom based on the maximum difference
           if (maxDiff > 0.1) setMapZoom(10);
           else if (maxDiff > 0.05) setMapZoom(12);
           else if (maxDiff > 0.01) setMapZoom(14);
           else setMapZoom(16);
+        } catch (error) {
+          console.error("Error calculating bounds:", error);
+          setMapZoom(14); // Default zoom if bounds calculation fails
         }
       }
     }
@@ -72,63 +88,28 @@ const Locations = () => {
     (map) => {
       mapRef.current = map;
 
-      // Fit bounds to show all markers
-      if (coordinates.length > 0 && window.google && window.google.maps) {
-        const bounds = new window.google.maps.LatLngBounds();
-        coordinates.forEach((coord) => bounds.extend(coord));
-        map.fitBounds(bounds);
+      if (coordinates.length > 0 && isLoaded) {
+        try {
+          const bounds = new window.google.maps.LatLngBounds();
+          coordinates.forEach((coord) => bounds.extend(coord));
+          map.fitBounds(bounds);
 
-        // Add some padding to the bounds
-        const listener = window.google.maps.event.addListenerOnce(
-          map,
-          "bounds_changed",
-          () => {
-            map.setZoom(Math.min(map.getZoom(), 16));
-          }
-        );
+          window.google.maps.event.addListenerOnce(
+            map,
+            "bounds_changed",
+            () => {
+              map.setZoom(Math.min(map.getZoom(), 16));
+            }
+          );
+        } catch (error) {
+          console.error("Error fitting bounds:", error);
+        }
       }
     },
-    [coordinates]
+    [coordinates, isLoaded]
   );
 
-  // Custom marker icons
-  const startIcon = {
-    url: "http://maps.google.com/mapfiles/ms/icons/green-dot.png",
-    scaledSize:
-      window.google && window.google.maps
-        ? new window.google.maps.Size(32, 32)
-        : undefined,
-    anchor:
-      window.google && window.google.maps
-        ? new window.google.maps.Point(16, 32)
-        : undefined,
-  };
-
-  const endIcon = {
-    url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png",
-    scaledSize:
-      window.google && window.google.maps
-        ? new window.google.maps.Size(32, 32)
-        : undefined,
-    anchor:
-      window.google && window.google.maps
-        ? new window.google.maps.Point(16, 32)
-        : undefined,
-  };
-
-  const waypointIcon = {
-    url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
-    scaledSize:
-      window.google && window.google.maps
-        ? new window.google.maps.Size(24, 24)
-        : undefined,
-    anchor:
-      window.google && window.google.maps
-        ? new window.google.maps.Point(12, 24)
-        : undefined,
-  };
-
-  if (loadError)
+  if (loadError) {
     return (
       <div className="min-vh-100 d-flex align-items-center justify-content-center error-container">
         <div className="text-center">
@@ -137,8 +118,9 @@ const Locations = () => {
         </div>
       </div>
     );
+  }
 
-  if (!isLoaded)
+  if (!isLoaded) {
     return (
       <div className="min-vh-100 d-flex align-items-center justify-content-center loading-container">
         <div className="text-center">
@@ -149,6 +131,7 @@ const Locations = () => {
         </div>
       </div>
     );
+  }
 
   return (
     <div className="bg-white min-vh-100">
@@ -186,21 +169,17 @@ const Locations = () => {
                 strokeOpacity: 0.8,
                 strokeWeight: 4,
                 geodesic: true,
-                icons:
-                  window.google && window.google.maps
-                    ? [
-                        {
-                          icon: {
-                            path: window.google.maps.SymbolPath
-                              .FORWARD_CLOSED_ARROW,
-                            scale: 3,
-                            strokeColor: "#3B82F6",
-                          },
-                          offset: "50%",
-                          repeat: "100px",
-                        },
-                      ]
-                    : undefined,
+                icons: [
+                  {
+                    icon: {
+                      path: window.google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+                      scale: 3,
+                      strokeColor: "#3B82F6",
+                    },
+                    offset: "50%",
+                    repeat: "100px",
+                  },
+                ],
               }}
             />
           )}
@@ -210,7 +189,7 @@ const Locations = () => {
             <Marker
               position={coordinates[0]}
               title="Start Location"
-              icon={startIcon}
+              icon={getIconConfig("green")}
               label={{
                 text: "START",
                 className: "marker-label start-label",
@@ -226,7 +205,7 @@ const Locations = () => {
             <Marker
               position={coordinates[coordinates.length - 1]}
               title="End Location"
-              icon={endIcon}
+              icon={getIconConfig("red")}
               label={{
                 text: "END",
                 className: "marker-label end-label",
@@ -245,6 +224,8 @@ const Locations = () => {
             style={{
               maxWidth: "300px",
               zIndex: 1000,
+              backgroundColor: "white",
+              boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
             }}
           >
             <h6 className="fw-bold mb-2">Route Information</h6>

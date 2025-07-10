@@ -66,6 +66,18 @@ export const getAllPaymentHistory = createAsyncThunk(
   }
 );
 
+export const getRevenueSummary = createAsyncThunk(
+  "payment/getRevenueSummary",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get("/api/payments/revenue-summary"); // API URL for the revenue summary
+      return response.data; // This will be the response from your server
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message); // Handle errors
+    }
+  }
+);
+
 export const getPaymentById = createAsyncThunk(
   "payment/getPaymentById",
   async (paymentId, { rejectWithValue }) => {
@@ -154,6 +166,10 @@ const initialState = {
   allPaymentHistoryLoading: false,
   allPaymentHistoryError: null,
   totalCompletedAmount: 0,
+
+  revenueSummary: null,
+  revenueLoading: false,
+  revenueError: null,
 
   // Payment details
   paymentDetailsLoading: false,
@@ -268,6 +284,20 @@ const paymentSlice = createSlice({
       .addCase(getAllPaymentHistory.rejected, (state, action) => {
         state.allPaymentHistoryLoading = false;
         state.allPaymentHistoryError = action.payload;
+      });
+
+    builder
+      .addCase(getRevenueSummary.pending, (state) => {
+        state.revenueLoading = true;
+        state.revenueError = null;
+      })
+      .addCase(getRevenueSummary.fulfilled, (state, action) => {
+        state.revenueLoading = false;
+        state.revenueSummary = action.payload;
+      })
+      .addCase(getRevenueSummary.rejected, (state, action) => {
+        state.revenueLoading = false;
+        state.revenueError = action.payload;
       });
 
     // Get Payment By ID

@@ -21,18 +21,26 @@ import {
 } from "react-icons/fa";
 import ExpiringPlansTable from "./ExpiringPlansTable";
 import { getUsersWithExpiringPlans } from "../../redux/slices/planSlice";
+import { getRevenueSummary } from "../../redux/slices/paymentSlice";
 
 const Dashboard = () => {
+  const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
   const userCounts = useSelector((state) => state.UserData.userCounts);
   const expiringUsers = useSelector((state) => state.PlanData.expiringUsers);
-  const dispatch = useDispatch();
+  const { revenueSummary, revenueLoading, revenueError } = useSelector(
+    (state) => state.PaymentData
+  );
 
   useEffect(() => {
     dispatch(getUserCounts());
     dispatch(getUsersWithExpiringPlans());
   }, []);
+
+  useEffect(() => {
+    dispatch(getRevenueSummary());
+  }, [dispatch]);
 
   const userStats = [
     {
@@ -229,7 +237,9 @@ const Dashboard = () => {
                       <div>
                         <h6 className="text-white-50 mb-1">Total Revenue</h6>
                         <h2 className="fw-bold mb-0">
-                          {revenueData.total.toLocaleString()}
+                          {revenueSummary?.totalRevenue > 0
+                            ? `₹${revenueSummary?.totalRevenue.toLocaleString()}`
+                            : ""}
                         </h2>
                       </div>
                       <div className="text-end">
@@ -240,7 +250,10 @@ const Dashboard = () => {
                           style={{ fontSize: "12px" }}
                         >
                           <FaArrowUp className="me-1 text-success" size={10} />+
-                          {revenueData.thisMonthGrowth}%
+                          {revenueSummary?.growthPercentage > 0
+                            ? revenueSummary?.growthPercentage.toLocaleString()
+                            : ""}
+                          %
                         </Badge>
                         <p className="text-white-50 small mb-0">This Month</p>
                       </div>
@@ -259,7 +272,9 @@ const Dashboard = () => {
                           <div className="d-flex align-items-center justify-content-between">
                             <div>
                               <h5 className="fw-bold mb-1">
-                                {revenueData.thisMonth.toLocaleString()}
+                                {revenueSummary?.currentMonthRevenue > 0
+                                  ? `₹${revenueSummary?.currentMonthRevenue.toLocaleString()}`
+                                  : ""}
                               </h5>
                               <p className="text-white-50 small mb-0">
                                 This Month
@@ -283,7 +298,9 @@ const Dashboard = () => {
                           <div className="d-flex align-items-center justify-content-between">
                             <div>
                               <h5 className="fw-bold mb-1">
-                                {revenueData.lastMonth.toLocaleString()}
+                                {revenueSummary?.lastMonthRevenue > 0
+                                  ? `₹${revenueSummary?.lastMonthRevenue.toLocaleString()}`
+                                  : ""}
                               </h5>
                               <p className="text-white-50 small mb-0">
                                 Last Month

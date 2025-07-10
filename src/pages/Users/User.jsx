@@ -51,9 +51,10 @@ const User = () => {
   const subscriptionExpiry = userData?.currentPaymentId?.expiresAt;
 
   const canCreateUser =
-    maxUser &&
-    totalUsers < maxUser &&
-    (!subscriptionExpiry || moment(subscriptionExpiry).isAfter(moment()));
+    role_id === 2 ||
+    (maxUser &&
+      totalUsers < maxUser &&
+      (!subscriptionExpiry || moment(subscriptionExpiry).isAfter(moment())));
 
   useEffect(() => {
     const fetchData = async () => {

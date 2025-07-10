@@ -34,6 +34,7 @@ import Loader from "../../components/Loader";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
 import DeleteConfirmModal from "../../components/modals/DeleteConfirmModal";
+import PlanModal from "../../components/modals/PlanModal";
 
 const ManagePlans = () => {
   const dispatch = useDispatch();
@@ -117,6 +118,8 @@ const ManagePlans = () => {
         });
     }
   };
+
+  console.log("plansList", plansList);
 
   const handleEdit = (plan) => {
     setPlanData({
@@ -318,6 +321,12 @@ const ManagePlans = () => {
                               className="border-0 p-3 fw-semibold"
                               style={{ color: "#374151" }}
                             >
+                              Description
+                            </th>
+                            <th
+                              className="border-0 p-3 fw-semibold"
+                              style={{ color: "#374151" }}
+                            >
                               Price
                             </th>
                             <th
@@ -325,6 +334,12 @@ const ManagePlans = () => {
                               style={{ color: "#374151" }}
                             >
                               Duration
+                            </th>
+                            <th
+                              className="border-0 p-3 fw-semibold"
+                              style={{ color: "#374151" }}
+                            >
+                              Status
                             </th>
                             <th
                               className="border-0 p-3 fw-semibold text-center"
@@ -398,6 +413,23 @@ const ManagePlans = () => {
                                   className="border-0 p-3"
                                   style={{ background: rowBg }}
                                 >
+                                  <span
+                                    className="text-muted"
+                                    style={{
+                                      maxWidth: "200px",
+                                      display: "block",
+                                      overflow: "hidden",
+                                      textOverflow: "ellipsis",
+                                      whiteSpace: "nowrap",
+                                    }}
+                                  >
+                                    {plan.description}
+                                  </span>
+                                </td>
+                                <td
+                                  className="border-0 p-3"
+                                  style={{ background: rowBg }}
+                                >
                                   <div className="d-flex align-items-center">
                                     <span className="fw-bold text-success">
                                       {plan.price}
@@ -417,6 +449,22 @@ const ManagePlans = () => {
                                       {plan.duration}
                                     </Badge>
                                   </div>
+                                </td>
+                                <td
+                                  className="border-0 p-3"
+                                  style={{ background: rowBg }}
+                                >
+                                  <Badge
+                                    bg={
+                                      plan.status === "active"
+                                        ? "success"
+                                        : "secondary"
+                                    }
+                                    className="text-white px-3 py-1 rounded-pill"
+                                    style={{ fontSize: "12px" }}
+                                  >
+                                    {plan.status}
+                                  </Badge>
                                 </td>
                                 <td
                                   className="border-0 p-3 text-center"
@@ -481,221 +529,15 @@ const ManagePlans = () => {
       />
 
       {/* Add/Edit Plan Modal */}
-      <Modal
+      <PlanModal
         show={showModal}
-        onHide={handleClose}
-        centered
-        size="lg"
-        style={{ zIndex: 1050 }}
-      >
-        <Modal.Header
-          closeButton
-          style={{
-            background: "linear-gradient(135deg, #3B82F6, #2563EB)",
-            borderBottom: "none",
-          }}
-          className="text-white"
-        >
-          <Modal.Title className="fw-bold d-flex align-items-center gap-2">
-            <FaPlus />
-            {planData._id ? "Edit Plan" : "Add New Plan"}
-          </Modal.Title>
-        </Modal.Header>
-
-        <Modal.Body className="p-5">
-          <Form>
-            {/* Plan Type */}
-            <Form.Group className="mb-4">
-              <Form.Label className="fw-semibold text-dark mb-2">
-                Plan Type
-              </Form.Label>
-              <Form.Select
-                name="name"
-                value={planData.name}
-                onChange={handleChange}
-                className="form-control-lg border-0"
-                style={{
-                  background: "#f8f9fa",
-                  border: "1px solid #e0e0e0",
-                  borderRadius: "10px",
-                  fontSize: "16px",
-                }}
-              >
-                <option value="">Select Plan Type</option>
-                {planOptions?.map((option, index) => (
-                  <option key={index} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </Form.Select>
-            </Form.Group>
-
-            {/* Duration */}
-            <Form.Group className="mb-4">
-              <Form.Label className="fw-semibold text-dark mb-2">
-                Duration
-              </Form.Label>
-              <Form.Select
-                name="duration"
-                value={planData.duration}
-                onChange={handleChange}
-                className="form-control-lg border-0"
-                style={{
-                  background: "#f8f9fa",
-                  border: "1px solid #e0e0e0",
-                  borderRadius: "10px",
-                  fontSize: "16px",
-                }}
-              >
-                <option value="">Select Duration</option>
-                {durationOptions.map((option, index) => (
-                  <option key={index} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </Form.Select>
-            </Form.Group>
-
-            {/* Description */}
-            <Form.Group className="mb-4">
-              <Form.Label className="fw-semibold text-dark mb-2">
-                Description
-              </Form.Label>
-              <Form.Control
-                type="text"
-                name="description"
-                value={planData.description}
-                onChange={handleChange}
-                placeholder="Enter plan description"
-                className="form-control-lg border-0"
-                style={{
-                  background: "#f8f9fa",
-                  border: "1px solid #e0e0e0",
-                  borderRadius: "10px",
-                  fontSize: "16px",
-                }}
-              />
-            </Form.Group>
-
-            {/* Minimum Users */}
-            <Form.Group className="mb-4">
-              <Form.Label className="fw-semibold text-dark mb-2">
-                Minimum Users
-              </Form.Label>
-              <Form.Control
-                type="number"
-                name="minUsers"
-                value={planData.minUsers}
-                onChange={handleChange}
-                placeholder="Enter minimum number of users"
-                className="form-control-lg border-0"
-                style={{
-                  background: "#f8f9fa",
-                  border: "1px solid #e0e0e0",
-                  borderRadius: "10px",
-                  fontSize: "16px",
-                }}
-              />
-            </Form.Group>
-
-            {/* Maximum Users */}
-            <Form.Group className="mb-4">
-              <Form.Label className="fw-semibold text-dark mb-2">
-                Maximum Users
-              </Form.Label>
-              <Form.Control
-                type="number"
-                name="maxUsers"
-                value={planData.maxUsers}
-                onChange={handleChange}
-                placeholder="Enter maximum number of users"
-                className="form-control-lg border-0"
-                style={{
-                  background: "#f8f9fa",
-                  border: "1px solid #e0e0e0",
-                  borderRadius: "10px",
-                  fontSize: "16px",
-                }}
-              />
-            </Form.Group>
-
-            {/* Price */}
-            <Form.Group className="mb-4">
-              <Form.Label className="fw-semibold text-dark mb-2">
-                Price (₹)
-              </Form.Label>
-              <Form.Control
-                type="number"
-                name="price"
-                value={planData.price}
-                onChange={handleChange}
-                placeholder="Enter plan price"
-                className="form-control-lg border-0"
-                style={{
-                  background: "#f8f9fa",
-                  border: "1px solid #e0e0e0",
-                  borderRadius: "10px",
-                  fontSize: "16px",
-                }}
-              />
-            </Form.Group>
-
-            {planData._id && (
-              <Form.Group className="mb-4">
-                <Form.Label className="fw-semibold text-dark mb-2">
-                  Status
-                </Form.Label>
-                <Form.Select
-                  name="status"
-                  value={planData.status || "active"} // default to active if undefined
-                  onChange={handleChange}
-                  className="form-control-lg border-0"
-                  style={{
-                    background: "#f8f9fa",
-                    border: "1px solid #e0e0e0",
-                    borderRadius: "10px",
-                    fontSize: "16px",
-                  }}
-                >
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                </Form.Select>
-              </Form.Group>
-            )}
-          </Form>
-        </Modal.Body>
-
-        <Modal.Footer className="d-flex justify-content-center gap-3 p-4 border-top">
-          <Button
-            variant="outline-secondary"
-            className="px-4 py-3 fw-semibold"
-            onClick={handleClose}
-            style={{
-              borderRadius: "10px",
-              fontSize: "16px",
-              minWidth: "120px",
-            }}
-          >
-            Cancel
-          </Button>
-
-          <Button
-            variant="primary"
-            className="px-4 py-3 fw-semibold"
-            onClick={handleSubmit}
-            style={{
-              background: "linear-gradient(135deg, #3B82F6, #2563EB)",
-              borderRadius: "10px",
-              fontSize: "16px",
-              minWidth: "120px",
-              border: "none",
-            }}
-          >
-            <FaPlus className="me-2" />
-            {planData._id ? "Update Plan" : "Create Plan"}
-          </Button>
-        </Modal.Footer>
-      </Modal>
+        handleClose={handleClose}
+        handleSubmit={handleSubmit}
+        planData={planData}
+        handleChange={handleChange}
+        planOptions={planOptions}
+        durationOptions={durationOptions}
+      />
     </div>
   );
 };
