@@ -49,10 +49,17 @@ const PaymentPlans = () => {
     dispatch(getAllPlans());
   }, [dispatch]);
 
+  useEffect(() => {
+    dispatch(getUserById(userData._id));
+  }, [dispatch, userData._id]);
+
   // Check if user has active subscription and set current plan details
   useEffect(() => {
     if (userData?.currentPaymentId) {
-      setHasActiveSubscription(true);
+      const isExpired = moment(userData.currentPaymentId.expiresAt).isBefore(
+        moment()
+      );
+      setHasActiveSubscription(!isExpired); // Only set to true if not expired
       if (userData.currentPaymentId.expiresAt) {
         setSubscriptionExpiry(userData.currentPaymentId.expiresAt);
       }
@@ -78,7 +85,12 @@ const PaymentPlans = () => {
     plansList?.filter((plan) => plan.name.includes("Add on Plan")) || [];
 
   const handleSubscriptionPayment = async (planId) => {
-    if (hasActiveSubscription) {
+    // Check if user has an active (non-expired) subscription
+    if (
+      hasActiveSubscription &&
+      subscriptionExpiry &&
+      moment(subscriptionExpiry).isAfter(moment())
+    ) {
       alert(
         "You already have an active subscription. You can only purchase add-on plans."
       );
@@ -294,18 +306,33 @@ const PaymentPlans = () => {
     return "#3B82F6";
   };
 
+  // Update the renderPlanCard function to disable subscription plans when there's an active subscription
   const renderPlanCard = (plan, index, isAddOn = false) => (
     <div key={plan._id} className="col-lg-6 col-xl-4">
       <Card
-        className="border-0 shadow-sm h-100"
+        className={`border-0 shadow-sm h-100 ${
+          !isAddOn &&
+          hasActiveSubscription &&
+          currentPlanDetails?.planId !== plan._id
+            ? "opacity-75"
+            : ""
+        }`}
         style={{
           borderRadius: "12px",
           transition: "all 0.3s ease",
           cursor: "pointer",
         }}
         onMouseOver={(e) => {
-          e.currentTarget.style.transform = "translateY(-8px)";
-          e.currentTarget.style.boxShadow = "0 20px 40px rgba(0,0,0,0.1)";
+          if (
+            !(
+              !isAddOn &&
+              hasActiveSubscription &&
+              currentPlanDetails?.planId !== plan._id
+            )
+          ) {
+            e.currentTarget.style.transform = "translateY(-8px)";
+            e.currentTarget.style.boxShadow = "0 20px 40px rgba(0,0,0,0.1)";
+          }
         }}
         onMouseOut={(e) => {
           e.currentTarget.style.transform = "translateY(0)";
@@ -359,7 +386,15 @@ const PaymentPlans = () => {
                 transition: "all 0.3s ease",
               }}
               onMouseOver={(e) => {
-                e.currentTarget.style.transform = "scale(1.05)";
+                if (
+                  !(
+                    !isAddOn &&
+                    hasActiveSubscription &&
+                    currentPlanDetails?.planId !== plan._id
+                  )
+                ) {
+                  e.currentTarget.style.transform = "scale(1.05)";
+                }
               }}
               onMouseOut={(e) => {
                 e.currentTarget.style.transform = "scale(1)";
@@ -384,7 +419,15 @@ const PaymentPlans = () => {
                     transition: "all 0.3s ease",
                   }}
                   onMouseOver={(e) => {
-                    e.currentTarget.style.transform = "translateX(5px)";
+                    if (
+                      !(
+                        !isAddOn &&
+                        hasActiveSubscription &&
+                        currentPlanDetails?.planId !== plan._id
+                      )
+                    ) {
+                      e.currentTarget.style.transform = "translateX(5px)";
+                    }
                   }}
                   onMouseOut={(e) => {
                     e.currentTarget.style.transform = "translateX(0)";
@@ -406,7 +449,15 @@ const PaymentPlans = () => {
                     transition: "all 0.3s ease",
                   }}
                   onMouseOver={(e) => {
-                    e.currentTarget.style.transform = "translateX(5px)";
+                    if (
+                      !(
+                        !isAddOn &&
+                        hasActiveSubscription &&
+                        currentPlanDetails?.planId !== plan._id
+                      )
+                    ) {
+                      e.currentTarget.style.transform = "translateX(5px)";
+                    }
                   }}
                   onMouseOut={(e) => {
                     e.currentTarget.style.transform = "translateX(0)";
@@ -426,18 +477,52 @@ const PaymentPlans = () => {
 
           <div className="d-grid">
             {!isAddOn && hasActiveSubscription ? (
-              <Button
-                variant="secondary"
-                className="d-flex align-items-center justify-content-center"
-                disabled
-                style={{
-                  borderRadius: "8px",
-                  padding: "12px",
-                }}
-              >
-                <FaCheckCircle className="me-2" />
-                Active Plan
-              </Button>
+              currentPlanDetails?.planId === plan._id ? (
+                <Button
+                  variant={
+                    subscriptionExpiry &&
+                    moment(subscriptionExpiry).isBefore(moment())
+                      ? "warning"
+                      : "secondary"
+                  }
+                  className="d-flex align-items-center justify-content-center"
+                  disabled={
+                    subscriptionExpiry &&
+                    moment(subscriptionExpiry).isAfter(moment())
+                  }
+                  style={{
+                    borderRadius: "8px",
+                    padding: "12px",
+                  }}
+                >
+                  {subscriptionExpiry &&
+                  moment(subscriptionExpiry).isBefore(moment()) ? (
+                    <>
+                      <FaCheckCircle className="me-2" />
+                      Expired - Renew Now
+                    </>
+                  ) : (
+                    <>
+                      <FaCheckCircle className="me-2" />
+                      Active Plan
+                    </>
+                  )}
+                </Button>
+              ) : (
+                <Button
+                  variant="secondary"
+                  className="d-flex align-items-center justify-content-center"
+                  disabled
+                  style={{
+                    borderRadius: "8px",
+                    padding: "12px",
+                    cursor: "not-allowed",
+                  }}
+                >
+                  <FaCreditCard className="me-2" />
+                  Subscribe Now
+                </Button>
+              )
             ) : (
               <Button
                 variant="primary"
@@ -447,16 +532,35 @@ const PaymentPlans = () => {
                     ? handleUpgradePlan(plan._id)
                     : handleSubscriptionPayment(plan._id);
                 }}
-                disabled={orderLoading}
+                disabled={
+                  orderLoading ||
+                  (!isAddOn &&
+                    hasActiveSubscription &&
+                    currentPlanDetails?.planId !== plan._id)
+                }
                 style={{
                   borderRadius: "8px",
                   background: getPlanColor(plan.name),
                   border: "none",
                   padding: "12px",
                   transition: "all 0.3s ease",
+                  opacity:
+                    orderLoading ||
+                    (!isAddOn &&
+                      hasActiveSubscription &&
+                      currentPlanDetails?.planId !== plan._id)
+                      ? 0.7
+                      : 1,
                 }}
                 onMouseOver={(e) => {
-                  if (!orderLoading) {
+                  if (
+                    !orderLoading &&
+                    !(
+                      !isAddOn &&
+                      hasActiveSubscription &&
+                      currentPlanDetails?.planId !== plan._id
+                    )
+                  ) {
                     e.target.style.transform = "translateY(-2px)";
                     e.target.style.boxShadow = "0 8px 25px rgba(0,0,0,0.2)";
                   }
@@ -526,23 +630,51 @@ const PaymentPlans = () => {
             )}
 
             {/* Active Subscription Notice */}
-            {hasActiveSubscription && (
-              <Alert variant="info" className="mb-4">
-                <Alert.Heading>Active Subscription</Alert.Heading>
+            {hasActiveSubscription ||
+            (subscriptionExpiry &&
+              moment(subscriptionExpiry).isBefore(moment())) ? (
+              <Alert
+                variant={
+                  subscriptionExpiry &&
+                  moment(subscriptionExpiry).isBefore(moment())
+                    ? "warning"
+                    : "info"
+                }
+                className="mb-4"
+              >
+                <Alert.Heading>
+                  {subscriptionExpiry &&
+                  moment(subscriptionExpiry).isBefore(moment())
+                    ? "Subscription Expired"
+                    : "Active Subscription"}
+                </Alert.Heading>
                 <p>
-                  You currently have an active subscription plan.
-                  {subscriptionExpiry && (
+                  {subscriptionExpiry &&
+                  moment(subscriptionExpiry).isBefore(moment()) ? (
                     <>
-                      {" "}
-                      It will expire on{" "}
+                      Your subscription expired on{" "}
                       {moment(subscriptionExpiry).format("MMMM Do YYYY")}.
+                      <br />
+                      To continue using the service, please purchase one of the
+                      subscription plans below.
+                    </>
+                  ) : (
+                    <>
+                      You currently have an active subscription plan.
+                      {subscriptionExpiry && (
+                        <>
+                          {" "}
+                          It will expire on{" "}
+                          {moment(subscriptionExpiry).format("MMMM Do YYYY")}.
+                        </>
+                      )}
+                      <br />
+                      You can purchase add-on plans to increase your user limit.
                     </>
                   )}
-                  <br />
-                  You can purchase add-on plans to increase your user limit.
                 </p>
               </Alert>
-            )}
+            ) : null}
 
             {/* Subscription Plans Section */}
             <div className="mb-5">

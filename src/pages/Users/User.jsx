@@ -27,6 +27,7 @@ import Loader from "../../components/Loader";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
 import DeleteConfirmModal from "../../components/modals/DeleteConfirmModal";
+import moment from "moment";
 
 const User = () => {
   const [key, setKey] = useState("active");
@@ -47,7 +48,12 @@ const User = () => {
 
   console.log("totalUsers --->", totalUsers);
 
-  const canCreateUser = totalUsers < maxUser; // If totalActiveUsers exceed maxUser, disable button
+  const subscriptionExpiry = userData?.currentPaymentId?.expiresAt;
+
+  const canCreateUser =
+    maxUser &&
+    totalUsers < maxUser &&
+    (!subscriptionExpiry || moment(subscriptionExpiry).isAfter(moment()));
 
   useEffect(() => {
     const fetchData = async () => {
@@ -269,7 +275,7 @@ const User = () => {
       />
 
       {/* Modal for the user limit message */}
-      <Modal show={showLimitModal} onHide={handleCloseModal} centered size="sm">
+      <Modal show={showLimitModal} onHide={handleCloseModal} centered size="lg">
         <Modal.Header
           closeButton
           style={{
@@ -280,7 +286,9 @@ const User = () => {
         >
           <Modal.Title className="fw-bold d-flex align-items-center gap-2">
             <BiUserPlus size={18} />
-            Max Users Reached
+            {subscriptionExpiry && moment(subscriptionExpiry).isBefore(moment())
+              ? "Subscription Expired"
+              : "Max Users Reached"}
           </Modal.Title>
         </Modal.Header>
 
@@ -294,10 +302,14 @@ const User = () => {
             </div>
           </div>
           <h5 className="fw-bold mb-2" style={{ color: "#1f2937" }}>
-            You have reached the maximum number of users.
+            {subscriptionExpiry && moment(subscriptionExpiry).isBefore(moment())
+              ? "Your subscription has expired."
+              : "You have reached the maximum number of users."}
           </h5>
           <p className="text-muted mb-0">
-            To add more users, please upgrade your plan.
+            {subscriptionExpiry && moment(subscriptionExpiry).isBefore(moment())
+              ? "To continue adding users, please renew your subscription."
+              : "To add more users, please upgrade your plan."}
           </p>
         </Modal.Body>
 
@@ -313,12 +325,14 @@ const User = () => {
           <Button
             variant="danger"
             className="px-4 py-2 fw-semibold rounded-3"
-            onClick={handleNavigateToSubscription} // Navigate to subscription
+            onClick={handleNavigateToSubscription}
             style={{
               background: "linear-gradient(135deg, #DC2626, #B91C1C)",
             }}
           >
-            Go to Plans
+            {subscriptionExpiry && moment(subscriptionExpiry).isBefore(moment())
+              ? "Renew Plan"
+              : "Upgrade Plan"}
           </Button>
         </Modal.Footer>
       </Modal>

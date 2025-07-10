@@ -13,6 +13,16 @@ const CurrentPlan = ({ currentPlan }) => {
     }
   }, [currentPlan]);
 
+  const getExpiryStatus = (expiresAt) => {
+    const daysLeft = planExpiresIn(expiresAt);
+    if (daysLeft <= 0) {
+      return { status: "Expired", badgeColor: "danger" }; // Red badge for expired
+    }
+    return { status: `${daysLeft} days left`, badgeColor: "success" }; // Green badge if still active
+  };
+
+  const { status, badgeColor } = getExpiryStatus(planDetails?.expiresAt || "");
+
   return (
     <motion.section
       className="mb-5"
@@ -81,8 +91,8 @@ const CurrentPlan = ({ currentPlan }) => {
               <Col md={6}>
                 <p className="text-muted mb-1">
                   <strong>Expires At:</strong>{" "}
-                  {formatDateDDMMYYYY(planDetails.expiresAt)} (
-                  {planExpiresIn(planDetails.expiresAt)} days left)
+                  {formatDateDDMMYYYY(planDetails.expiresAt)}{" "}
+                  <Badge bg={badgeColor}>{status}</Badge>
                 </p>
               </Col>
             </Row>
