@@ -11,6 +11,7 @@ import {
   AiOutlinePhone,
   AiOutlineHome,
   AiOutlineCamera,
+  AiOutlineExclamationCircle,
 } from "react-icons/ai";
 import { registerUser, updateUser } from "../../redux/slices/userSlice";
 
@@ -34,10 +35,17 @@ const RegisterAdmin = () => {
     avtar: null,
   });
 
+  const [errors, setErrors] = useState({
+    fullName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    mobile: "",
+    address: "",
+  });
+
   const [previewImage, setPreviewImage] = useState(null);
   const userData = useSelector((state) => state.UserData.userInfo);
-
-  console.log(userData);
 
   useEffect(() => {
     if (editingUser) {
@@ -56,14 +64,71 @@ const RegisterAdmin = () => {
     }
   }, [editingUser]);
 
+  const validateField = (name, value) => {
+    let error = "";
+
+    switch (name) {
+      case "fullName":
+        if (!value.trim()) error = "Full name is required";
+        else if (value.length < 3) error = "Name must be at least 3 characters";
+        break;
+      case "email":
+        if (!value.trim()) error = "Email is required";
+        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
+          error = "Invalid email format";
+        break;
+      case "password":
+        if (!editingUser) {
+          if (!value.trim()) error = "Password is required";
+          else if (value.length < 6)
+            error = "Password must be at least 6 characters";
+        }
+        break;
+      case "confirmPassword":
+        if (!editingUser) {
+          if (!value.trim()) error = "Please confirm password";
+          else if (value !== formData.password) error = "Passwords don't match";
+        }
+        break;
+      case "mobile":
+        if (!value.trim()) error = "Mobile number is required";
+        else if (!/^\d{10}$/.test(value))
+          error = "Invalid mobile number (10 digits required)";
+        break;
+      case "address":
+        if (!value.trim()) error = "Address is required";
+        break;
+      default:
+        break;
+    }
+
+    return error;
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+
+    // Validate on change
+    if (errors[name]) {
+      setErrors({ ...errors, [name]: validateField(name, value) });
+    }
+  };
+
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    const error = validateField(name, value);
+    setErrors({ ...errors, [name]: error });
   };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        setErrors({ ...errors, avtar: "File size should be less than 5MB" });
+        return;
+      }
+      setErrors({ ...errors, avtar: "" });
       setFormData({ ...formData, avtar: file });
       setPreviewImage(URL.createObjectURL(file));
     }
@@ -72,6 +137,7 @@ const RegisterAdmin = () => {
   const removeImage = () => {
     setFormData({ ...formData, avtar: null });
     setPreviewImage(null);
+    setErrors({ ...errors, avtar: "" });
   };
 
   const getRoleBasedLabel = (label) => {
@@ -81,8 +147,31 @@ const RegisterAdmin = () => {
     return label;
   };
 
+  const validateForm = () => {
+    const newErrors = {
+      fullName: validateField("fullName", formData.fullName),
+      email: validateField("email", formData.email),
+      mobile: validateField("mobile", formData.mobile),
+      address: validateField("address", formData.address),
+    };
+
+    if (!editingUser) {
+      newErrors.password = validateField("password", formData.password);
+      newErrors.confirmPassword = validateField(
+        "confirmPassword",
+        formData.confirmPassword
+      );
+    }
+
+    setErrors(newErrors);
+
+    return !Object.values(newErrors).some((error) => error);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!validateForm()) return;
 
     const payload = new FormData();
     payload.append("name", formData.fullName);
@@ -116,7 +205,13 @@ const RegisterAdmin = () => {
       } else {
         navigate("/user");
       }
-    } catch (error) {}
+    } catch (error) {
+      // Handle API errors here
+      if (error.response && error.response.data) {
+        const apiErrors = error.response.data;
+        // You can map API errors to form fields here
+      }
+    }
   };
 
   return (
@@ -150,59 +245,79 @@ const RegisterAdmin = () => {
 
                 <div className="card-body p-5">
                   <form onSubmit={handleSubmit}>
-                    {/* Full Name */}
-                    <div className="mb-4">
-                      <div className="form-group">
-                        <label
-                          className="form-label fw-semibold text-dark mb-2"
-                          style={{ fontSize: "0.9rem" }}
-                        >
-                          <AiOutlineUser className="me-2 text-primary" />
-                          Full Name
-                        </label>
-                        <input
-                          type="text"
-                          name="fullName"
-                          className="form-control form-control-sm"
-                          placeholder="Enter full name"
-                          value={formData.fullName}
-                          onChange={handleChange}
-                          required
-                          style={{
-                            borderRadius: "8px",
-                            border: "1px solid #e0e0e0",
-                          }}
-                        />
+                    <div className="row">
+                      {/* Full Name */}
+                      <div className="col-md-6 mb-4">
+                        <div className="form-group">
+                          <label
+                            className="form-label fw-semibold text-dark mb-2"
+                            style={{ fontSize: "0.9rem" }}
+                          >
+                            <AiOutlineUser className="me-2 text-primary" />
+                            Full Name
+                          </label>
+                          <input
+                            type="text"
+                            name="fullName"
+                            className={`form-control form-control-sm ${
+                              errors.fullName ? "is-invalid" : ""
+                            }`}
+                            placeholder="Enter full name"
+                            value={formData.fullName}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            required
+                            style={{
+                              borderRadius: "8px",
+                              border: "1px solid #e0e0e0",
+                            }}
+                          />
+                          {errors.fullName && (
+                            <div className="invalid-feedback d-flex align-items-center">
+                              <AiOutlineExclamationCircle className="me-1" />
+                              {errors.fullName}
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
 
-                    {/* Email */}
-                    <div className="mb-4">
-                      <div className="form-group">
-                        <label className="form-label fw-semibold text-dark mb-2">
-                          <AiOutlineMail className="me-2 text-primary" />
-                          Email Address
-                        </label>
-                        <input
-                          type="email"
-                          name="email"
-                          className="form-control form-control-sm"
-                          placeholder="Enter email address"
-                          value={formData.email}
-                          onChange={handleChange}
-                          required
-                          style={{
-                            borderRadius: "8px",
-                            border: "1px solid #e0e0e0",
-                          }}
-                        />
+                      {/* Email */}
+                      <div className="col-md-6 mb-4">
+                        <div className="form-group">
+                          <label className="form-label fw-semibold text-dark mb-2">
+                            <AiOutlineMail className="me-2 text-primary" />
+                            Email Address
+                          </label>
+                          <input
+                            type="email"
+                            name="email"
+                            className={`form-control form-control-sm ${
+                              errors.email ? "is-invalid" : ""
+                            }`}
+                            placeholder="Enter email address"
+                            value={formData.email}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            required
+                            style={{
+                              borderRadius: "8px",
+                              border: "1px solid #e0e0e0",
+                            }}
+                          />
+                          {errors.email && (
+                            <div className="invalid-feedback d-flex align-items-center">
+                              <AiOutlineExclamationCircle className="me-1" />
+                              {errors.email}
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
 
                     {/* Password Fields - Only show if not editing */}
                     {!editingUser && (
-                      <>
-                        <div className="mb-4">
+                      <div className="row">
+                        <div className="col-md-6 mb-4">
                           <div className="form-group">
                             <label className="form-label fw-semibold text-dark mb-2">
                               <AiOutlineLock className="me-2 text-primary" />
@@ -211,20 +326,29 @@ const RegisterAdmin = () => {
                             <input
                               type="password"
                               name="password"
-                              className="form-control form-control-sm"
+                              className={`form-control form-control-sm ${
+                                errors.password ? "is-invalid" : ""
+                              }`}
                               placeholder="Enter password"
                               value={formData.password}
                               onChange={handleChange}
+                              onBlur={handleBlur}
                               required
                               style={{
                                 borderRadius: "8px",
                                 border: "1px solid #e0e0e0",
                               }}
                             />
+                            {errors.password && (
+                              <div className="invalid-feedback d-flex align-items-center">
+                                <AiOutlineExclamationCircle className="me-1" />
+                                {errors.password}
+                              </div>
+                            )}
                           </div>
                         </div>
 
-                        <div className="mb-4">
+                        <div className="col-md-6 mb-4">
                           <div className="form-group">
                             <label className="form-label fw-semibold text-dark mb-2">
                               <AiOutlineLock className="me-2 text-primary" />
@@ -233,64 +357,94 @@ const RegisterAdmin = () => {
                             <input
                               type="password"
                               name="confirmPassword"
-                              className="form-control form-control-sm"
+                              className={`form-control form-control-sm ${
+                                errors.confirmPassword ? "is-invalid" : ""
+                              }`}
                               placeholder="Confirm password"
                               value={formData.confirmPassword}
                               onChange={handleChange}
+                              onBlur={handleBlur}
                               required
                               style={{
                                 borderRadius: "8px",
                                 border: "1px solid #e0e0e0",
                               }}
                             />
+                            {errors.confirmPassword && (
+                              <div className="invalid-feedback d-flex align-items-center">
+                                <AiOutlineExclamationCircle className="me-1" />
+                                {errors.confirmPassword}
+                              </div>
+                            )}
                           </div>
                         </div>
-                      </>
+                      </div>
                     )}
 
-                    {/* Mobile Number */}
-                    <div className="mb-4">
-                      <div className="form-group">
-                        <label className="form-label fw-semibold text-dark mb-2">
-                          <AiOutlinePhone className="me-2 text-primary" />
-                          Mobile Number
-                        </label>
-                        <input
-                          type="text"
-                          name="mobile"
-                          className="form-control form-control-sm"
-                          placeholder="Enter mobile number"
-                          value={formData.mobile}
-                          onChange={handleChange}
-                          required
-                          style={{
-                            borderRadius: "8px",
-                            border: "1px solid #e0e0e0",
-                          }}
-                        />
+                    <div className="row">
+                      {/* Mobile Number */}
+                      <div className="col-md-6 mb-4">
+                        <div className="form-group">
+                          <label className="form-label fw-semibold text-dark mb-2">
+                            <AiOutlinePhone className="me-2 text-primary" />
+                            Mobile Number
+                          </label>
+                          <input
+                            type="text"
+                            name="mobile"
+                            className={`form-control form-control-sm ${
+                              errors.mobile ? "is-invalid" : ""
+                            }`}
+                            placeholder="Enter mobile number"
+                            value={formData.mobile}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            required
+                            style={{
+                              borderRadius: "8px",
+                              border: "1px solid #e0e0e0",
+                            }}
+                            min={0}
+                          />
+                          {errors.mobile && (
+                            <div className="invalid-feedback d-flex align-items-center">
+                              <AiOutlineExclamationCircle className="me-1" />
+                              {errors.mobile}
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
 
-                    {/* Address */}
-                    <div className="mb-4">
-                      <div className="form-group">
-                        <label className="form-label fw-semibold text-dark mb-2">
-                          <AiOutlineHome className="me-2 text-primary" />
-                          Address
-                        </label>
-                        <input
-                          type="text"
-                          name="address"
-                          className="form-control form-control-sm"
-                          placeholder="Enter address"
-                          value={formData.address}
-                          onChange={handleChange}
-                          required
-                          style={{
-                            borderRadius: "8px",
-                            border: "1px solid #e0e0e0",
-                          }}
-                        />
+                      {/* Address */}
+                      <div className="col-md-6 mb-4">
+                        <div className="form-group">
+                          <label className="form-label fw-semibold text-dark mb-2">
+                            <AiOutlineHome className="me-2 text-primary" />
+                            Address
+                          </label>
+                          <input
+                            type="text"
+                            name="address"
+                            className={`form-control form-control-sm ${
+                              errors.address ? "is-invalid" : ""
+                            }`}
+                            placeholder="Enter address"
+                            value={formData.address}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            required
+                            style={{
+                              borderRadius: "8px",
+                              border: "1px solid #e0e0e0",
+                            }}
+                          />
+                          {errors.address && (
+                            <div className="invalid-feedback d-flex align-items-center">
+                              <AiOutlineExclamationCircle className="me-1" />
+                              {errors.address}
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
 
@@ -348,7 +502,9 @@ const RegisterAdmin = () => {
                         <div className="col-md-8">
                           <input
                             type="file"
-                            className="form-control form-control-sm"
+                            className={`form-control form-control-sm ${
+                              errors.avtar ? "is-invalid" : ""
+                            }`}
                             onChange={handleImageChange}
                             accept="image/*"
                             style={{
@@ -359,6 +515,12 @@ const RegisterAdmin = () => {
                           <div className="form-text text-muted mt-1">
                             Upload a profile picture (JPG, PNG, GIF up to 5MB)
                           </div>
+                          {errors.avtar && (
+                            <div className="text-danger small d-flex align-items-center mt-1">
+                              <AiOutlineExclamationCircle className="me-1" />
+                              {errors.avtar}
+                            </div>
+                          )}
                         </div>
 
                         {previewImage && (

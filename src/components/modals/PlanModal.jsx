@@ -1,5 +1,5 @@
 import React from "react";
-import { Modal, Button, Form } from "react-bootstrap";
+import { Modal, Button, Form, Row, Col } from "react-bootstrap";
 import { FaPlus } from "react-icons/fa";
 
 const PlanModal = ({
@@ -35,47 +35,49 @@ const PlanModal = ({
 
       <Modal.Body className="p-5">
         <Form>
-          {/* Plan Type */}
-          <Form.Group className="mb-4">
-            <Form.Label className="fw-semibold text-dark mb-2">
-              Plan Type
-            </Form.Label>
-            <Form.Select
-              name="name"
-              value={planData.name}
-              onChange={handleChange}
-              className="form-control-lg border-0"
-              style={formControlStyle}
-            >
-              <option value="">Select Plan Type</option>
-              {planOptions.map((option, index) => (
-                <option key={index} value={option}>
-                  {option}
-                </option>
-              ))}
-            </Form.Select>
-          </Form.Group>
-
-          {/* Duration */}
-          <Form.Group className="mb-4">
-            <Form.Label className="fw-semibold text-dark mb-2">
-              Duration
-            </Form.Label>
-            <Form.Select
-              name="duration"
-              value={planData.duration}
-              onChange={handleChange}
-              className="form-control-lg border-0"
-              style={formControlStyle}
-            >
-              <option value="">Select Duration</option>
-              {durationOptions.map((option, index) => (
-                <option key={index} value={option}>
-                  {option}
-                </option>
-              ))}
-            </Form.Select>
-          </Form.Group>
+          {/* Plan Type + Duration */}
+          <Row className="mb-4">
+            <Col md={6}>
+              <Form.Group>
+                <Form.Label className="fw-semibold text-dark mb-2">
+                  Plan Type
+                </Form.Label>
+                <Form.Select
+                  name="name"
+                  value={planData.name}
+                  onChange={handleChange}
+                  style={formControlStyle}
+                >
+                  <option value="">Select Plan Type</option>
+                  {planOptions.map((option, index) => (
+                    <option key={index} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </Form.Select>
+              </Form.Group>
+            </Col>
+            <Col md={6}>
+              <Form.Group>
+                <Form.Label className="fw-semibold text-dark mb-2">
+                  Duration
+                </Form.Label>
+                <Form.Select
+                  name="duration"
+                  value={planData.duration}
+                  onChange={handleChange}
+                  style={formControlStyle}
+                >
+                  <option value="">Select Duration</option>
+                  {durationOptions.map((option, index) => (
+                    <option key={index} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </Form.Select>
+              </Form.Group>
+            </Col>
+          </Row>
 
           {/* Description */}
           <Form.Group className="mb-4">
@@ -88,77 +90,83 @@ const PlanModal = ({
               value={planData.description}
               onChange={handleChange}
               placeholder="Enter plan description"
-              className="form-control-lg border-0"
               style={formControlStyle}
             />
           </Form.Group>
 
-          {/* Min Users */}
-          <Form.Group className="mb-4">
-            <Form.Label className="fw-semibold text-dark mb-2">
-              Minimum Users
-            </Form.Label>
-            <Form.Control
-              type="number"
-              name="minUsers"
-              value={planData.minUsers}
-              onChange={handleChange}
-              placeholder="Enter minimum number of users"
-              className="form-control-lg border-0"
-              style={formControlStyle}
-            />
-          </Form.Group>
+          {/* Min Users + Max Users */}
+          <Row className="mb-4">
+            <Col md={6}>
+              <Form.Group>
+                <Form.Label className="fw-semibold text-dark mb-2">
+                  Minimum Users
+                </Form.Label>
+                <Form.Control
+                  type="number"
+                  name="minUsers"
+                  value={planData.minUsers}
+                  onChange={handleChange}
+                  placeholder="Enter minimum number of users"
+                  style={formControlStyle}
+                  min={0}
+                />
+              </Form.Group>
+            </Col>
+            <Col md={6}>
+              <Form.Group>
+                <Form.Label className="fw-semibold text-dark mb-2">
+                  Maximum Users
+                </Form.Label>
+                <Form.Control
+                  type="number"
+                  name="maxUsers"
+                  value={planData.maxUsers}
+                  onChange={handleChange}
+                  placeholder="Enter maximum number of users"
+                  style={formControlStyle}
+                  min={0}
+                />
+              </Form.Group>
+            </Col>
+          </Row>
 
-          {/* Max Users */}
-          <Form.Group className="mb-4">
-            <Form.Label className="fw-semibold text-dark mb-2">
-              Maximum Users
-            </Form.Label>
-            <Form.Control
-              type="number"
-              name="maxUsers"
-              value={planData.maxUsers}
-              onChange={handleChange}
-              placeholder="Enter maximum number of users"
-              className="form-control-lg border-0"
-              style={formControlStyle}
-            />
-          </Form.Group>
-
-          {/* Price */}
-          <Form.Group className="mb-4">
-            <Form.Label className="fw-semibold text-dark mb-2">
-              Price (₹)
-            </Form.Label>
-            <Form.Control
-              type="number"
-              name="price"
-              value={planData.price}
-              onChange={handleChange}
-              placeholder="Enter plan price"
-              className="form-control-lg border-0"
-              style={formControlStyle}
-            />
-          </Form.Group>
-
-          {/* Status (only when editing) */}
-          {planData._id && (
-            <Form.Group className="mb-4">
-              <Form.Label className="fw-semibold text-dark mb-2">
-                Status
-              </Form.Label>
-              <Form.Select
-                name="status"
-                value={planData.status || "active"}
-                onChange={handleChange}
-                className="form-control-lg border-0"
-                style={formControlStyle}
-              >
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-              </Form.Select>
-            </Form.Group>
-          )}
+          {/* Price + Status */}
+          <Row className="mb-4">
+            <Col md={6}>
+              <Form.Group>
+                <Form.Label className="fw-semibold text-dark mb-2">
+                  Price (₹)
+                </Form.Label>
+                <Form.Control
+                  type="number"
+                  name="price"
+                  value={planData.price}
+                  onChange={handleChange}
+                  placeholder="Enter plan price"
+                  style={formControlStyle}
+                  min={0}
+                />
+              </Form.Group>
+            </Col>
+            {planData._id && (
+              <Col md={6}>
+                <Form.Group>
+                  <Form.Label className="fw-semibold text-dark mb-2">
+                    Status
+                  </Form.Label>
+                  <Form.Select
+                    name="status"
+                    value={planData.status || "active"}
+                    onChange={handleChange}
+                    style={formControlStyle}
+                  >
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+            )}
+          </Row>
         </Form>
       </Modal.Body>
 
@@ -185,7 +193,7 @@ const PlanModal = ({
   );
 };
 
-// 🔹 Common styles
+// 🔹 Styles
 const formControlStyle = {
   background: "#f8f9fa",
   border: "1px solid #e0e0e0",

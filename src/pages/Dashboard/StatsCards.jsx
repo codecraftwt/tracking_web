@@ -55,9 +55,12 @@ const StatsCards = ({ stats = [] }) => {
                 style={{
                   borderRadius: "12px",
                   backgroundColor: "#fff",
-                  cursor: stat.onClick ? "pointer" : "default",
+                  cursor:
+                    stat.count > 0 && stat.onClick ? "pointer" : "default",
                 }}
-                onClick={() => stat.onClick && stat.onClick(navigate)}
+                onClick={() =>
+                  stat.count > 0 && stat.onClick && stat.onClick(navigate)
+                }
               >
                 <Card.Body className="p-4">
                   <div className="d-flex justify-content-between align-items-center">

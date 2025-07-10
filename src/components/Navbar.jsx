@@ -5,11 +5,13 @@ import { useAuth } from "../context/AuthContext";
 import { Modal, Button } from "react-bootstrap";
 import { FaArrowLeft, FaSignOutAlt } from "react-icons/fa"; // Importing a back arrow icon from react-icons
 import LogoutModal from "./modals/LogoutModal";
+import { useSelector } from "react-redux";
 
 function Navbar({ username = "W", pageTitle = "", showBackButton = false }) {
   const [showLogout, setShowLogout] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const userInitial = username.slice(0, 2).toUpperCase();
+  const userData = useSelector((state) => state.UserData.userInfo);
   const navigate = useNavigate();
   const { logout } = useAuth();
 
@@ -61,16 +63,37 @@ function Navbar({ username = "W", pageTitle = "", showBackButton = false }) {
         {/* User avatar */}
         <div className="d-flex align-items-center">
           <div
-            className="rounded-circle bg-secondary text-white d-flex justify-content-center align-items-center"
             style={{
               width: "40px",
               height: "40px",
+              borderRadius: "50%",
+              overflow: "hidden",
               cursor: "pointer",
+              backgroundColor: "#e8f4ff",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
               position: "relative",
             }}
             onClick={() => setShowLogout(!showLogout)}
           >
-            {userInitial}
+            {userData?.avtar ? (
+              <img
+                src={userData.avtar}
+                alt="User Avatar"
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
+            ) : (
+              <span
+                style={{
+                  color: "white",
+                  fontWeight: "bold",
+                  fontSize: "16px",
+                }}
+              >
+                {userInitial}
+              </span>
+            )}
           </div>
 
           {showLogout && (
