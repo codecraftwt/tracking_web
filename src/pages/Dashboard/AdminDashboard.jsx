@@ -143,11 +143,11 @@ const AdminDashboard = () => {
             {/* Stats Cards */}
             <StatsCards stats={userStats} />
 
-            {userData?.currentPaymentId && (
+
               <motion.section variants={itemVariants} className="mb-5">
                 <CurrentPlan currentPlan={userData?.currentPaymentId} />
               </motion.section>
-            )}
+        
 
             {/* Recent Activities */}
             <RecentActivities users={mostRecentUsers} />
