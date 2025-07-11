@@ -14,6 +14,7 @@ import {
   AiOutlineExclamationCircle,
 } from "react-icons/ai";
 import { registerUser, updateUser } from "../../redux/slices/userSlice";
+import { div } from "framer-motion/client";
 
 const RegisterAdmin = () => {
   const location = useLocation();
@@ -449,47 +450,49 @@ const RegisterAdmin = () => {
                     </div>
 
                     {/* Status Section */}
-                    <div className="mb-4">
-                      <label className="form-label fw-semibold text-dark mb-3">
-                        Account Status
-                      </label>
-                      <div className="d-flex gap-4">
-                        {[
-                          {
-                            value: "active",
-                            label: "Active",
-                            color: "success",
-                          },
-                          {
-                            value: "inactive",
-                            label: "Inactive",
-                            color: "secondary",
-                          },
-                        ].map((status, index) => (
-                          <div className="form-check" key={index}>
-                            <input
-                              type="radio"
-                              name="status"
-                              value={status.value}
-                              checked={formData.status === status.value}
-                              onChange={handleChange}
-                              className="form-check-input"
-                              style={{
-                                transform: "scale(1.3)",
-                                marginTop: "2px",
-                              }}
-                            />
-                            <label className="form-check-label fw-medium ms-2">
-                              <span
-                                className={`badge bg-${status.color} px-3 py-2`}
-                              >
-                                {status.label}
-                              </span>
-                            </label>
-                          </div>
-                        ))}
+                    {editingUser._id !== userDataa._id && (
+                      <div className="mb-4">
+                        <label className="form-label fw-semibold text-dark mb-3">
+                          Account Status
+                        </label>
+                        <div className="d-flex gap-4">
+                          {[
+                            {
+                              value: "active",
+                              label: "Active",
+                              color: "success",
+                            },
+                            {
+                              value: "inactive",
+                              label: "Inactive",
+                              color: "secondary",
+                            },
+                          ].map((status, index) => (
+                            <div className="form-check" key={index}>
+                              <input
+                                type="radio"
+                                name="status"
+                                value={status.value}
+                                checked={formData.status === status.value}
+                                onChange={handleChange}
+                                className="form-check-input"
+                                style={{
+                                  transform: "scale(1.3)",
+                                  marginTop: "2px",
+                                }}
+                              />
+                              <label className="form-check-label fw-medium ms-2">
+                                <span
+                                  className={`badge bg-${status.color} px-3 py-2`}
+                                >
+                                  {status.label}
+                                </span>
+                              </label>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
+                    )}
 
                     {/* Profile Photo Section */}
                     <div className="mb-4">

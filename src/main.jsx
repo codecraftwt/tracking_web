@@ -7,12 +7,14 @@ import App from "./App.jsx";
 import { Provider } from "react-redux";
 import store from "./redux/store/store.js";
 import "./App.css";
+import ScrollToTop from "./components/ScrollToTop.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <Provider store={store}>
       <Router>
         {/* <div style={{ fontFamily: "Poppins, sans-serif" }}> */}
+        <ScrollToTop />
         <App />
         {/* </div> */}
       </Router>

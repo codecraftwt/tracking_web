@@ -1,55 +1,57 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { loginUser } from "../../redux/slices/userSlice";
-import { useAuth } from "../../context/AuthContext";
-import { FaEye, FaEyeSlash, FaSpinner } from "react-icons/fa";
+import { FaSpinner } from "react-icons/fa";
 import { motion } from "framer-motion";
+import { useDispatch, useSelector } from "react-redux";
 import logo11 from "../../../src/assets/Images/logo11.png";
+import { forgotPasswordReset } from "../../redux/slices/userSlice";
 
-const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-
+const ResetForgotPassword = () => {
+  const [newPassword, setNewPassword] = useState("");
+  const [token, setToken] = useState("");
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const location = useLocation();
+
   const dispatch = useDispatch();
 
-  const handleLogin = async (e) => {
+  // Access Redux state for loading, error, and success
+  const { loading, forgotPasswordError, resetPasswordSuccess } = useSelector(
+    (state) => state.auth
+  );
+
+  useEffect(() => {
+    // Extract the token from the URL
+    const queryParams = new URLSearchParams(location.search);
+    const tokenFromUrl = queryParams.get("token");
+    if (tokenFromUrl) {
+      setToken(tokenFromUrl);
+    } else {
+      toast.error("Invalid or expired token.");
+      navigate("/login");
+    }
+  }, [location, navigate]);
+
+  useEffect(() => {
+    if (resetPasswordSuccess) {
+      toast.success("Password reset successful!");
+      navigate("/login"); // Redirect to login after successful reset
+    }
+    if (forgotPasswordError) {
+      toast.error(forgotPasswordError);
+    }
+  }, [resetPasswordSuccess, forgotPasswordError, navigate]);
+
+  const handleResetPassword = async (e) => {
     e.preventDefault();
 
-    if (!email || !password) {
-      toast.error("Please fill in all fields!");
+    if (!newPassword) {
+      toast.error("Please enter a new password!");
       return;
     }
 
-    setLoading(true);
-    try {
-      const response = await dispatch(
-        loginUser({ data: { email, password } })
-      ).unwrap();
-
-      if (response.token) {
-        login(response.token, response.user);
-
-        if (response.user.role_id === 1) {
-          navigate("/admindashboard");
-        } else {
-          navigate("/dashboard");
-        }
-      } else {
-        toast.error(response.message || "Invalid credentials!");
-      }
-    } catch (error) {
-      console.error("Login failed:", error);
-      toast.error("Login failed. Please check your credentials.");
-    } finally {
-      setLoading(false);
-    }
+    // Dispatch the forgotPasswordReset action
+    dispatch(forgotPasswordReset({ token, newPassword }));
   };
 
   const containerVariants = {
@@ -89,7 +91,7 @@ const Login = () => {
       }}
     >
       <motion.form
-        onSubmit={handleLogin}
+        onSubmit={handleResetPassword}
         variants={containerVariants}
         initial="hidden"
         animate="visible"
@@ -124,22 +126,16 @@ const Login = () => {
             variants={itemVariants}
             style={{ color: "#111827", fontWeight: 600, fontSize: "20px" }}
           >
-            Welcome Back
+            Reset Your Password
           </motion.h2>
-          <motion.p
-            variants={itemVariants}
-            style={{ color: "#6B7280", fontSize: "14px" }}
-          >
-            Please login to your account
-          </motion.p>
         </motion.div>
 
         <motion.div variants={itemVariants}>
           <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            type="password"
+            placeholder="Enter your new password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
             required
             style={{
               width: "100%",
@@ -151,44 +147,6 @@ const Login = () => {
               background: "#f9fafb",
             }}
           />
-        </motion.div>
-
-        <motion.div
-          variants={itemVariants}
-          style={{ position: "relative", marginBottom: "25px" }}
-        >
-          <input
-            type={showPassword ? "text" : "password"}
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            style={{
-              width: "100%",
-              padding: "14px",
-              paddingRight: "40px",
-              borderRadius: "10px",
-              border: "1px solid #d1d5db",
-              fontSize: "15px",
-              background: "#f9fafb",
-            }}
-          />
-          <motion.div
-            style={{
-              position: "absolute",
-              right: "12px",
-              top: "50%",
-              transform: "translateY(-50%)",
-              cursor: "pointer",
-            }}
-            onClick={() => setShowPassword(!showPassword)}
-          >
-            {showPassword ? (
-              <FaEyeSlash size={18} color="#6B7280" />
-            ) : (
-              <FaEye size={18} color="#6B7280" />
-            )}
-          </motion.div>
         </motion.div>
 
         <motion.div variants={itemVariants}>
@@ -221,7 +179,7 @@ const Login = () => {
                 <FaSpinner style={{ marginRight: "8px" }} />
               </motion.div>
             ) : null}
-            {loading ? "Logging in..." : "Log In"}
+            {loading ? "Resetting..." : "Reset Password"}
           </motion.button>
         </motion.div>
 
@@ -234,10 +192,10 @@ const Login = () => {
             color: "#6B7280",
           }}
         >
-          Forgot your password?{" "}
+          Remember your password?{" "}
           <motion.a
             whileHover={{ scale: 1.05 }}
-            onClick={() => navigate("/forgot-password")}
+            onClick={() => navigate("/login")}
             style={{
               color: "#2563EB",
               fontWeight: 500,
@@ -245,7 +203,7 @@ const Login = () => {
               cursor: "pointer",
             }}
           >
-            Reset it
+            Log in
           </motion.a>
         </motion.p>
       </motion.form>
@@ -253,4 +211,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default ResetForgotPassword;

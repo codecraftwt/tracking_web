@@ -1,54 +1,40 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { loginUser } from "../../redux/slices/userSlice";
-import { useAuth } from "../../context/AuthContext";
-import { FaEye, FaEyeSlash, FaSpinner } from "react-icons/fa";
+import { FaSpinner } from "react-icons/fa";
 import { motion } from "framer-motion";
 import logo11 from "../../../src/assets/Images/logo11.png";
+import { forgotPassword } from "../../redux/slices/userSlice";
 
-const Login = () => {
+const ForgotPassword = () => {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-
-  const navigate = useNavigate();
-  const { login } = useAuth();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  // Get the loading state from Redux
+  const { forgotPasswordLoading, forgotPasswordSuccess, forgotPasswordError } =
+    useSelector((state) => state.UserData);
+
+  const handleForgotPassword = async (e) => {
     e.preventDefault();
 
-    if (!email || !password) {
-      toast.error("Please fill in all fields!");
+    if (!email) {
+      toast.error("Please enter your email address!");
       return;
     }
 
-    setLoading(true);
     try {
-      const response = await dispatch(
-        loginUser({ data: { email, password } })
-      ).unwrap();
+      const response = await dispatch(forgotPassword({ email }));
 
-      if (response.token) {
-        login(response.token, response.user);
-
-        if (response.user.role_id === 1) {
-          navigate("/admindashboard");
-        } else {
-          navigate("/dashboard");
-        }
+      if (response?.payload?.status === 1) {
+        toast.success("Password reset link sent to your email!");
+        navigate("/login");
       } else {
-        toast.error(response.message || "Invalid credentials!");
+        toast.error(response?.payload?.message || "Error sending reset link!");
       }
     } catch (error) {
-      console.error("Login failed:", error);
-      toast.error("Login failed. Please check your credentials.");
-    } finally {
-      setLoading(false);
+      toast.error("Failed to send reset link. Please try again.");
     }
   };
 
@@ -89,7 +75,7 @@ const Login = () => {
       }}
     >
       <motion.form
-        onSubmit={handleLogin}
+        onSubmit={handleForgotPassword}
         variants={containerVariants}
         initial="hidden"
         animate="visible"
@@ -124,20 +110,14 @@ const Login = () => {
             variants={itemVariants}
             style={{ color: "#111827", fontWeight: 600, fontSize: "20px" }}
           >
-            Welcome Back
+            Forgot Your Password?
           </motion.h2>
-          <motion.p
-            variants={itemVariants}
-            style={{ color: "#6B7280", fontSize: "14px" }}
-          >
-            Please login to your account
-          </motion.p>
         </motion.div>
 
         <motion.div variants={itemVariants}>
           <input
             type="email"
-            placeholder="Email"
+            placeholder="Enter your email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -151,44 +131,6 @@ const Login = () => {
               background: "#f9fafb",
             }}
           />
-        </motion.div>
-
-        <motion.div
-          variants={itemVariants}
-          style={{ position: "relative", marginBottom: "25px" }}
-        >
-          <input
-            type={showPassword ? "text" : "password"}
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            style={{
-              width: "100%",
-              padding: "14px",
-              paddingRight: "40px",
-              borderRadius: "10px",
-              border: "1px solid #d1d5db",
-              fontSize: "15px",
-              background: "#f9fafb",
-            }}
-          />
-          <motion.div
-            style={{
-              position: "absolute",
-              right: "12px",
-              top: "50%",
-              transform: "translateY(-50%)",
-              cursor: "pointer",
-            }}
-            onClick={() => setShowPassword(!showPassword)}
-          >
-            {showPassword ? (
-              <FaEyeSlash size={18} color="#6B7280" />
-            ) : (
-              <FaEye size={18} color="#6B7280" />
-            )}
-          </motion.div>
         </motion.div>
 
         <motion.div variants={itemVariants}>
@@ -205,15 +147,15 @@ const Login = () => {
               borderRadius: "10px",
               fontSize: "16px",
               fontWeight: 600,
-              cursor: loading ? "not-allowed" : "pointer",
+              cursor: forgotPasswordLoading ? "not-allowed" : "pointer",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               transition: "all 0.3s ease",
             }}
-            disabled={loading}
+            disabled={forgotPasswordLoading}
           >
-            {loading ? (
+            {forgotPasswordLoading ? (
               <motion.div
                 animate={{ rotate: 360 }}
                 transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
@@ -221,7 +163,7 @@ const Login = () => {
                 <FaSpinner style={{ marginRight: "8px" }} />
               </motion.div>
             ) : null}
-            {loading ? "Logging in..." : "Log In"}
+            {forgotPasswordLoading ? "Sending..." : "Send Reset Link"}
           </motion.button>
         </motion.div>
 
@@ -234,10 +176,10 @@ const Login = () => {
             color: "#6B7280",
           }}
         >
-          Forgot your password?{" "}
+          Remember your password?{" "}
           <motion.a
             whileHover={{ scale: 1.05 }}
-            onClick={() => navigate("/forgot-password")}
+            onClick={() => navigate("/login")}
             style={{
               color: "#2563EB",
               fontWeight: 500,
@@ -245,7 +187,7 @@ const Login = () => {
               cursor: "pointer",
             }}
           >
-            Reset it
+            Log in
           </motion.a>
         </motion.p>
       </motion.form>
@@ -253,4 +195,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default ForgotPassword;

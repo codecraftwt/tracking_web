@@ -66,7 +66,11 @@ const Profile = () => {
                 <div className="profile-info text-center text-md-start">
                   <h2 className="profile-name mb-1 fs-3">{userData?.name}</h2>
                   <span className="badge bg-primary-light text-primary rounded-pill px-3 py-1">
-                    {userData?.role || "User"}
+                    {userData?.role_id === 1
+                      ? "Admin"
+                      : userData?.role_id === 2
+                      ? "Super Admin"
+                      : "User"}
                   </span>
                   <div className="mt-3">
                     <Button

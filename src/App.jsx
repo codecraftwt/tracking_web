@@ -37,6 +37,8 @@ import Contact from "./pages/Contact/index.tsx";
 import PrivacyPolicy from "./pages/PrivacyPolicy/index.tsx";
 import ActiveUserLocations from "./pages/Users/ActiveUserLocations.jsx";
 import ResetPassword from "./pages/Profile/ResetPassword.jsx";
+import ForgotPassword from "./pages/Authintication/ForgotPassword.jsx";
+import ResetForgotPassword from "./pages/Authintication/ResetForgotPassword.jsx";
 
 const SidebarLink = ({ to, icon: Icon, label }) => {
   const location = useLocation();
@@ -121,6 +123,7 @@ const App = () => {
       {location.pathname !== "/" &&
         location.pathname !== "/contact" &&
         location.pathname !== "/login" &&
+        location.pathname !== "/forgot-password" &&
         location.pathname !== "/privacy-policy" && (
           <aside
             className="p-3"
@@ -286,6 +289,8 @@ const App = () => {
             <Route path="/" element={<Landing />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-forgot-password/:token" element={<ResetForgotPassword />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route
               path="/dashboard"

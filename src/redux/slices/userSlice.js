@@ -197,6 +197,43 @@ export const resetPassword = createAsyncThunk(
   }
 );
 
+// Thunk for forgot password
+export const forgotPassword = createAsyncThunk(
+  "user/forgotPassword",
+  async ({ email }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post("api/users/forgot-password", {
+        email,
+      });
+      toast.success(response.data.message);
+      return response.data;
+    } catch (error) {
+      toast.error(
+        error?.response?.data?.message || "Failed to send reset password link"
+      );
+      return rejectWithValue(error?.response?.data || error.message);
+    }
+  }
+);
+
+// Thunk for forgot password reset
+export const forgotPasswordReset = createAsyncThunk(
+  "user/forgotPasswordReset",
+  async ({ token, newPassword }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post(
+        "api/users/forgot-password-reset",
+        { token, newPassword }
+      );
+      toast.success(response.data.message);
+      return response.data;
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Failed to reset password");
+      return rejectWithValue(error?.response?.data || error.message);
+    }
+  }
+);
+
 // User Slice
 const userSlice = createSlice({
   name: "user",
@@ -215,6 +252,10 @@ const userSlice = createSlice({
     activeUserLocations: [],
     activeUserLocationsLoading: false,
     activeUserLocationsError: null,
+    forgotPasswordLoading: false,
+    forgotPasswordError: null,
+    forgotPasswordSuccess: false,
+    resetPasswordSuccess: false, // New state for tracking successful password reset
   },
   reducers: {
     logoutUser: (state) => {
@@ -401,6 +442,39 @@ const userSlice = createSlice({
       .addCase(resetPassword.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+
+      // Handle forgot password
+      .addCase(forgotPassword.pending, (state) => {
+        state.forgotPasswordLoading = true;
+        state.forgotPasswordError = null;
+        state.forgotPasswordSuccess = false;
+      })
+      .addCase(forgotPassword.fulfilled, (state, action) => {
+        state.forgotPasswordLoading = false;
+        state.forgotPasswordSuccess = true;
+        toast.success(action.payload.message);
+      })
+      .addCase(forgotPassword.rejected, (state, action) => {
+        state.forgotPasswordLoading = false;
+        state.forgotPasswordError = action.payload;
+        toast.error(action.payload?.message || "Failed to send reset link");
+      })
+
+      // Handle reset password
+      .addCase(forgotPasswordReset.pending, (state) => {
+        state.loading = true;
+        state.forgotPasswordError = null;
+        state.resetPasswordSuccess = false;
+      })
+      .addCase(forgotPasswordReset.fulfilled, (state, action) => {
+        state.loading = false;
+        state.resetPasswordSuccess = true;
+        toast.success(action.payload.message);
+      })
+      .addCase(forgotPasswordReset.rejected, (state, action) => {
+        state.loading = false;
+        state.forgotPasswordError = action.payload;
       });
   },
 });
