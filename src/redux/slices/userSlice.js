@@ -178,6 +178,25 @@ export const getActiveUserLocations = createAsyncThunk(
   }
 );
 
+// Thunk to handle reset password API request
+export const resetPassword = createAsyncThunk(
+  "user/resetPassword",
+  async ({ oldPassword, newPassword }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post("api/users/reset-password", {
+        oldPassword,
+        newPassword,
+      });
+
+      toast.success(response.data.message);
+      return response.data;
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Failed to reset password");
+      return rejectWithValue(error?.response?.data || error.message);
+    }
+  }
+);
+
 // User Slice
 const userSlice = createSlice({
   name: "user",
@@ -370,6 +389,18 @@ const userSlice = createSlice({
       .addCase(getActiveUserLocations.rejected, (state, action) => {
         state.activeUserLocationsLoading = false;
         state.activeUserLocationsError = action.payload;
+      })
+
+      .addCase(resetPassword.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(resetPassword.fulfilled, (state, action) => {
+        state.loading = false;
+      })
+      .addCase(resetPassword.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });

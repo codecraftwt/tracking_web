@@ -131,8 +131,19 @@ const Profile = () => {
                   </div>
                 </div>
 
+                {/* Reset Password Button */}
+                <div className="mt-4">
+                  <Button
+                    variant="outline-secondary"
+                    className="w-100 py-3 rounded-pill fw-bold"
+                    onClick={() => navigate("/reset-password")}
+                  >
+                    Reset Password
+                  </Button>
+                </div>
+
                 {/* Logout Button */}
-                <div className="mt-5 pt-3">
+                <div className="pt-3">
                   <Button
                     variant="danger"
                     className="logout-btn w-100 py-3 rounded-pill fw-bold d-flex align-items-center justify-content-center"

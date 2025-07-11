@@ -36,6 +36,7 @@ import Landing from "./pages/Landing/index.tsx";
 import Contact from "./pages/Contact/index.tsx";
 import PrivacyPolicy from "./pages/PrivacyPolicy/index.tsx";
 import ActiveUserLocations from "./pages/Users/ActiveUserLocations.jsx";
+import ResetPassword from "./pages/Profile/ResetPassword.jsx";
 
 const SidebarLink = ({ to, icon: Icon, label }) => {
   const location = useLocation();
@@ -323,6 +324,15 @@ const App = () => {
               path="/profile"
               element={
                 <PrivateRoute element={<Profile />} allowedRoles={[2, 1]} />
+              }
+            />
+            <Route
+              path="/reset-password"
+              element={
+                <PrivateRoute
+                  element={<ResetPassword />}
+                  allowedRoles={[2, 1]}
+                />
               }
             />
             <Route
