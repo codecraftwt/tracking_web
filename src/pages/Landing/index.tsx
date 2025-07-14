@@ -11,67 +11,64 @@ const Landing = () => {
   return (
     <div
       className="min-vh-100 d-flex flex-column"
-      style={{
-        background: "linear-gradient(135deg, #4A90E2, #2563EB, #1E3A8A)",
-        color: "#fff",
-      }}
+      style={{ backgroundColor: "#ffffff" }}
     >
-     <Navbar
-  expand="lg"
-  className="shadow-sm"
-  style={{
-    background: "rgba(255, 255, 255, 0.1)",
-    backdropFilter: "blur(10px)",
-    WebkitBackdropFilter: "blur(10px)",
-    borderBottom: "1px solid rgba(255,255,255,0.2)",
-  }}
->
-  <Container>
-    <img
-      src={logo333}
-      alt="mainlogo"
-      style={{
-        height: "60px",
-        marginBottom: "5px",
-        paddingRight: "10px",
-      }}
-    />
-    <Navbar.Brand style={{ color: "#fff", fontWeight: "bold" }}>
-      Team Trackify
-    </Navbar.Brand>
-    <Navbar.Toggle
-      aria-controls="basic-navbar-nav"
-      className="bg-white"
-    />
-    <Navbar.Collapse
-      id="basic-navbar-nav"
-      className="justify-content-end"
-    >
-      <Nav className="d-flex gap-2">
-        <button
-          className="btn btn-outline-light rounded-pill px-4"
-          onClick={() => navigate("/login")}
-        >
-          Login
-        </button>
-        <button
-          className="btn btn-outline-light rounded-pill px-4"
-          onClick={() => navigate("/contact")}
-          // style={{ backgroundColor: "#2563EB", borderColor: "#fff" }}
-        >
-          Contact Us
-        </button>
-      </Nav>
-    </Navbar.Collapse>
-  </Container>
-</Navbar>
-
+      <Navbar
+        expand="lg"
+        className="shadow-sm"
+        style={{
+          background: "linear-gradient(135deg, #4A90E2, #2563EB, #1E3A8A)",
+          backdropFilter: "blur(10px)",
+          WebkitBackdropFilter: "blur(10px)",
+          borderBottom: "1px solid rgba(255,255,255,0.2)",
+          color: "#fff",
+        }}
+      >
+        <Container>
+          <img
+            src={logo333}
+            alt="mainlogo"
+            style={{
+              height: "60px",
+              marginBottom: "5px",
+              paddingRight: "10px",
+            }}
+          />
+          <Navbar.Brand style={{ color: "#fff", fontWeight: "bold" }}>
+            Team Trackify
+          </Navbar.Brand>
+          <Navbar.Toggle
+            aria-controls="basic-navbar-nav"
+            className="bg-white"
+          />
+          <Navbar.Collapse
+            id="basic-navbar-nav"
+            className="justify-content-end"
+          >
+            <Nav className="d-flex gap-3">
+              <button
+                className="btn btn-outline-light rounded-lg px-4"
+                onClick={() => navigate("/login")}
+              >
+                Login
+              </button>
+              <button
+                className="btn btn-outline-light rounded-lg px-4"
+                onClick={() => navigate("/contact")}
+              >
+                Contact Us
+              </button>
+            </Nav>
+          </Navbar.Collapse>
+        </Container>
+      </Navbar>
 
       <Container className="flex-grow-1 d-flex align-items-center">
         <Row className="w-100 align-items-center">
           <Col md={6} className="text-center text-md-start">
             <motion.h1
               className="display-4 mb-3 fw-bold"
+              style={{ color: "#2563EB" }}
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
@@ -80,7 +77,7 @@ const Landing = () => {
             </motion.h1>
             <motion.p
               className="lead mb-4"
-              style={{ color: "#e0e0e0" }}
+              style={{ color: "#1D4ED8" }}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4, duration: 0.6 }}
@@ -94,18 +91,22 @@ const Landing = () => {
               transition={{ delay: 0.7, duration: 0.6 }}
             >
               <Button
-                variant="light"
                 size="lg"
                 onClick={() => navigate("/login")}
-                className="me-3 px-4 fw-semibold"
+                className="me-3 px-4"
+                style={{
+                  backgroundColor: "#2563EB",
+                  border: "none",
+                  color: "#fff",
+                }}
               >
                 Get Started
               </Button>
               <Button
-                variant="outline-light"
+                variant="outline-primary"
                 size="lg"
                 onClick={() => navigate("/contact")}
-                className="px-4 fw-semibold"
+                className="px-4"
               >
                 Contact Us
               </Button>
@@ -120,17 +121,17 @@ const Landing = () => {
               transition={{ delay: 0.8, duration: 0.8 }}
             >
               <FeatureCard
-                icon={<FaMapMarkedAlt size={36} className="text-white" />}
+                icon={<FaMapMarkedAlt size={36} className="text-primary" />}
                 title="Live Tracking"
                 description="Monitor user locations in real-time with map integration."
               />
               <FeatureCard
-                icon={<FaRoute size={36} className="text-white" />}
+                icon={<FaRoute size={36} className="text-primary" />}
                 title="Route History"
                 description="View past routes and travel paths anytime."
               />
               <FeatureCard
-                icon={<FaCamera size={36} className="text-white" />}
+                icon={<FaCamera size={36} className="text-primary" />}
                 title="Photo Capture"
                 description="Capture and store images with location tags."
               />
@@ -141,16 +142,21 @@ const Landing = () => {
 
       <footer
         className="text-center py-3 mt-auto"
-        style={{ backgroundColor: "rgba(255, 255, 255, 0.05)" }}
+        style={{
+          backgroundColor: "#f9fafb",
+          color: "#2563EB",
+          borderTop: "1px solid #e5e7eb",
+        }}
       >
         <div className="d-flex justify-content-center align-items-center gap-3">
-          <small className="text-light">
+          <small>
             © {new Date().getFullYear()} Team Trackify. All rights reserved.
           </small>
-          <span className="text-light">|</span>
+          <span>|</span>
           <a
             href="/privacy-policy"
-            className="text-light text-decoration-none"
+            className="text-decoration-none"
+            style={{ color: "#2563EB" }}
             onClick={(e) => {
               e.preventDefault();
               navigate("/privacy-policy");
@@ -170,15 +176,15 @@ const FeatureCard = ({ icon, title, description }) => (
     className="rounded-4 p-4 text-center"
     style={{
       width: 180,
-      background: "rgba(255,255,255,0.1)",
-      boxShadow: "0 4px 15px rgba(0,0,0,0.2)",
-      color: "#fff",
-      border: "1px solid rgba(255,255,255,0.2)",
+      backgroundColor: "#EFF6FF", // light blue bg
+      boxShadow: "0 4px 15px rgba(0,0,0,0.05)",
+      color: "#1D4ED8", // blue text
+      border: "1px solid #DBEAFE",
     }}
   >
     <div className="mb-3">{icon}</div>
     <h5 className="fw-semibold mb-2">{title}</h5>
-    <p className="small" style={{ color: "#dcdcdc" }}>
+    <p className="small" style={{ color: "#3B82F6" }}>
       {description}
     </p>
   </motion.div>

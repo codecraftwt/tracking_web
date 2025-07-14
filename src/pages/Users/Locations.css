@@ -82,3 +82,65 @@
   border-radius: 4px;
   white-space: nowrap;
 }
+
+.fullscreen-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.9);
+  z-index: 2000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.fullscreen-overlay img {
+  max-width: 90%;
+  max-height: 80%;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.fullscreen-overlay .close-button {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  font-size: 32px;
+  color: white;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.nav-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  color: white;
+  background: rgba(0, 0, 0, 0.5);
+  border: none;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  z-index: 2010;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-button.left {
+  left: 20px;
+}
+
+.nav-button.right {
+  right: 20px;
+}
+
+.nav-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+}

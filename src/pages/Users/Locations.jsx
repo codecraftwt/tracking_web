@@ -8,6 +8,7 @@ import {
 } from "@react-google-maps/api";
 import Navbar from "../../components/Navbar";
 import "./Locations.css";
+import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 
 const mapContainerStyle = {
   width: "100%",
@@ -22,6 +23,8 @@ const Locations = () => {
   const [coordinates, setCoordinates] = useState([]);
   const [mapCenter, setMapCenter] = useState({ lat: 0, lng: 0 });
   const [mapZoom, setMapZoom] = useState(14);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(null);
+  const [activeMarker, setActiveMarker] = useState(null);
   const mapRef = useRef(null);
 
   const { isLoaded, loadError } = useJsApiLoader({
@@ -29,6 +32,7 @@ const Locations = () => {
     libraries: ["places"],
   });
 
+  const imageCoordinates = coordinates.filter((c) => c.location_image);
   // Get icon configuration only when Google Maps is loaded
   const getIconConfig = useCallback(
     (color, size = 32) => {
@@ -43,46 +47,127 @@ const Locations = () => {
     [isLoaded]
   );
 
+  // Get camera icon for locations with images
+  const getCameraIcon = useCallback(
+    (size = 28) => {
+      if (!isLoaded) return undefined;
+
+      return {
+        url: `https://cdn-icons-png.freepik.com/512/609/609673.png`,
+        scaledSize: new window.google.maps.Size(size, size),
+        anchor: new window.google.maps.Point(size / 2, size),
+      };
+    },
+    [isLoaded]
+  );
+
+  const snapToRoads = async (rawCoords) => {
+    if (!rawCoords || rawCoords.length === 0) return [];
+
+    const path = rawCoords
+      .map((coord) => `${coord.lat},${coord.lng}`)
+      .join("|");
+
+    const url = `https://roads.googleapis.com/v1/snapToRoads?path=${encodeURIComponent(
+      path
+    )}&interpolate=true&key=${GOOGLE_MAPS_APIKEY}`;
+
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (!data.snappedPoints) return rawCoords;
+
+      // Attach metadata to the snapped points
+      const snapped = data.snappedPoints.map((point, i) => {
+        // Try to use original metadata if available (match by originalIndex)
+        const originalIndex = point.originalIndex;
+        const original = rawCoords[originalIndex] || {};
+
+        return {
+          lat: point.location.latitude,
+          lng: point.location.longitude,
+          timestamp: original.timestamp || null,
+          accuracy: original.accuracy || null,
+          location_image: original.location_image || null,
+          id: original.id || i,
+        };
+      });
+
+      return snapped;
+    } catch (err) {
+      console.error("Failed to snap to roads:", err);
+      return rawCoords;
+    }
+  };
+
   // Process locations and set coordinates
   useEffect(() => {
-    if (isLoaded && locations?.length) {
-      const coords = locations
-        .map((loc) => ({
-          lat: parseFloat(loc.latitude),
-          lng: parseFloat(loc.longitude),
-          timestamp: loc.timestamp || loc.createdAt,
-          accuracy: loc.accuracy,
-        }))
-        .filter((coord) => !isNaN(coord.lat) && !isNaN(coord.lng));
+    const processCoordinates = async () => {
+      if (isLoaded && locations?.length) {
+        const rawCoords = locations
+          .map((loc) => ({
+            lat: parseFloat(loc.latitude),
+            lng: parseFloat(loc.longitude),
+            timestamp: loc.timestamp || loc.createdAt,
+            accuracy: loc.accuracy,
+            location_image: loc.location_image || null,
+            id: loc._id,
+          }))
+          .filter((coord) => !isNaN(coord.lat) && !isNaN(coord.lng));
 
-      setCoordinates(coords);
+        const snappedCoords = await snapToRoads(rawCoords);
+        setCoordinates(snappedCoords);
 
-      // Set map center and zoom level
-      if (coords.length > 0) {
-        const midIndex = Math.floor(coords.length / 2);
-        setMapCenter(coords[midIndex]);
+        if (snappedCoords.length > 0) {
+          const midIndex = Math.floor(snappedCoords.length / 2);
+          setMapCenter(snappedCoords[midIndex]);
 
-        // Calculate bounds and zoom level
-        try {
-          const bounds = new window.google.maps.LatLngBounds();
-          coords.forEach((coord) => bounds.extend(coord));
-          const ne = bounds.getNorthEast();
-          const sw = bounds.getSouthWest();
-          const latDiff = Math.abs(ne.lat() - sw.lat());
-          const lngDiff = Math.abs(ne.lng() - sw.lng());
-          const maxDiff = Math.max(latDiff, lngDiff);
+          try {
+            const bounds = new window.google.maps.LatLngBounds();
+            snappedCoords.forEach((coord) => bounds.extend(coord));
+            const ne = bounds.getNorthEast();
+            const sw = bounds.getSouthWest();
+            const latDiff = Math.abs(ne.lat() - sw.lat());
+            const lngDiff = Math.abs(ne.lng() - sw.lng());
+            const maxDiff = Math.max(latDiff, lngDiff);
 
-          if (maxDiff > 0.1) setMapZoom(10);
-          else if (maxDiff > 0.05) setMapZoom(12);
-          else if (maxDiff > 0.01) setMapZoom(14);
-          else setMapZoom(16);
-        } catch (error) {
-          console.error("Error calculating bounds:", error);
-          setMapZoom(14); // Default zoom if bounds calculation fails
+            if (maxDiff > 0.1) setMapZoom(10);
+            else if (maxDiff > 0.05) setMapZoom(12);
+            else if (maxDiff > 0.01) setMapZoom(14);
+            else setMapZoom(16);
+          } catch (error) {
+            console.error("Error calculating bounds:", error);
+            setMapZoom(14);
+          }
         }
       }
-    }
+    };
+
+    processCoordinates();
   }, [locations, isLoaded]);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (selectedImageIndex !== null) {
+        if (e.key === "ArrowRight") {
+          setSelectedImageIndex(
+            (selectedImageIndex + 1) % imageCoordinates.length
+          );
+        } else if (e.key === "ArrowLeft") {
+          setSelectedImageIndex(
+            (selectedImageIndex - 1 + imageCoordinates.length) %
+              imageCoordinates.length
+          );
+        } else if (e.key === "Escape") {
+          handleCloseInfoWindow();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedImageIndex, imageCoordinates.length]);
 
   const handleMapLoad = useCallback(
     (map) => {
@@ -108,6 +193,16 @@ const Locations = () => {
     },
     [coordinates, isLoaded]
   );
+
+  const handleImageMarkerClick = (coord) => {
+    const index = imageCoordinates.findIndex((c) => c.id === coord.id);
+    if (index !== -1) {
+      setSelectedImageIndex(index);
+    }
+  };
+  const handleCloseInfoWindow = () => {
+    setSelectedImageIndex(null);
+  };
 
   if (loadError) {
     return (
@@ -215,6 +310,76 @@ const Locations = () => {
               }}
             />
           )}
+
+          {/* Image Markers */}
+          {coordinates.map(
+            (coord, index) =>
+              coord.location_image && (
+                <Marker
+                  key={`image-${coord.id || index}`} // Use id if available, otherwise fall back to index
+                  position={coord}
+                  // title="Image Location"
+                  icon={getCameraIcon()}
+                  clickable={true}
+                  onClick={() => handleImageMarkerClick(coord, index)}
+                />
+              )
+          )}
+
+          {selectedImageIndex !== null && (
+            <div className="fullscreen-overlay" onClick={handleCloseInfoWindow}>
+              <button
+                className="close-button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleCloseInfoWindow();
+                }}
+              >
+                &times;
+              </button>
+
+              {/* Prev Button */}
+              <button
+                className="nav-button left"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedImageIndex(
+                    (selectedImageIndex - 1 + imageCoordinates.length) %
+                      imageCoordinates.length
+                  );
+                }}
+              >
+                <FaArrowLeft />
+              </button>
+
+              {/* Image */}
+              <img
+                src={imageCoordinates[selectedImageIndex].location_image}
+                alt="Location fullscreen"
+              />
+
+              {/* Timestamp */}
+              <div className="mt-3 text-light small">
+                {imageCoordinates[selectedImageIndex]?.timestamp &&
+                  new Date(
+                    imageCoordinates[selectedImageIndex].timestamp
+                  ).toLocaleString()}
+              </div>
+
+              {/* Next Button */}
+              <button
+                className="nav-button right"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedImageIndex(
+                    (selectedImageIndex + 1) % imageCoordinates.length
+                  );
+                }}
+              >
+                <FaArrowRight />
+              </button>
+            </div>
+          )}
         </GoogleMap>
 
         {/* Route Information Panel */}
@@ -233,6 +398,12 @@ const Locations = () => {
               <div className="d-flex justify-content-between mb-1">
                 <span>Total Points:</span>
                 <span className="fw-semibold">{coordinates.length}</span>
+              </div>
+              <div className="d-flex justify-content-between mb-1">
+                <span>Images:</span>
+                <span className="fw-semibold">
+                  {coordinates.filter((c) => c.location_image).length}
+                </span>
               </div>
               <div className="d-flex justify-content-between mb-1">
                 <span>Start Time:</span>
