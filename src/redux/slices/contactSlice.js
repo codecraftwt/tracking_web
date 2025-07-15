@@ -10,6 +10,11 @@ const initialState = {
   error: null,
   loadingContact: false,
   errorContact: null,
+  pagination: {
+    page: 1,
+    totalPages: 1,
+    totalContacts: 0,
+  },
 };
 
 // Define the thunks
@@ -27,11 +32,16 @@ export const createContact = createAsyncThunk(
 
 export const getContacts = createAsyncThunk(
   "contact/getContacts",
-  async (_, { rejectWithValue }) => {
+  async ({ page = 1, limit = 10 }, { rejectWithValue }) => {
+    console.log("API called .......");
     try {
-      const response = await axiosInstance.get("/api/contacts");
-      return response.data;
+      console.log("API called .......");
+      const response = await axiosInstance.get("/api/contacts", {
+        params: { page, limit }, // Pass the page and limit as query parameters
+      });
+      return response.data; // This should include contacts, totalPages, totalContacts, etc.
     } catch (error) {
+      console.log("Error fetching contacts:", error);
       return rejectWithValue(error.response.data);
     }
   }
@@ -75,7 +85,10 @@ const contactSlice = createSlice({
       })
       .addCase(getContacts.fulfilled, (state, action) => {
         state.loading = false;
-        state.contacts = action.payload;
+        state.contacts = action.payload.contacts;
+        state.pagination.page = action.payload.page;
+        state.pagination.totalPages = action.payload.totalPages;
+        state.pagination.totalContacts = action.payload.totalContacts;
       })
       .addCase(getContacts.rejected, (state, action) => {
         state.loading = false;

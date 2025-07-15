@@ -39,6 +39,8 @@ import ActiveUserLocations from "./pages/Users/ActiveUserLocations.jsx";
 import ResetPassword from "./pages/Profile/ResetPassword.jsx";
 import ForgotPassword from "./pages/Authintication/ForgotPassword.jsx";
 import ResetForgotPassword from "./pages/Authintication/ResetForgotPassword.jsx";
+import ContactList from "./pages/Contact/ContactList.jsx";
+import { FaEnvelope } from "react-icons/fa";
 
 const SidebarLink = ({ to, icon: Icon, label }) => {
   const location = useLocation();
@@ -219,6 +221,11 @@ const App = () => {
                         label="Plan Management"
                       />
                       <SidebarLink
+                        to="/contact-list"
+                        icon={FaEnvelope}
+                        label="Contact List"
+                      />
+                      <SidebarLink
                         to="/profile"
                         icon={CgProfile}
                         label="Profile Settings"
@@ -290,7 +297,10 @@ const App = () => {
             <Route path="/contact" element={<Contact />} />
             <Route path="/login" element={<Login />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-forgot-password/:token" element={<ResetForgotPassword />} />
+            <Route
+              path="/reset-forgot-password/:token"
+              element={<ResetForgotPassword />}
+            />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route
               path="/dashboard"
@@ -389,6 +399,12 @@ const App = () => {
                   element={<ActiveUserLocations />}
                   allowedRoles={[1]}
                 />
+              }
+            />
+            <Route
+              path="/contact-list"
+              element={
+                <PrivateRoute element={<ContactList />} allowedRoles={[2]} />
               }
             />
             <Route path="*" element={<Navigate to="/" replace />} />
