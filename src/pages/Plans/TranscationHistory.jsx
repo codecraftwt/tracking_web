@@ -9,8 +9,10 @@ import {
   FaArrowDown,
   FaCheckCircle,
   FaClock,
+  FaChevronDown,
+  FaChevronUp,
 } from "react-icons/fa";
-import { Card, Badge, Row, Col, Alert } from "react-bootstrap";
+import { Card, Badge, Row, Col, Alert, Dropdown } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { getPaymentHistory } from "../../redux/slices/paymentSlice";
 import { useAuth } from "../../context/AuthContext";
@@ -25,6 +27,7 @@ const TransactionHistory = () => {
   );
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [showReceipt, setShowReceipt] = useState(false);
+  const [expandedAddOns, setExpandedAddOns] = useState({});
 
   useEffect(() => {
     if (isAuthenticated && user) {
@@ -34,6 +37,13 @@ const TransactionHistory = () => {
       }
     }
   }, [dispatch, isAuthenticated, user]);
+
+  const toggleAddOns = (transactionId) => {
+    setExpandedAddOns((prev) => ({
+      ...prev,
+      [transactionId]: !prev[transactionId],
+    }));
+  };
 
   const getStatusIcon = (status) => {
     return status === "completed" ? <FaCheckCircle /> : <FaClock />;
@@ -285,37 +295,90 @@ const TransactionHistory = () => {
                                   {transaction.paymentMethod}
                                 </small>
                               )}
-                              {/* Add-ons */}
+                              {/* Add-ons Dropdown */}
                               {transaction.addOns &&
                                 transaction.addOns.length > 0 && (
                                   <div className="mt-3">
-                                    <h6 className="fw-semibold mb-2">
-                                      Add-Ons
-                                    </h6>
-                                    {transaction.addOns.map((addOn, idx) => (
+                                    <div
+                                      className="d-flex align-items-center justify-content-end"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        toggleAddOns(transaction._id || index);
+                                      }}
+                                      style={{ cursor: "pointer" }}
+                                    >
+                                      <small className="text-primary me-2">
+                                        {transaction.addOns.length} Add-On(s)
+                                      </small>
+                                      {expandedAddOns[
+                                        transaction._id || index
+                                      ] ? (
+                                        <FaChevronUp size={12} />
+                                      ) : (
+                                        <FaChevronDown size={12} />
+                                      )}
+                                    </div>
+                                    {expandedAddOns[
+                                      transaction._id || index
+                                    ] && (
                                       <div
-                                        key={idx}
-                                        className="d-flex justify-content-between align-items-center"
+                                        className="mt-2 p-2 px-4"
+                                        style={{
+                                          backgroundColor: "#f8f9fa",
+                                          borderRadius: "8px",
+                                          border: "1px solid #dee2e6",
+                                        }}
                                       >
-                                        <small className="text-muted">
-                                          Upgrade to {addOn.addOnMaxUser} users
-                                        </small>
-                                        <div className="ml-2">
-                                          <span
-                                            className="fw-bold mb-2"
-                                            style={{
-                                              color: getAmountColor(
-                                                transaction.amount
-                                              ),
-                                              fontSize: "18px",
-                                              transition: "all 0.3s ease",
-                                            }}
-                                          >
-                                            +₹{addOn.addOnAmount}
-                                          </span>
-                                        </div>
+                                        {transaction.addOns.map(
+                                          (addOn, idx) => (
+                                            <div
+                                              key={idx}
+                                              className="d-flex justify-content-between align-items-center mb-2 gap-4"
+                                            >
+                                              <div>
+                                                <small className="text-muted">
+                                                  Upgrade to{" "}
+                                                  {addOn.addOnMaxUser} users
+                                                </small>
+                                                <div className="ml-2">
+                                                  <span
+                                                    className="fw-bold mb-2"
+                                                    style={{
+                                                      color: getAmountColor(
+                                                        transaction.amount
+                                                      ),
+                                                    }}
+                                                  >
+                                                    +₹{addOn.addOnAmount}
+                                                  </span>
+                                                </div>
+                                              </div>
+                                              {/* Add-on Status */}
+                                              <div>
+                                                <Badge
+                                                  bg={
+                                                    addOn.status === "completed"
+                                                      ? "success"
+                                                      : "danger"
+                                                  }
+                                                  className="px-3 py-2"
+                                                >
+                                                  {addOn.status ===
+                                                  "completed" ? (
+                                                    <FaCheckCircle />
+                                                  ) : (
+                                                    <FaClock />
+                                                  )}
+                                                  <span className="ms-2">
+                                                    {addOn.status}
+                                                  </span>
+                                                </Badge>
+                                              </div>
+                                            </div>
+                                          )
+                                        )}
                                       </div>
-                                    ))}
+                                    )}
                                   </div>
                                 )}
                             </div>

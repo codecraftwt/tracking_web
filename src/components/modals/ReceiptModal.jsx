@@ -65,6 +65,18 @@ const ReceiptModal = ({ transaction, show, onHide }) => {
     return `₹${amount.toFixed(2)}`;
   };
 
+  // Calculate total amount including only successful add-ons
+  const getTotalAmount = () => {
+    // Sum the amount of the main transaction and successful add-ons
+    const successfulAddOns =
+      transaction.addOns?.filter((addOn) => addOn.status === "completed") || [];
+    const totalAddOnAmount = successfulAddOns.reduce(
+      (sum, addOn) => sum + addOn.addOnAmount,
+      0
+    );
+    return transaction.amount + totalAddOnAmount;
+  };
+
   return (
     <Modal
       show={show}
@@ -133,12 +145,17 @@ const ReceiptModal = ({ transaction, show, onHide }) => {
           {transaction.addOns && transaction.addOns.length > 0 && (
             <div className="mb-3">
               <h6 className="fw-bold mb-2">Add-Ons</h6>
-              {transaction.addOns.map((addOn, idx) => (
-                <div key={idx} className="d-flex justify-content-between mb-1">
-                  <span>Upgrade to {addOn.addOnMaxUser} users:</span>
-                  <span>+{formatAmount(addOn.addOnAmount)}</span>
-                </div>
-              ))}
+              {transaction.addOns
+                .filter((addOn) => addOn.status === "completed") // Only show completed add-ons
+                .map((addOn, idx) => (
+                  <div
+                    key={idx}
+                    className="d-flex justify-content-between mb-1"
+                  >
+                    <span>Upgrade to {addOn.addOnMaxUser} users:</span>
+                    <span>+{formatAmount(addOn.addOnAmount)}</span>
+                  </div>
+                ))}
             </div>
           )}
 
@@ -146,15 +163,7 @@ const ReceiptModal = ({ transaction, show, onHide }) => {
           <div className="border-top pt-3">
             <div className="d-flex justify-content-between fw-bold fs-5">
               <span>Total Amount:</span>
-              <span>
-                {formatAmount(
-                  transaction.amount +
-                    (transaction.addOns?.reduce(
-                      (sum, addOn) => sum + addOn.addOnAmount,
-                      0
-                    ) || 0)
-                )}
-              </span>
+              <span>{formatAmount(getTotalAmount())}</span>
             </div>
           </div>
 
