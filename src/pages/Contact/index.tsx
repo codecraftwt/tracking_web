@@ -231,11 +231,11 @@ const Contact = () => {
                     {loading ? "Sending..." : "Send Message"}
                   </Button>
 
-                  {error && (
+                  {/* {error && (
                     <div className="mt-3 text-danger text-center">
                       {error.message || "An error occurred. Please try again."}
                     </div>
-                  )}
+                  )} */}
                 </Form>
               </Card.Body>
             </Card>

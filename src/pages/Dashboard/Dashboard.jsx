@@ -274,7 +274,7 @@ const Dashboard = () => {
                               <h5 className="fw-bold mb-1">
                                 {revenueSummary?.currentMonthRevenue > 0
                                   ? `₹${revenueSummary?.currentMonthRevenue.toLocaleString()}`
-                                  : ""}
+                                  : "₹0"}
                               </h5>
                               <p className="text-white-50 small mb-0">
                                 This Month
@@ -300,7 +300,7 @@ const Dashboard = () => {
                               <h5 className="fw-bold mb-1">
                                 {revenueSummary?.lastMonthRevenue > 0
                                   ? `₹${revenueSummary?.lastMonthRevenue.toLocaleString()}`
-                                  : ""}
+                                  : "₹0"}
                               </h5>
                               <p className="text-white-50 small mb-0">
                                 Last Month
