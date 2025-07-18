@@ -450,7 +450,7 @@ const RegisterAdmin = () => {
                     </div>
 
                     {/* Status Section */}
-                    {editingUser._id !== userDataa._id && (
+                    {editingUser?._id !== userDataa?._id && (
                       <div className="mb-4">
                         <label className="form-label fw-semibold text-dark mb-3">
                           Account Status

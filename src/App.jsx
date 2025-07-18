@@ -126,6 +126,7 @@ const App = () => {
         location.pathname !== "/contact" &&
         location.pathname !== "/login" &&
         location.pathname !== "/forgot-password" &&
+        location.pathname !== "/reset-forgot-password" &&
         location.pathname !== "/privacy-policy" && (
           <aside
             className="p-3"
@@ -298,7 +299,7 @@ const App = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route
-              path="/reset-forgot-password/:token"
+              path="/reset-forgot-password"
               element={<ResetForgotPassword />}
             />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />

@@ -17,7 +17,7 @@ const ResetForgotPassword = () => {
 
   // Access Redux state for loading, error, and success
   const { loading, forgotPasswordError, resetPasswordSuccess } = useSelector(
-    (state) => state.auth
+    (state) => state.UserData
   );
 
   useEffect(() => {

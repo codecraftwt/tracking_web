@@ -82,9 +82,14 @@ const PaymentPlans = () => {
 
   // Separate plans into subscriptions and add-ons
   const subscriptionPlans =
-    plansList?.filter((plan) => !plan.name.includes("Add on Plan")) || [];
+    plansList?.filter(
+      (plan) => !plan.name.includes("Add on Plan") && plan.status === "active"
+    ) || [];
+
   const addOnPlans =
-    plansList?.filter((plan) => plan.name.includes("Add on Plan")) || [];
+    plansList?.filter(
+      (plan) => plan.name.includes("Add on Plan") && plan.status === "active"
+    ) || [];
 
   const handleSubscriptionPayment = async (planId) => {
     setProcessingPlanId(planId);
@@ -620,7 +625,9 @@ const PaymentPlans = () => {
                 onClose={() => setPaymentSuccess(null)}
                 className="mb-4"
               >
-                <Alert.Heading>Payment Successful!</Alert.Heading>
+                <Alert.Heading className="h5">
+                  Payment Successful!
+                </Alert.Heading>
                 <p>{paymentSuccess}</p>
               </Alert>
             )}
@@ -650,13 +657,13 @@ const PaymentPlans = () => {
                 }
                 className="mb-4"
               >
-                <Alert.Heading>
+                <Alert.Heading className="h5">
                   {subscriptionExpiry &&
                   moment(subscriptionExpiry).isBefore(moment())
                     ? "Subscription Expired"
                     : "Active Subscription"}
                 </Alert.Heading>
-                <p>
+                <p className="text-muted small">
                   {subscriptionExpiry &&
                   moment(subscriptionExpiry).isBefore(moment()) ? (
                     <>

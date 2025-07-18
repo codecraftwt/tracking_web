@@ -70,18 +70,19 @@ const RecentActivities = ({ users = [] }) => {
                           className="rounded-pill px-2 py-1"
                           style={{ fontSize: "11px" }}
                         >
-                          {user.status === "1" ? "Checked In" : "Checked Out"}
+                          {/* {user.status === "1" ? "Checked In" : "Checked Out"} */}
+                          {user.status}
                         </Badge>
                       </div>
                     </div>
-                    <div className="text-end">
+                    {/* <div className="text-end">
                       <p className="text-muted small mb-1">
                         {formatDateDDMMYYYY(user.updatedAt)}
                       </p>
                       <p className="text-muted small mb-0">
                         {new Date(user.updatedAt).toLocaleTimeString()}
                       </p>
-                    </div>
+                    </div> */}
                   </motion.div>
                 ))}
               </div>

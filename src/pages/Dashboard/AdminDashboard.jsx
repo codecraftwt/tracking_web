@@ -3,7 +3,11 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../../components/Navbar";
 import { Col, Row } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllUsers, getUserById } from "../../redux/slices/userSlice";
+import {
+  getAllUsers,
+  getUserById,
+  getLastFiveTrackedUsers,
+} from "../../redux/slices/userSlice";
 import { motion } from "framer-motion";
 import { FaUsers, FaUserCheck, FaUserTimes, FaUserClock } from "react-icons/fa";
 import CurrentPlan from "./CurrentPlan";
@@ -23,9 +27,18 @@ const AdminDashboard = () => {
 
   const userData = useSelector((state) => state.UserData.userInfo);
 
+  const { lastTrackedUsers, lastTrackedUsersLoading, lastTrackedUsersError } =
+    useSelector((state) => state.UserData);
+
   useEffect(() => {
     dispatch(getUserById(userData._id));
   }, [dispatch, userData._id]);
+
+  useEffect(() => {
+    if (userData?._id) {
+      dispatch(getLastFiveTrackedUsers(userData._id));
+    }
+  }, [dispatch, userData?._id]);
 
   useEffect(() => {
     dispatch(getAllUsers(userData?._id)).then((response) => {
@@ -143,14 +156,12 @@ const AdminDashboard = () => {
             {/* Stats Cards */}
             <StatsCards stats={userStats} />
 
-
-              <motion.section variants={itemVariants} className="mb-5">
-                <CurrentPlan currentPlan={userData?.currentPaymentId} />
-              </motion.section>
-        
+            <motion.section variants={itemVariants} className="mb-5">
+              <CurrentPlan currentPlan={userData?.currentPaymentId} />
+            </motion.section>
 
             {/* Recent Activities */}
-            <RecentActivities users={mostRecentUsers} />
+            <RecentActivities users={lastTrackedUsers} />
 
             {/* Quick Actions
             <motion.section variants={itemVariants}>
@@ -213,7 +224,7 @@ const AdminDashboard = () => {
             </motion.section> */}
           </Col>
         </Row>
-      </motion.main>
+      </motion.main> 
     </div>
   );
 };

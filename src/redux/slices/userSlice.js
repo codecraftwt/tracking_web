@@ -130,6 +130,7 @@ export const getAllAdmins = createAsyncThunk(
     }
   }
 );
+
 export const getUserTrack = createAsyncThunk(
   "user/trackRecord",
   async ({ id, date = "" }, { rejectWithValue }) => {
@@ -174,6 +175,21 @@ export const getActiveUserLocations = createAsyncThunk(
         error?.response?.data?.message || "Failed to fetch locations"
       );
       return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+export const getLastFiveTrackedUsers = createAsyncThunk(
+  "user/getLastFiveTrackedUsers",
+  async (adminId, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(
+        `api/tracks/last-five-tracked-users/${adminId}`
+      );
+      return response.data.users;
+    } catch (error) {
+      // toast.error(error?.response?.data?.message || "Failed to fetch users");
+      return rejectWithValue(error?.response?.data || error.message);
     }
   }
 );
@@ -252,6 +268,9 @@ const userSlice = createSlice({
     activeUserLocations: [],
     activeUserLocationsLoading: false,
     activeUserLocationsError: null,
+    lastTrackedUsers: [],
+    lastTrackedUsersLoading: false,
+    lastTrackedUsersError: null,
     forgotPasswordLoading: false,
     forgotPasswordError: null,
     forgotPasswordSuccess: false,
@@ -430,6 +449,19 @@ const userSlice = createSlice({
       .addCase(getActiveUserLocations.rejected, (state, action) => {
         state.activeUserLocationsLoading = false;
         state.activeUserLocationsError = action.payload;
+      })
+
+      .addCase(getLastFiveTrackedUsers.pending, (state) => {
+        state.lastTrackedUsersLoading = true;
+        state.lastTrackedUsersError = null;
+      })
+      .addCase(getLastFiveTrackedUsers.fulfilled, (state, action) => {
+        state.lastTrackedUsersLoading = false;
+        state.lastTrackedUsers = action.payload;
+      })
+      .addCase(getLastFiveTrackedUsers.rejected, (state, action) => {
+        state.lastTrackedUsersLoading = false;
+        state.lastTrackedUsersError = action.payload;
       })
 
       .addCase(resetPassword.pending, (state) => {
