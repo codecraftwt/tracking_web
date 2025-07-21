@@ -113,8 +113,9 @@ const ManagePlans = () => {
           toast.success("Plan created successfully!");
           handleClose();
         })
-        .catch(() => {
-          toast.error("Failed to create plan");
+        .catch((error) => {
+          const errMsg = error?.message || "Failed to create plan";
+          toast.error(errMsg);
         });
     }
   };

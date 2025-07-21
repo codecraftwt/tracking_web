@@ -56,9 +56,12 @@ export const getPaymentHistory = createAsyncThunk(
 
 export const getAllPaymentHistory = createAsyncThunk(
   "payment/getAllPaymentHistory",
-  async (_, { rejectWithValue }) => {
+  async (params = {}, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get("/api/payments/history");
+      const queryString = new URLSearchParams(params).toString();
+      const response = await axiosInstance.get(
+        `/api/payments/history?${queryString}`
+      );
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
@@ -162,10 +165,18 @@ const initialState = {
   historyError: null,
   paymentHistory: [],
 
+  // All payment history (Super Admin view)
   allPaymentHistory: [],
   allPaymentHistoryLoading: false,
   allPaymentHistoryError: null,
+
   totalCompletedAmount: 0,
+  numberOfPaidUsers: 0,
+  averageRevenue: 0,
+
+  currentPage: 1,
+  totalPages: 1,
+  totalItems: 0,
 
   revenueSummary: null,
   revenueLoading: false,
@@ -278,8 +289,22 @@ const paymentSlice = createSlice({
       })
       .addCase(getAllPaymentHistory.fulfilled, (state, action) => {
         state.allPaymentHistoryLoading = false;
-        state.allPaymentHistory = action.payload.data || [];
-        state.totalCompletedAmount = action.payload.totalCompletedAmount || 0;
+        const {
+          data,
+          totalCompletedAmount,
+          numberOfPaidUsers,
+          averageRevenue,
+          pagination,
+        } = action.payload;
+
+        state.allPaymentHistory = data;
+        state.totalCompletedAmount = totalCompletedAmount;
+        state.numberOfPaidUsers = numberOfPaidUsers;
+        state.averageRevenue = averageRevenue;
+
+        state.currentPage = pagination.page;
+        state.totalPages = pagination.totalPages;
+        state.totalItems = pagination.totalItems;
       })
       .addCase(getAllPaymentHistory.rejected, (state, action) => {
         state.allPaymentHistoryLoading = false;

@@ -8,95 +8,148 @@ import {
   FaClock,
 } from "react-icons/fa";
 import moment from "moment";
+import { useSelector } from "react-redux";
 
-const RevenueTable = ({ filteredPayments, totalRevenue, searchQuery }) => {
+const RevenueTable = ({
+  filteredPayments,
+  totalRevenue,
+  searchQuery,
+  page,
+  handlePageChange,
+}) => {
+  const {
+    currentPage = 1,
+    totalItems = 0,
+    totalPages = 0,
+  } = useSelector((state) => state.PaymentData || {});
+
   return (
-    <Card className="border-0 shadow-sm" style={{ borderRadius: "16px" }}>
-      <Card.Header
-        className="border-0 p-4"
-        style={{
-          background: "linear-gradient(135deg, #3B82F6, #2563EB)",
-          borderTopLeftRadius: "16px",
-          borderTopRightRadius: "16px",
-        }}
-      >
-        <div className="d-flex align-items-center justify-content-between">
-          <div>
-            <h5 className="text-white fw-bold mb-1">Payment History</h5>
-            <p className="text-white-50 mb-0 small">
-              Complete breakdown of all payment transactions
-            </p>
+    <>
+      <Card className="border-0 shadow-sm" style={{ borderRadius: "16px" }}>
+        <Card.Header
+          className="border-0 p-4"
+          style={{
+            background: "linear-gradient(135deg, #3B82F6, #2563EB)",
+            borderTopLeftRadius: "16px",
+            borderTopRightRadius: "16px",
+          }}
+        >
+          <div className="d-flex align-items-center justify-content-between">
+            <div>
+              <h5 className="text-white fw-bold mb-1">Payment History</h5>
+              <p className="text-white-50 mb-0 small">
+                Complete breakdown of all payment transactions
+              </p>
+            </div>
+            <div className="d-flex align-items-center gap-2">
+              <Badge
+                bg="light"
+                className="text-primary px-3 py-2 rounded-pill"
+                style={{ fontSize: "14px" }}
+              >
+                <FaRupeeSign className="me-2" />
+                {totalRevenue.toLocaleString("en-IN")}
+              </Badge>
+            </div>
           </div>
-          <div className="d-flex align-items-center gap-2">
-            <Badge
-              bg="light"
-              className="text-primary px-3 py-2 rounded-pill"
-              style={{ fontSize: "14px" }}
-            >
-              <FaRupeeSign className="me-2" />
-              {totalRevenue.toLocaleString("en-IN")}
-            </Badge>
+        </Card.Header>
+        <Card.Body className="p-0">
+          <div className="table-responsive">
+            <Table className="mb-0 small">
+              <thead>
+                <tr style={{ background: "rgba(59, 130, 246, 0.05)" }}>
+                  <th
+                    className="border-0 p-3 fw-semibold"
+                    style={{ color: "#374151" }}
+                  >
+                    Customer
+                  </th>
+                  <th
+                    className="border-0 p-3 fw-semibold"
+                    style={{ color: "#374151" }}
+                  >
+                    Plan
+                  </th>
+                  <th
+                    className="border-0 p-3 fw-semibold"
+                    style={{ color: "#374151" }}
+                  >
+                    Payment Date
+                  </th>
+                  <th
+                    className="border-0 p-3 fw-semibold"
+                    style={{ color: "#374151" }}
+                  >
+                    Expires On
+                  </th>
+                  <th
+                    className="border-0 p-3 fw-semibold text-end"
+                    style={{ color: "#374151" }}
+                  >
+                    Amount
+                  </th>
+                  <th
+                    className="border-0 p-3 fw-semibold text-center"
+                    style={{ color: "#374151" }}
+                  >
+                    Status
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredPayments.map((payment, index) => (
+                  <React.Fragment key={payment.id}>
+                    <TableRow payment={payment} index={index} />
+                  </React.Fragment>
+                ))}
+              </tbody>
+            </Table>
           </div>
-        </div>
-      </Card.Header>
-      <Card.Body className="p-0">
-        <div className="table-responsive">
-          <Table className="mb-0 small">
-            <thead>
-              <tr style={{ background: "rgba(59, 130, 246, 0.05)" }}>
-                <th
-                  className="border-0 p-3 fw-semibold"
-                  style={{ color: "#374151" }}
-                >
-                  Customer
-                </th>
-                <th
-                  className="border-0 p-3 fw-semibold"
-                  style={{ color: "#374151" }}
-                >
-                  Plan
-                </th>
-                <th
-                  className="border-0 p-3 fw-semibold"
-                  style={{ color: "#374151" }}
-                >
-                  Payment Date
-                </th>
-                <th
-                  className="border-0 p-3 fw-semibold"
-                  style={{ color: "#374151" }}
-                >
-                  Expires On
-                </th>
-                <th
-                  className="border-0 p-3 fw-semibold text-end"
-                  style={{ color: "#374151" }}
-                >
-                  Amount
-                </th>
-                <th
-                  className="border-0 p-3 fw-semibold text-center"
-                  style={{ color: "#374151" }}
-                >
-                  Status
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredPayments.map((payment, index) => (
-                <React.Fragment key={payment.id}>
-                  <TableRow payment={payment} index={index} />
-                </React.Fragment>
-              ))}
-            </tbody>
-          </Table>
-        </div>
 
-        {filteredPayments.length === 0 && (
-          <EmptyState searchQuery={searchQuery} />
-        )}
-      </Card.Body>
-    </Card>
+          {filteredPayments.length === 0 && (
+            <EmptyState searchQuery={searchQuery} />
+          )}
+        </Card.Body>
+      </Card>
+
+      {totalPages > 1 && (
+        <div className="d-flex justify-content-center my-3">
+          <nav>
+            <ul className="pagination">
+              <li className={`page-item ${page === 1 && "disabled"}`}>
+                <button
+                  className="page-link"
+                  onClick={() => handlePageChange(page - 1)}
+                >
+                  Previous
+                </button>
+              </li>
+              {[...Array(totalPages)].map((_, idx) => (
+                <li
+                  key={idx}
+                  className={`page-item ${page === idx + 1 ? "active" : ""}`}
+                >
+                  <button
+                    className="page-link"
+                    onClick={() => handlePageChange(idx + 1)}
+                  >
+                    {idx + 1}
+                  </button>
+                </li>
+              ))}
+              <li className={`page-item ${page === totalPages && "disabled"}`}>
+                <button
+                  className="page-link"
+                  onClick={() => handlePageChange(page + 1)}
+                >
+                  Next
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      )}
+    </>
   );
 };
 

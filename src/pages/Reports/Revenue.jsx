@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Navbar from "../../components/Navbar";
-import { Container, Row, Col } from "react-bootstrap";
+import { Row, Col } from "react-bootstrap";
 import { motion } from "framer-motion";
 import {
   FaUsers,
@@ -18,20 +18,57 @@ import moment from "moment";
 
 const Revenue = () => {
   const dispatch = useDispatch();
-  const { allPaymentHistory, allPaymentHistoryLoading, totalCompletedAmount } =
-    useSelector((state) => state.PaymentData);
+  const {
+    allPaymentHistory,
+    allPaymentHistoryLoading,
+    totalCompletedAmount,
+    numberOfPaidUsers,
+    averageRevenue,
+    totalPages,
+    currentPage,
+  } = useSelector((state) => state.PaymentData);
+
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [filterMonth, setFilterMonth] = useState("all");
 
+  const [page, setPage] = useState(1);
+
+  // Debounce search input
   useEffect(() => {
-    dispatch(getAllPaymentHistory());
-  }, [dispatch]);
+    const delayDebounce = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 400);
 
-  // Transform payment history data for display
-  const transformPaymentData = () => {
-    if (!allPaymentHistory) return [];
+    return () => clearTimeout(delayDebounce);
+  }, [searchQuery]);
 
-    return allPaymentHistory.map((payment) => ({
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearchQuery, filterMonth]);
+
+  // Fetch payment data from backend
+  useEffect(() => {
+    const selectedMonth =
+      filterMonth !== "all"
+        ? {
+            month: filterMonth.split("-")[1], // MM
+            year: filterMonth.split("-")[0], // YYYY
+          }
+        : {};
+
+    dispatch(
+      getAllPaymentHistory({
+        search: debouncedSearchQuery,
+        ...selectedMonth,
+        page,
+      })
+    );
+  }, [dispatch, debouncedSearchQuery, filterMonth, page]);
+
+  // Transform API response
+  const paymentData =
+    allPaymentHistory?.map((payment) => ({
       id: payment._id,
       name: payment.adminId?.name || "Unknown",
       email: payment.adminId?.email || "",
@@ -44,28 +81,17 @@ const Revenue = () => {
       addOns: payment.addOns,
       expiresAt: payment.expiresAt,
       remainingDays: payment.remainingDays,
-    }));
+    })) || [];
+
+  const totalRevenue = totalCompletedAmount || 0;
+  const totalUsers = numberOfPaidUsers || 0;
+  const avgRevenue = averageRevenue || 0;
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setPage(newPage);
+    }
   };
-
-  const paymentData = transformPaymentData();
-
-  // Calculate metrics
-  const totalRevenue =
-    totalCompletedAmount ||
-    paymentData.reduce((sum, payment) => sum + payment.amount, 0);
-  const totalUsers = paymentData.length;
-  const averageRevenue = totalRevenue / (totalUsers || 1); // Avoid division by zero
-
-  // Filter payments
-  const filteredPayments = paymentData.filter((payment) => {
-    const matchesSearch =
-      payment.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      payment.plan.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      payment.email.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesMonth =
-      filterMonth === "all" || payment.date.startsWith(filterMonth);
-    return matchesSearch && matchesMonth;
-  });
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -85,19 +111,6 @@ const Revenue = () => {
       transition: { duration: 0.5 },
     },
   };
-
-  if (allPaymentHistoryLoading) {
-    return (
-      <div
-        className="min-vh-100 d-flex justify-content-center align-items-center"
-        style={{ background: "#f8fafc" }}
-      >
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-vh-100" style={{ background: "#f8fafc" }}>
@@ -153,25 +166,35 @@ const Revenue = () => {
               </Row>
             </motion.div>
 
-            {/* Search and Filter Section */}
+            {/* Search and Filter */}
             <motion.div variants={itemVariants} className="mb-4">
               <SearchFilter
                 searchQuery={searchQuery}
                 setSearchQuery={setSearchQuery}
                 filterMonth={filterMonth}
                 setFilterMonth={setFilterMonth}
-                resultsCount={filteredPayments.length}
+                resultsCount={paymentData.length}
               />
             </motion.div>
 
-            {/* Revenue Table */}
-            <motion.div variants={itemVariants}>
-              <RevenueTable
-                filteredPayments={filteredPayments}
-                totalRevenue={totalRevenue}
-                searchQuery={searchQuery}
-              />
-            </motion.div>
+            {/* Table */}
+            {allPaymentHistoryLoading ? (
+              <div className="d-flex justify-content-center align-items-center">
+                <div className="spinner-border text-primary" role="status">
+                  <span className="visually-hidden">Loading...</span>
+                </div>
+              </div>
+            ) : (
+              <motion.div variants={itemVariants}>
+                <RevenueTable
+                  filteredPayments={paymentData}
+                  totalRevenue={totalRevenue}
+                  searchQuery={searchQuery}
+                  page={page}
+                  handlePageChange={handlePageChange}
+                />
+              </motion.div>
+            )}
           </Col>
         </Row>
       </motion.main>

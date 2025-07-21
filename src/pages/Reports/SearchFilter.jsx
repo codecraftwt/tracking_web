@@ -1,4 +1,5 @@
-import React from "react";
+import { s } from "framer-motion/client";
+import React, { useEffect, useState } from "react";
 import {
   Card,
   Row,
@@ -9,6 +10,7 @@ import {
   Badge,
 } from "react-bootstrap";
 import { FaSearch, FaFilter, FaUsers } from "react-icons/fa";
+import { useSelector } from "react-redux";
 
 const SearchFilter = ({
   searchQuery,
@@ -17,6 +19,38 @@ const SearchFilter = ({
   setFilterMonth,
   resultsCount,
 }) => {
+  const totalItems = useSelector((state) => state.PaymentData.totalItems);
+  const [months, setMonths] = useState([]);
+
+  useEffect(() => {
+    // Function to generate the last 6 months including the current month
+    const getLastSixMonths = () => {
+      const monthsArray = [];
+      const currentDate = new Date();
+
+      // Include current month first
+      const currentMonth = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth()
+      );
+      monthsArray.push(currentMonth.toISOString().slice(0, 7)); // "YYYY-MM"
+
+      // Add the last 5 months
+      for (let i = 1; i <= 5; i++) {
+        const month = new Date(
+          currentDate.getFullYear(),
+          currentDate.getMonth() - i
+        );
+        const monthString = month.toISOString().slice(0, 7); // "YYYY-MM"
+        monthsArray.push(monthString);
+      }
+
+      return monthsArray;
+    };
+
+    setMonths(getLastSixMonths());
+  }, []);
+
   return (
     <Card className="border-0 shadow-sm" style={{ borderRadius: "16px" }}>
       <Card.Body className="p-4">
@@ -71,9 +105,18 @@ const SearchFilter = ({
                 }}
               >
                 <option value="all">All Months</option>
-                <option value="2025-01">January 2025</option>
-                <option value="2025-02">February 2025</option>
-                <option value="2025-03">March 2025</option>
+                {months.map((month) => {
+                  const monthDate = new Date(month + "-01");
+                  const monthName = monthDate.toLocaleString("default", {
+                    month: "long",
+                    year: "numeric",
+                  });
+                  return (
+                    <option key={month} value={month}>
+                      {monthName}
+                    </option>
+                  );
+                })}
               </Form.Select>
             </InputGroup>
           </Col>
@@ -84,7 +127,7 @@ const SearchFilter = ({
               style={{ fontSize: "14px" }}
             >
               <FaUsers className="me-2" />
-              {resultsCount} Results
+              {totalItems || resultsCount} Results
             </Badge>
           </Col>
         </Row>
