@@ -64,41 +64,57 @@ const Locations = () => {
   const snapToRoads = async (rawCoords) => {
     if (!rawCoords || rawCoords.length === 0) return [];
 
-    const path = rawCoords
-      .map((coord) => `${coord.lat},${coord.lng}`)
-      .join("|");
+    // Helper function to break coordinates into chunks of 100
+    const chunkCoords = (coords, chunkSize = 100) => {
+      const chunks = [];
+      for (let i = 0; i < coords.length; i += chunkSize) {
+        chunks.push(coords.slice(i, i + chunkSize));
+      }
+      return chunks;
+    };
 
-    const url = `https://roads.googleapis.com/v1/snapToRoads?path=${encodeURIComponent(
-      path
-    )}&interpolate=true&key=${GOOGLE_MAPS_APIKEY}`;
+    // Break the coordinates into chunks of 100 points or less
+    const coordChunks = chunkCoords(rawCoords, 100);
 
-    try {
-      const response = await fetch(url);
-      const data = await response.json();
+    const allSnappedPoints = [];
 
-      if (!data.snappedPoints) return rawCoords;
+    // Iterate over each chunk and call the API
+    for (const chunk of coordChunks) {
+      const path = chunk.map((coord) => `${coord.lat},${coord.lng}`).join("|");
+      const url = `https://roads.googleapis.com/v1/snapToRoads?path=${encodeURIComponent(
+        path
+      )}&interpolate=true&key=${GOOGLE_MAPS_APIKEY}`;
 
-      // Attach metadata to the snapped points
-      const snapped = data.snappedPoints.map((point, i) => {
-        // Try to use original metadata if available (match by originalIndex)
-        const originalIndex = point.originalIndex;
-        const original = rawCoords[originalIndex] || {};
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
 
-        return {
-          lat: point.location.latitude,
-          lng: point.location.longitude,
-          timestamp: original.timestamp || null,
-          accuracy: original.accuracy || null,
-          location_image: original.location_image || null,
-          id: original.id || i,
-        };
-      });
+        if (!data.snappedPoints) {
+          allSnappedPoints.push(...chunk); // No snapped points, use the original coordinates
+        } else {
+          const snapped = data.snappedPoints.map((point, i) => {
+            const originalIndex = point.originalIndex;
+            const original = chunk[originalIndex] || {};
 
-      return snapped;
-    } catch (err) {
-      console.error("Failed to snap to roads:", err);
-      return rawCoords;
+            return {
+              lat: point.location.latitude,
+              lng: point.location.longitude,
+              timestamp: original.timestamp || null,
+              accuracy: original.accuracy || null,
+              location_image: original.location_image || null,
+              id: original.id || i,
+            };
+          });
+
+          allSnappedPoints.push(...snapped);
+        }
+      } catch (err) {
+        console.error("Failed to snap to roads:", err);
+        allSnappedPoints.push(...chunk); // Fallback to original coordinates if error occurs
+      }
     }
+
+    return allSnappedPoints;
   };
 
   // Process locations and set coordinates
