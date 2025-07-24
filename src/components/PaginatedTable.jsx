@@ -1,7 +1,8 @@
-import React from "react";
-import { Table, Card, Pagination, Spinner, Badge } from "react-bootstrap";
+import React, { useState } from "react";
+import { Table, Card, Pagination, Spinner, Badge, Form } from "react-bootstrap";
 import { motion } from "framer-motion";
 import { FaUsers } from "react-icons/fa";
+import { getTodayDateString } from "../utils/dateFormat";
 
 const PaginatedTable = ({
   title = "Data List",
@@ -15,11 +16,20 @@ const PaginatedTable = ({
   onPageChange = () => {},
   loading = false,
   rowRender = null,
+  showDateFilter = false, // NEW: show date filter or not
+  onDateChange = () => {}, // NEW: callback when date changes
 }) => {
+  const [filterDate, setFilterDate] = useState(getTodayDateString());
+
   const handlePageClick = (page) => {
     if (page >= 1 && page <= totalPages && page !== currentPage) {
       onPageChange(page);
     }
+  };
+
+  const handleDateChange = (e) => {
+    setFilterDate(e.target.value);
+    onDateChange(e.target.value);
   };
 
   return (
@@ -32,19 +42,41 @@ const PaginatedTable = ({
           borderTopRightRadius: "16px",
         }}
       >
-        <div className="d-flex align-items-center justify-content-between">
+        <div className="d-flex align-items-center justify-content-between flex-wrap">
           <div>
             <h5 className="text-white fw-bold mb-1">{title}</h5>
             <p className="text-white-50 mb-0 small">{subtitle}</p>
           </div>
-          <Badge
-            bg="light"
-            className="text-primary px-3 py-2 rounded-pill"
-            style={{ fontSize: "14px" }}
-          >
-            {icon}
-            <span className="ms-2">{totalCount || data.length} Results</span>
-          </Badge>
+
+          <div className="d-flex align-items-center gap-3">
+            {showDateFilter && (
+              <Form.Control
+                type="date"
+                value={filterDate}
+                onChange={handleDateChange}
+                style={{
+                  maxWidth: "155px",
+                  fontSize: "0.85rem",
+                  borderRadius: "9999px",
+                  border: "2px solid #3B82F6",
+                  padding: "6px 20px",
+                  fontWeight: "600",
+                  color: "#2563EB",
+                  boxShadow: "0 0 6px rgba(59, 130, 246, 0.4)",
+                  cursor: "pointer",
+                }}
+              />
+            )}
+
+            <Badge
+              bg="light"
+              className="text-primary px-3 py-2 rounded-pill"
+              style={{ fontSize: "14px" }}
+            >
+              {icon}
+              <span className="ms-2">{totalCount || data.length} Results</span>
+            </Badge>
+          </div>
         </div>
       </Card.Header>
 

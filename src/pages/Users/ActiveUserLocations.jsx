@@ -29,6 +29,8 @@ const ActiveUserLocations = () => {
     dispatch(getActiveUserLocations());
   }, [dispatch]);
 
+  console.log("Active User Locations:", activeUserLocations);
+
   const handleMapLoad = useCallback(
     (map) => {
       mapRef.current = map;
@@ -52,7 +54,7 @@ const ActiveUserLocations = () => {
   const userMarkerIcon = useMemo(() => {
     if (isLoaded && window.google && window.google.maps) {
       return {
-        url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+        url: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
         scaledSize: new window.google.maps.Size(32, 32),
         anchor: new window.google.maps.Point(16, 32),
       };
@@ -112,7 +114,13 @@ const ActiveUserLocations = () => {
           {activeUserLocations.map((user) => {
             const { latitude, longitude } = user.latestLocation || {};
             if (!latitude || !longitude) return null;
-
+            console.log(
+              "Rendering marker for:",
+              user.name,
+              latitude,
+              longitude,
+              userMarkerIcon
+            );
             return (
               <Marker
                 key={user._id}
@@ -122,13 +130,18 @@ const ActiveUserLocations = () => {
                 }}
                 title={`${user.name} (${user.email})`}
                 // icon={userMarkerIcon || undefined}
-                label={{
-                  text: user.name || "User",
-                  className: "marker-label",
-                  fontSize: "12px",
-                  fontWeight: "bold",
-                  color: "black",
+                icon={{
+                  url: "https://maps.gstatic.com/mapfiles/api-3/images/spotlight-poi2_hdpi.png",
+                  scaledSize: new window.google.maps.Size(32, 32),
+                  anchor: new window.google.maps.Point(16, 32),
                 }}
+                // label={{
+                //   text: user.name || "User",
+                //   className: "marker-label",
+                //   fontSize: "12px",
+                //   fontWeight: "bold",
+                //   color: "black",
+                // }}
               />
             );
           })}

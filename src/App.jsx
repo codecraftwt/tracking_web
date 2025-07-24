@@ -41,6 +41,8 @@ import ForgotPassword from "./pages/Authintication/ForgotPassword.jsx";
 import ResetForgotPassword from "./pages/Authintication/ResetForgotPassword.jsx";
 import ContactList from "./pages/Contact/ContactList.jsx";
 import { FaEnvelope } from "react-icons/fa";
+import { TbReportAnalytics } from "react-icons/tb";
+import UserReport from "./pages/Reports/UserReport.jsx";
 
 const SidebarLink = ({ to, icon: Icon, label }) => {
   const location = useLocation();
@@ -256,6 +258,11 @@ const App = () => {
                         label="Transaction History"
                       />
                       <SidebarLink
+                        to="/report"
+                        icon={TbReportAnalytics}
+                        label="Reports"
+                      />
+                      <SidebarLink
                         to="/profile"
                         icon={CgProfile}
                         label="Profile Settings"
@@ -376,6 +383,12 @@ const App = () => {
                   element={<TranscationHistory />}
                   allowedRoles={[1]}
                 />
+              }
+            />
+            <Route
+              path="/report"
+              element={
+                <PrivateRoute element={<UserReport />} allowedRoles={[1]} />
               }
             />
             <Route
