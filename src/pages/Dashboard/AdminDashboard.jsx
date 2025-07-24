@@ -224,7 +224,7 @@ const AdminDashboard = () => {
             </motion.section> */}
           </Col>
         </Row>
-      </motion.main> 
+      </motion.main>
     </div>
   );
 };

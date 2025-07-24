@@ -310,15 +310,6 @@ const PaymentPlans = () => {
     }
   };
 
-  const getPlanColor = (planName) => {
-    if (planName.includes("Enterprise")) return "#8B5CF6";
-    if (planName.includes("Premium")) return "#10B981";
-    if (planName.includes("Standard")) return "#F59E0B";
-    if (planName.includes("Add on Plan")) return "#3B82F6";
-    if (planName.includes("Custom")) return "#EC4899";
-    return "#3B82F6";
-  };
-
   // Update the renderPlanCard function to disable subscription plans when there's an active subscription
   const renderPlanCard = (plan, index, isAddOn = false) => (
     <div key={plan._id} className="col-lg-6 col-xl-4">
@@ -355,9 +346,7 @@ const PaymentPlans = () => {
         <Card.Header
           className="border-0 py-3"
           style={{
-            background: `linear-gradient(135deg, ${getPlanColor(
-              plan.name
-            )}, ${getPlanColor(plan.name)}dd)`,
+            background: "#0d6efd",
             borderRadius: "12px 12px 0 0",
             transition: "all 0.3s ease",
           }}
@@ -413,10 +402,7 @@ const PaymentPlans = () => {
                 e.currentTarget.style.transform = "scale(1)";
               }}
             >
-              <h3
-                className="fw-bold mb-0"
-                style={{ color: getPlanColor(plan.name) }}
-              >
+              <h3 className="fw-bold mb-0" style={{ color: "#0d6efd" }}>
                 {plan.price}
               </h3>
             </div>
@@ -553,7 +539,7 @@ const PaymentPlans = () => {
                 }
                 style={{
                   borderRadius: "8px",
-                  background: getPlanColor(plan.name),
+                  background: "#0d6efd",
                   border: "none",
                   padding: "12px",
                   transition: "all 0.3s ease",

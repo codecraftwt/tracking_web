@@ -29,7 +29,7 @@ function Navbar({ username = "W", pageTitle = "", showBackButton = false }) {
     <div style={{ backgroundColor: "#3479f3" }}>
       <header
         style={{
-          borderTopLeftRadius: "35px",
+          // borderTopLeftRadius: "35px",
           position: "fixed",
           top: 0,
           width: "82%",

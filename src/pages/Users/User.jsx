@@ -11,10 +11,29 @@ import {
   Col,
   Modal,
   Badge,
+  Dropdown,
+  Spinner,
+  Table,
+  Container,
 } from "react-bootstrap";
 import Navbar from "../../components/Navbar";
-import { BiSearch, BiUserPlus, BiPencil, BiTrash } from "react-icons/bi";
-import { FaUser, FaUsers, FaUserShield } from "react-icons/fa";
+import {
+  BiSearch,
+  BiUserPlus,
+  BiPencil,
+  BiTrash,
+  BiDotsVerticalRounded,
+  BiFilterAlt,
+} from "react-icons/bi";
+import {
+  FaUser,
+  FaUsers,
+  FaUserShield,
+  FaRegClock,
+  FaRegCheckCircle,
+  FaEye,
+} from "react-icons/fa";
+import { FiChevronRight, FiRefreshCw } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import {
   getAllAdmins,
@@ -23,7 +42,6 @@ import {
   getUserById,
 } from "../../redux/slices/userSlice";
 import { useDispatch, useSelector } from "react-redux";
-import Loader from "../../components/Loader";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
 import DeleteConfirmModal from "../../components/modals/DeleteConfirmModal";
@@ -35,19 +53,15 @@ const User = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [showLimitModal, setShowLimitModal] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [viewMode, setViewMode] = useState("table");
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const userData = useSelector((state) => state.UserData.userInfo);
   const role_id = userData?.role_id;
-
-  const maxUser = userData?.currentPaymentId?.maxUser; // Get the maxUser limit
+  const maxUser = userData?.currentPaymentId?.maxUser;
   const totalUsers = useSelector((state) => state.UserData.totalUsers);
-
-  console.log("maximum users ---->", maxUser);
-
-  console.log("totalUsers --->", totalUsers);
-
   const subscriptionExpiry = userData?.currentPaymentId?.expiresAt;
 
   const canCreateUser =
@@ -56,8 +70,9 @@ const User = () => {
       totalUsers < maxUser &&
       (!subscriptionExpiry || moment(subscriptionExpiry).isAfter(moment())));
 
-  useEffect(() => {
-    const fetchData = async () => {
+  const refreshData = async () => {
+    setIsRefreshing(true);
+    try {
       if (role_id === 1 && userData?._id) {
         await Promise.all([
           dispatch(getUserById(userData._id)),
@@ -66,10 +81,15 @@ const User = () => {
       } else if (role_id === 2) {
         await dispatch(getAllAdmins());
       }
-    };
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
-    fetchData();
+  useEffect(() => {
+    refreshData();
   }, [dispatch, role_id, userData?._id]);
+
   const users =
     useSelector((state) =>
       role_id === 1 ? state.UserData.usersList : state.UserData.adminList
@@ -100,12 +120,7 @@ const User = () => {
       .then(() => {
         setShowDeleteModal(false);
         toast.success("User deleted successfully!");
-        // Refresh data after deletion
-        if (role_id === 1) {
-          dispatch(getAllUsers(userData?._id));
-        } else if (role_id === 2) {
-          dispatch(getAllAdmins());
-        }
+        refreshData();
       })
       .catch((error) => {
         toast.error("Failed to delete user");
@@ -113,156 +128,172 @@ const User = () => {
   };
 
   const handleCloseModal = () => setShowLimitModal(false);
-
-  // Modal show handler when the button is clicked
   const handleShowModal = () => setShowLimitModal(true);
-
-  // Navigate to the subscription page
-  const handleNavigateToSubscription = () => {
-    navigate("/payment-plans"); // Adjust the path as needed for your subscription page
-  };
+  const handleNavigateToSubscription = () => navigate("/payment-plans");
+  const toggleViewMode = () =>
+    setViewMode(viewMode === "card" ? "table" : "card");
 
   return (
-    <div className="min-vh-100" style={{ background: "#f8fafc" }}>
+    <div className="min-vh-100 bg-gray-50">
       <Navbar
         pageTitle={
           role_id === 1 ? "User Management" : "Organization Management"
         }
       />
 
-      <main className="container-fluid py-4">
-        <Row className="justify-content-center">
-          <Col lg={11}>
-            {/* Search and Add Section */}
-            <Card
-              className="border-0 shadow-sm mb-4"
-              style={{ borderRadius: "16px" }}
-            >
-              <Card.Body className="p-4">
-                <Row className="align-items-center">
-                  <Col md={8}>
-                    <InputGroup>
-                      <InputGroup.Text
-                        className="border-0"
-                        style={{
-                          background: "rgba(59, 130, 246, 0.1)",
-                          color: "#3B82F6",
-                          borderTopLeftRadius: "12px",
-                          borderBottomLeftRadius: "12px",
-                        }}
-                      >
-                        <BiSearch size={18} />
-                      </InputGroup.Text>
-                      <FormControl
-                        placeholder={`Search ${
-                          role_id === 1 ? "users" : "organizations"
-                        }...`}
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="border-0"
-                        style={{
-                          background: "rgba(59, 130, 246, 0.05)",
-                          borderTopRightRadius: "12px",
-                          borderBottomRightRadius: "12px",
-                        }}
-                      />
-                    </InputGroup>
-                  </Col>
-                  <Col md={4} className="text-md-end mt-3 mt-md-0">
-                    <Button
-                      variant="primary"
-                      className="px-4 py-2 fw-semibold rounded-3"
-                      onClick={
-                        canCreateUser
-                          ? () => navigate("/add-admin")
-                          : handleShowModal
-                      } // Show modal if user has reached max
-                      style={{
-                        background: "linear-gradient(135deg, #3B82F6, #2563EB)",
-                      }}
-                    >
-                      <BiUserPlus className="me-2" size={18} />
-                      {role_id === 1 ? "Add User" : "Add Organization"}
-                    </Button>
-                  </Col>
-                </Row>
-              </Card.Body>
-            </Card>
+      <main className="px-0">
+        <Container fluid className="px-4 py-3">
+          {/* Header and Actions */}
+          <div className="d-flex justify-content-between align-items-center mb-4">
+            <div>
+              <h4 className="fw-bold mb-1">
+                {role_id === 1 ? "User Management" : "Organizations"}
+              </h4>
+              <p className="text-muted small mb-0">
+                {role_id === 1
+                  ? "Manage your team members and their access"
+                  : "Manage organizations and their users"}
+              </p>
+            </div>
+            <div className="d-flex gap-2">
+              <Button
+                variant="light"
+                className="px-3 d-flex align-items-center gap-2"
+                onClick={refreshData}
+                disabled={isRefreshing}
+              >
+                <FiRefreshCw className={isRefreshing ? "spin" : ""} />
+                <span className="d-none d-md-inline">Refresh</span>
+              </Button>
+              <Button
+                variant={viewMode === "card" ? "outline-primary" : "primary"}
+                className="px-3 d-flex align-items-center gap-2"
+                onClick={toggleViewMode}
+              >
+                {viewMode === "card" ? <FaUsers /> : <BiFilterAlt />}
+                <span className="d-none d-md-inline">
+                  {viewMode === "card" ? "Table View" : "Card View"}
+                </span>
+              </Button>
+              <Button
+                variant="primary"
+                className="px-4 d-flex align-items-center gap-2"
+                onClick={
+                  canCreateUser ? () => navigate("/add-admin") : handleShowModal
+                }
+              >
+                <BiUserPlus />
+                <span className="d-none d-md-inline">
+                  {role_id === 1 ? "Add User" : "Add Organization"}
+                </span>
+              </Button>
+            </div>
+          </div>
 
-            {/* Tabs Section */}
-            <Card
-              className="border-0 shadow-sm"
-              style={{ borderRadius: "16px" }}
+          {/* Search and Filter Card */}
+          <Card className="border-0 shadow-sm mb-4 rounded-3">
+            <Card.Body className="p-3">
+              <Row className="align-items-center g-3">
+                <Col md={6}>
+                  <InputGroup>
+                    <InputGroup.Text className="bg-transparent border-end-0">
+                      <BiSearch className="text-muted" />
+                    </InputGroup.Text>
+                    <FormControl
+                      placeholder={`Search ${
+                        role_id === 1 ? "users" : "organizations"
+                      }...`}
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="border-start-0"
+                    />
+                  </InputGroup>
+                </Col>
+                {/* <Col md={6} className="d-flex justify-content-md-end gap-2">
+                  <Button
+                    variant="outline-secondary"
+                    className="d-flex align-items-center gap-2"
+                  >
+                    <BiFilterAlt />
+                    <span>Filters</span>
+                  </Button>
+                  <Button
+                    variant="outline-secondary"
+                    className="d-flex align-items-center gap-2"
+                  >
+                    <span>Sort By</span>
+                  </Button>
+                </Col> */}
+              </Row>
+            </Card.Body>
+          </Card>
+
+          {/* Tabs Section */}
+          <Card className="border-0 shadow-sm rounded-3 overflow-hidden">
+            <Tabs
+              activeKey={key}
+              onSelect={(k) => setKey(k)}
+              className="px-3 pt-3 border-0"
             >
-              <Card.Body className="p-0">
-                <Tabs
-                  activeKey={key}
-                  onSelect={(k) => setKey(k)}
-                  className="border-0"
-                >
-                  <Tab
-                    eventKey="active"
-                    title={
-                      <div className="d-flex align-items-center gap-2 px-3 py-2">
-                        <FaUsers size={16} />
-                        <span>
-                          {role_id === 1
-                            ? "Active Users"
-                            : "Active Organizations"}
-                        </span>
-                        <Badge bg="success" className="ms-2 rounded-pill">
-                          {filteredActiveUsers.length}
-                        </Badge>
-                      </div>
-                    }
-                    className="p-4"
-                  >
-                    <UserList
-                      users={filteredActiveUsers}
-                      navigate={navigate}
-                      loading={loading}
-                      role_id={role_id}
-                      searchQuery={searchQuery}
-                      onDeleteClick={(user) => {
-                        setSelectedUser(user);
-                        setShowDeleteModal(true);
-                      }}
-                    />
-                  </Tab>
-                  <Tab
-                    eventKey="inactive"
-                    title={
-                      <div className="d-flex align-items-center gap-2 px-3 py-2">
-                        <FaUserShield size={16} />
-                        <span>
-                          {role_id === 1
-                            ? "Inactive Users"
-                            : "Inactive Organizations"}
-                        </span>
-                        <Badge bg="secondary" className="ms-2 rounded-pill">
-                          {filteredInactiveUsers.length}
-                        </Badge>
-                      </div>
-                    }
-                    className="p-4"
-                  >
-                    <UserList
-                      users={filteredInactiveUsers}
-                      navigate={navigate}
-                      loading={loading}
-                      role_id={role_id}
-                      searchQuery={searchQuery}
-                      onDeleteClick={(user) => {
-                        setSelectedUser(user);
-                        setShowDeleteModal(true);
-                      }}
-                    />
-                  </Tab>
-                </Tabs>
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
+              <Tab
+                eventKey="active"
+                title={
+                  <div className="d-flex align-items-center gap-2 px-3 py-2">
+                    <FaUsers size={16} className="text-success" />
+                    <span>
+                      {role_id === 1 ? "Active Users" : "Active Organizations"}
+                    </span>
+                    <Badge bg="success" className="ms-2 rounded-pill">
+                      {filteredActiveUsers.length}
+                    </Badge>
+                  </div>
+                }
+              >
+                <UserList
+                  users={filteredActiveUsers}
+                  navigate={navigate}
+                  loading={loading}
+                  role_id={role_id}
+                  searchQuery={searchQuery}
+                  onDeleteClick={(user) => {
+                    setSelectedUser(user);
+                    setShowDeleteModal(true);
+                  }}
+                  viewMode={viewMode}
+                />
+              </Tab>
+              <Tab
+                eventKey="inactive"
+                title={
+                  <div className="d-flex align-items-center gap-2 px-3 py-2">
+                    <FaUserShield size={16} className="text-secondary" />
+                    <span>
+                      {role_id === 1
+                        ? "Inactive Users"
+                        : "Inactive Organizations"}
+                    </span>
+                    <Badge bg="secondary" className="ms-2 rounded-pill">
+                      {filteredInactiveUsers.length}
+                    </Badge>
+                  </div>
+                }
+              >
+                <UserList
+                  users={filteredInactiveUsers}
+                  navigate={navigate}
+                  loading={loading}
+                  role_id={role_id}
+                  searchQuery={searchQuery}
+                  onDeleteClick={(user) => {
+                    setSelectedUser(user);
+                    setShowDeleteModal(true);
+                  }}
+                  viewMode={viewMode}
+                />
+              </Tab>
+            </Tabs>
+          </Card>
+        </Container>
       </main>
 
       {/* Delete Confirmation Modal */}
@@ -270,70 +301,50 @@ const User = () => {
         show={showDeleteModal}
         onHide={() => setShowDeleteModal(false)}
         onConfirm={handleDeleteUser}
-        title="Delete"
-        message={`Delete ${selectedUser?.name}?`}
-        subMessage="This action cannot be undone. All data will be permanently removed."
+        title="Confirm Deletion"
+        message={`Are you sure you want to delete ${selectedUser?.name}?`}
+        subMessage="This action cannot be undone. All associated data will be permanently removed."
       />
 
-      {/* Modal for the user limit message */}
-      <Modal show={showLimitModal} onHide={handleCloseModal} centered size="lg">
-        <Modal.Header
-          closeButton
-          style={{
-            background: "linear-gradient(135deg, #DC2626, #B91C1C)",
-            borderBottom: "none",
-          }}
-          className="text-white rounded-top"
-        >
-          <Modal.Title className="fw-bold d-flex align-items-center gap-2">
-            <BiUserPlus size={18} />
+      {/* User Limit Modal */}
+      <Modal show={showLimitModal} onHide={handleCloseModal} centered>
+        <Modal.Header className="border-0 pb-0">
+          <Modal.Title className="fw-bold">
             {subscriptionExpiry && moment(subscriptionExpiry).isBefore(moment())
               ? "Subscription Expired"
-              : "Max Users Reached"}
+              : "User Limit Reached"}
           </Modal.Title>
         </Modal.Header>
-
-        <Modal.Body className="text-center p-4">
-          <div className="mb-3">
-            <div
-              className="rounded-circle bg-danger text-white d-flex justify-content-center align-items-center mx-auto"
-              style={{ width: "60px", height: "60px" }}
-            >
-              <BiUserPlus size={24} />
+        <Modal.Body className="text-center py-4">
+          <div className="mb-4">
+            <div className="bg-danger bg-opacity-10 rounded-circle d-inline-flex p-4">
+              <BiUserPlus size={32} className="text-danger" />
             </div>
           </div>
-          <h5 className="fw-bold mb-2" style={{ color: "#1f2937" }}>
+          <h5 className="fw-bold mb-3">
             {subscriptionExpiry && moment(subscriptionExpiry).isBefore(moment())
-              ? "Your subscription has expired."
-              : "You have reached the maximum number of users."}
+              ? "Your subscription has expired"
+              : "You've reached your user limit"}
           </h5>
-          <p className="text-muted mb-0">
+          <p className="text-muted">
             {subscriptionExpiry && moment(subscriptionExpiry).isBefore(moment())
-              ? "To continue adding users, please renew your subscription."
-              : "To add more users, please upgrade your plan."}
+              ? "Renew your subscription to continue adding users."
+              : "Upgrade your plan to add more users to your account."}
           </p>
         </Modal.Body>
-
-        <Modal.Footer className="d-flex justify-content-center gap-2 p-4 border-top">
-          <Button
-            variant="outline-secondary"
-            className="px-4 py-2 fw-semibold rounded-3"
-            onClick={handleCloseModal}
-          >
-            Close
+        <Modal.Footer className="border-0 justify-content-center gap-3">
+          <Button variant="outline-secondary" onClick={handleCloseModal}>
+            Cancel
           </Button>
-
           <Button
             variant="danger"
-            className="px-4 py-2 fw-semibold rounded-3"
             onClick={handleNavigateToSubscription}
-            style={{
-              background: "linear-gradient(135deg, #DC2626, #B91C1C)",
-            }}
+            className="d-flex align-items-center gap-2"
           >
             {subscriptionExpiry && moment(subscriptionExpiry).isBefore(moment())
-              ? "Renew Plan"
+              ? "Renew Now"
               : "Upgrade Plan"}
+            <FiChevronRight size={18} />
           </Button>
         </Modal.Footer>
       </Modal>
@@ -348,12 +359,16 @@ const UserList = ({
   role_id,
   searchQuery,
   onDeleteClick,
+  viewMode,
 }) => {
   if (loading) {
     return (
-      <Loader
-        text={role_id === 1 ? "Loading users" : "Loading organizations"}
-      />
+      <div className="py-5 text-center">
+        <Spinner animation="border" variant="primary" />
+        <p className="mt-3 text-muted">
+          Loading {role_id === 1 ? "users" : "organizations"}...
+        </p>
+      </div>
     );
   }
 
@@ -361,104 +376,175 @@ const UserList = ({
     return (
       <div className="text-center py-5">
         <div className="mb-3">
-          <FaUsers size={48} className="text-muted" />
+          <FaUsers size={48} className="text-muted opacity-25" />
         </div>
-        <h6 className="text-muted">
+        <h5 className="text-muted fw-normal">
           No {role_id === 1 ? "users" : "organizations"} found
-        </h6>
+        </h5>
         <p className="text-muted small">
           {searchQuery
-            ? "Try adjusting your search criteria"
-            : `No ${role_id === 1 ? "users" : "organizations"} available`}
+            ? "Try adjusting your search or filters"
+            : `No ${
+                role_id === 1 ? "users" : "organizations"
+              } have been added yet`}
         </p>
       </div>
     );
   }
 
-  return (
-    <ListGroup className="border-0">
+  return viewMode === "card" ? (
+    <ListGroup variant="flush">
       {users.map((user) => (
         <motion.div
           key={user._id}
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
+          transition={{ duration: 0.2 }}
         >
-          <Card
-            className="border-0 mb-3"
-            style={{
-              borderRadius: "12px",
-              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-              cursor: "pointer",
-              transition: "all 0.3s ease",
-            }}
-            onClick={() => {
-              if (role_id === 1) {
-                navigate("/trackingdata", { state: { item: user } });
-              } else if (role_id === 2) {
-                navigate(`/list-users/${user._id}`);
-              }
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = "translateY(-2px)";
-              e.currentTarget.style.boxShadow = "0 8px 16px rgba(0, 0, 0, 0.2)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = "translateY(0)";
-              e.currentTarget.style.boxShadow = "0 4px 12px rgba(0, 0, 0, 0.1)";
-            }}
-          >
-            <Card.Body className="p-4">
-              <div className="d-flex align-items-center justify-content-between">
+          <ListGroup.Item className="border-0 px-4 py-3 hover-bg-light">
+            <div className="d-flex align-items-center">
+              {user?.avtar ? (
+                <img
+                  src={user?.avtar}
+                  alt="User Avatar"
+                  className="rounded-circle me-3"
+                  style={{
+                    width: "48px",
+                    height: "48px",
+                    objectFit: "cover",
+                  }}
+                />
+              ) : (
+                <div
+                  className="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center me-3"
+                  style={{
+                    width: "48px",
+                    height: "48px",
+                  }}
+                >
+                  <FaUser size={18} />
+                </div>
+              )}
+
+              <div className="flex-grow-1">
+                <div className="d-flex align-items-center gap-3">
+                  <h6 className="fw-bold mb-1">{user.name}</h6>
+                  <Badge
+                    bg={user.isActive ? "success" : "secondary"}
+                    className="rounded-pill"
+                    pill
+                  >
+                    {user.isActive ? "Active" : "Inactive"}
+                  </Badge>
+                </div>
+                <p className="text-muted small mb-1">{user.email}</p>
+                <div className="d-flex align-items-center gap-3 mt-1">
+                  <span className="text-muted small d-flex align-items-center gap-1">
+                    <FaRegClock size={12} />
+                    Joined {moment(user.createdAt).format("MMM D, YYYY")}
+                  </span>
+                </div>
+              </div>
+
+              <div className="d-flex align-items-center gap-2 ms-3">
+                <Button
+                  variant="outline-primary"
+                  size="sm"
+                  className="rounded-3"
+                  onClick={() => {
+                    if (role_id === 1) {
+                      navigate("/trackingdata", { state: { item: user } });
+                    } else if (role_id === 2) {
+                      navigate(`/list-users/${user._id}`);
+                    }
+                  }}
+                >
+                  {/* <FaEye size={14} /> */}
+                  View Details
+                </Button>
+                <Button
+                  variant="outline-secondary"
+                  size="sm"
+                  className="rounded-3"
+                  onClick={() => navigate("/add-admin", { state: { user } })}
+                >
+                  <BiPencil size={14} />
+                </Button>
+                <Button
+                  variant="outline-danger"
+                  size="sm"
+                  className="rounded-3"
+                  onClick={() => onDeleteClick(user)}
+                >
+                  <BiTrash size={14} />
+                </Button>
+              </div>
+            </div>
+          </ListGroup.Item>
+        </motion.div>
+      ))}
+    </ListGroup>
+  ) : (
+    <div className="table-responsive">
+      <Table striped hover className="mb-0">
+        <thead className="bg-light" style={{ fontSize: "0.90rem" }}>
+          <tr>
+            <th>User</th>
+            <th>Email</th>
+            <th>Status</th>
+            <th>Joined Date</th>
+            <th className="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody style={{ fontSize: "0.85rem" }}>
+          {users.map((user) => (
+            <tr key={user._id}>
+              <td>
                 <div className="d-flex align-items-center">
                   {user?.avtar ? (
                     <img
                       src={user?.avtar}
                       alt="User Avatar"
+                      className="rounded-circle me-3"
                       style={{
-                        width: "50px",
-                        height: "50px",
-                        borderRadius: "50%",
-                        marginRight: "16px",
+                        width: "40px",
+                        height: "40px",
                         objectFit: "cover",
                       }}
                     />
                   ) : (
                     <div
-                      className="d-flex align-items-center justify-content-center"
+                      className="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center me-3"
                       style={{
-                        width: "50px",
-                        height: "50px",
-                        borderRadius: "50%",
-                        background: "linear-gradient(135deg, #3B82F6, #2563EB)",
-                        marginRight: "16px",
+                        width: "40px",
+                        height: "40px",
                       }}
                     >
-                      <FaUser size={20} className="text-white" />
+                      <FaUser size={16} />
                     </div>
                   )}
                   <div>
-                    <h6 className="fw-bold mb-1" style={{ color: "#1f2937" }}>
-                      {user.name}
-                    </h6>
-                    <p className="text-muted small mb-0">{user.email}</p>
-                    <Badge
-                      bg={user.isActive ? "success" : "secondary"}
-                      className="rounded-pill mt-1"
-                      style={{ fontSize: "10px" }}
-                    >
-                      {user.isActive ? "Active" : "Inactive"}
-                    </Badge>
+                    <div className="fw-bold">{user.name}</div>
                   </div>
                 </div>
-
-                <div className="d-flex align-items-center gap-2">
+              </td>
+              <td>{user.email}</td>
+              <td>
+                <Badge
+                  bg={user.isActive ? "success" : "secondary"}
+                  className="rounded-pill"
+                  pill
+                >
+                  {user.isActive ? "Active" : "Inactive"}
+                </Badge>
+              </td>
+              <td>{moment(user.createdAt).format("MMM D, YYYY")}</td>
+              <td className="text-end">
+                <div className="d-flex justify-content-end gap-2">
                   <Button
                     variant="outline-primary"
                     size="sm"
-                    className="rounded-3"
-                    onClick={(e) => {
-                      e.stopPropagation();
+                    onClick={() => {
                       if (role_id === 1) {
                         navigate("/trackingdata", { state: { item: user } });
                       } else if (role_id === 2) {
@@ -466,39 +552,29 @@ const UserList = ({
                       }
                     }}
                   >
-                    View Details
+                    <FaEye size={14} />
                   </Button>
-
                   <Button
-                    variant="outline-primary"
+                    variant="outline-secondary"
                     size="sm"
-                    className="rounded-3"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      navigate("/add-admin", { state: { user } });
-                    }}
+                    onClick={() => navigate("/add-admin", { state: { user } })}
                   >
                     <BiPencil size={14} />
                   </Button>
-
                   <Button
                     variant="outline-danger"
                     size="sm"
-                    className="rounded-3"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onDeleteClick(user);
-                    }}
+                    onClick={() => onDeleteClick(user)}
                   >
                     <BiTrash size={14} />
                   </Button>
                 </div>
-              </div>
-            </Card.Body>
-          </Card>
-        </motion.div>
-      ))}
-    </ListGroup>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+    </div>
   );
 };
 

@@ -33,13 +33,13 @@ const PaginatedTable = ({
   };
 
   return (
-    <Card className="border-0 shadow-sm pb-4" style={{ borderRadius: "16px" }}>
+    <Card className="border-0 shadow-sm pb-4" style={{ borderRadius: "12px" }}>
       <Card.Header
         className="border-0 p-4"
         style={{
           background: "linear-gradient(135deg, #3B82F6, #2563EB)",
-          borderTopLeftRadius: "16px",
-          borderTopRightRadius: "16px",
+          borderTopLeftRadius: "12px",
+          borderTopRightRadius: "12px",
         }}
       >
         <div className="d-flex align-items-center justify-content-between flex-wrap">
