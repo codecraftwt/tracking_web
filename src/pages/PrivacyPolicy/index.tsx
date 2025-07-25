@@ -12,6 +12,7 @@ import {
 import logo333 from "../../../src/assets/Images/logo333.png";
 import { useNavigate } from "react-router-dom";
 import Header from "../Landing/Header";
+import Footer from "../Landing/Footer";
 
 const PrivacyPolicy = () => {
   const navigate = useNavigate();
@@ -241,30 +242,7 @@ const PrivacyPolicy = () => {
       </Container>
 
       {/* Footer */}
-      <footer className="py-4 bg-dark text-white">
-        <Container>
-          <Row className="align-items-center">
-            <Col md={6} className="mb-3 mb-md-0">
-              <div className="d-flex align-items-center">
-                <img
-                  src={logo333}
-                  alt="mainlogo"
-                  style={{
-                    height: "30px",
-                    marginRight: "10px",
-                  }}
-                />
-                <span className="fw-bold">Trackify</span>
-              </div>
-            </Col>
-            <Col md={6} className="text-md-end">
-              <small className="text-muted">
-                © {new Date().getFullYear()} Trackify. All rights reserved.
-              </small>
-            </Col>
-          </Row>
-        </Container>
-      </footer>
+      <Footer />
     </div>
   );
 };

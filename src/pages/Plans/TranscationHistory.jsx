@@ -36,13 +36,20 @@ import { getPaymentHistory } from "../../redux/slices/paymentSlice";
 import { useAuth } from "../../context/AuthContext";
 import ReceiptModal from "../../components/modals/ReceiptModal";
 import { motion } from "framer-motion";
+import { PaginationBottom } from "../../components/PaginationBottom";
 
 const TransactionHistory = () => {
   const dispatch = useDispatch();
   const { isAuthenticated, user } = useAuth();
-  const { paymentHistory, historyLoading, historyError } = useSelector(
-    (state) => state.PaymentData
-  );
+  const {
+    paymentHistory,
+    historyLoading,
+    historyError,
+    currentPage,
+    totalPages,
+    totalItems,
+    paymentStats,
+  } = useSelector((state) => state.PaymentData);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [showReceipt, setShowReceipt] = useState(false);
   const [expandedAddOns, setExpandedAddOns] = useState({});
@@ -50,14 +57,21 @@ const TransactionHistory = () => {
   const [sortBy, setSortBy] = useState("newest");
   const [viewMode, setViewMode] = useState("table"); // 'card' or 'table'
 
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+
   useEffect(() => {
     if (isAuthenticated && user) {
       const adminId = user._id || user.id || user.userId;
       if (adminId) {
-        dispatch(getPaymentHistory(adminId));
+        dispatch(getPaymentHistory({ adminId, page, limit }));
       }
     }
-  }, [dispatch, isAuthenticated, user]);
+  }, [dispatch, isAuthenticated, user, page, limit]);
+
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+  };
 
   const toggleAddOns = (transactionId) => {
     setExpandedAddOns((prev) => ({
@@ -65,6 +79,8 @@ const TransactionHistory = () => {
       [transactionId]: !prev[transactionId],
     }));
   };
+
+  console.log("Payment stats:", paymentStats);
 
   const toggleViewMode = () => {
     setViewMode(viewMode === "card" ? "table" : "card");
@@ -117,9 +133,19 @@ const TransactionHistory = () => {
     if (isAuthenticated && user) {
       const adminId = user._id || user.id || user.userId;
       if (adminId) {
-        dispatch(getPaymentHistory(adminId));
+        dispatch(getPaymentHistory({ adminId }));
       }
     }
+  };
+
+  const handleFilterChange = (newFilter) => {
+    setFilter(newFilter);
+    setPage(1); // Reset to first page when filter changes
+  };
+
+  const handleSortChange = (newSort) => {
+    setSortBy(newSort);
+    setPage(1); // Reset to first page when sort changes
   };
 
   return (
@@ -173,7 +199,7 @@ const TransactionHistory = () => {
                   </span>
                 </Button>
 
-                <Dropdown>
+                {/* <Dropdown>
                   <Dropdown.Toggle
                     variant="outline-primary"
                     className="d-flex align-items-center gap-2"
@@ -183,13 +209,17 @@ const TransactionHistory = () => {
                     </span>
                   </Dropdown.Toggle>
                   <Dropdown.Menu>
-                    <Dropdown.Item onClick={() => setFilter("all")}>
+                    <Dropdown.Item onClick={() => handleFilterChange("all")}>
                       All Transactions
                     </Dropdown.Item>
-                    <Dropdown.Item onClick={() => setFilter("completed")}>
+                    <Dropdown.Item
+                      onClick={() => handleFilterChange("completed")}
+                    >
                       Completed
                     </Dropdown.Item>
-                    <Dropdown.Item onClick={() => setFilter("pending")}>
+                    <Dropdown.Item
+                      onClick={() => handleFilterChange("pending")}
+                    >
                       Pending
                     </Dropdown.Item>
                   </Dropdown.Menu>
@@ -205,17 +235,34 @@ const TransactionHistory = () => {
                     </span>
                   </Dropdown.Toggle>
                   <Dropdown.Menu>
-                    <Dropdown.Item onClick={() => setSortBy("newest")}>
+                    <Dropdown.Item onClick={() => handleSortChange("newest")}>
                       Newest First
                     </Dropdown.Item>
-                    <Dropdown.Item onClick={() => setSortBy("oldest")}>
+                    <Dropdown.Item onClick={() => handleSortChange("oldest")}>
                       Oldest First
                     </Dropdown.Item>
-                    <Dropdown.Item onClick={() => setSortBy("highest")}>
+                    <Dropdown.Item onClick={() => handleSortChange("highest")}>
                       Highest Amount
                     </Dropdown.Item>
-                    <Dropdown.Item onClick={() => setSortBy("lowest")}>
+                    <Dropdown.Item onClick={() => handleSortChange("lowest")}>
                       Lowest Amount
+                    </Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown> */}
+
+                <Dropdown>
+                  <Dropdown.Toggle variant="outline-secondary">
+                    Items per page: {limit}
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu>
+                    <Dropdown.Item onClick={() => setLimit(10)}>
+                      10
+                    </Dropdown.Item>
+                    <Dropdown.Item onClick={() => setLimit(25)}>
+                      25
+                    </Dropdown.Item>
+                    <Dropdown.Item onClick={() => setLimit(50)}>
+                      50
                     </Dropdown.Item>
                   </Dropdown.Menu>
                 </Dropdown>
@@ -233,7 +280,9 @@ const TransactionHistory = () => {
                   <div className="d-flex justify-content-between align-items-center">
                     <div>
                       <h6 className="text-muted mb-2">Total Transactions</h6>
-                      <h4 className="fw-bold">{paymentHistory?.length || 0}</h4>
+                      <h4 className="fw-bold">
+                        {paymentStats?.totalPayments || 0}
+                      </h4>
                     </div>
                     <div
                       className="bg-primary bg-opacity-10 rounded-circle me-3 d-flex justify-content-center align-items-center"
@@ -252,8 +301,7 @@ const TransactionHistory = () => {
                     <div>
                       <h6 className="text-muted mb-2">Completed</h6>
                       <h4 className="fw-bold">
-                        {paymentHistory?.filter((t) => t.status === "completed")
-                          .length || 0}
+                        {paymentStats?.completedCount || 0}
                       </h4>
                     </div>
                     <div
@@ -273,8 +321,7 @@ const TransactionHistory = () => {
                     <div>
                       <h6 className="text-muted mb-2">Pending/Cancelled</h6>
                       <h4 className="fw-bold">
-                        {paymentHistory?.filter((t) => t.status === "pending")
-                          .length || 0}
+                        {paymentStats?.pendingCount || 0}
                       </h4>
                     </div>
                     <div
@@ -294,12 +341,7 @@ const TransactionHistory = () => {
                     <div>
                       <h6 className="text-muted mb-2">Total Amount</h6>
                       <h4 className="fw-bold">
-                        {formatAmount(
-                          paymentHistory?.reduce(
-                            (sum, t) => sum + t.amount,
-                            0
-                          ) || 0
-                        )}
+                        {paymentStats?.totalAmount || 0}
                       </h4>
                     </div>
                     <div
@@ -561,7 +603,7 @@ const TransactionHistory = () => {
                     <tbody style={{ fontSize: "0.85rem" }}>
                       {sortedTransactions.map((transaction, index) => (
                         <tr key={transaction._id || index}>
-                          <td>{index + 1}</td>
+                          <td>{(currentPage - 1) * limit + index + 1}</td>
                           <td>
                             {transaction.planId
                               ? `${transaction.planId.name} (${transaction.planId.duration})`
@@ -622,9 +664,14 @@ const TransactionHistory = () => {
                     Your transaction history will appear here after making
                     payments
                   </p>
-                  <Button variant="primary">Make Payment</Button>
+                  {/* <Button variant="primary">Make Payment</Button> */}
                 </div>
               )}
+              <PaginationBottom
+                currentPage={currentPage} // from Redux state
+                totalPages={totalPages} // from Redux state
+                onPageChange={handlePageChange}
+              />
             </div>
           )}
         </Container>

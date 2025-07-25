@@ -177,7 +177,7 @@ const PaymentPlans = () => {
               );
               dispatch(clearOrderData());
               dispatch(getUserById(adminId));
-              await dispatch(getPaymentHistory(adminId));
+              await dispatch(getPaymentHistory({ adminId }));
             } else {
               console.error("Payment verification failed:", verifyResult.error);
               alert("Payment verification failed. Please contact support.");
@@ -277,7 +277,7 @@ const PaymentPlans = () => {
             );
             dispatch(clearOrderData());
             dispatch(getUserById(adminId));
-            await dispatch(getPaymentHistory(adminId));
+            await dispatch(getPaymentHistory({adminId}));
           } else {
             console.error("Payment verification failed:", verifyResult.error);
             alert("Payment verification failed");

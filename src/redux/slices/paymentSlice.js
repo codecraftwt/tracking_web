@@ -42,10 +42,10 @@ export const verifyPayment = createAsyncThunk(
 
 export const getPaymentHistory = createAsyncThunk(
   "payment/getHistory",
-  async (adminId, { rejectWithValue }) => {
+  async ({ adminId, page = 1, limit = 10 }, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get(
-        `/api/payments/history/${adminId}`
+        `/api/payments/history/${adminId}?page=${page}&limit=${limit}`
       );
       return response.data;
     } catch (error) {
@@ -178,6 +178,13 @@ const initialState = {
   totalPages: 1,
   totalItems: 0,
 
+  paymentStats: {
+    totalPayments: 0,
+    totalAmount: 0,
+    pendingCount: 0,
+    completedCount: 0,
+  },
+
   revenueSummary: null,
   revenueLoading: false,
   revenueError: null,
@@ -274,7 +281,12 @@ const paymentSlice = createSlice({
       })
       .addCase(getPaymentHistory.fulfilled, (state, action) => {
         state.historyLoading = false;
-        state.paymentHistory = action.payload.data || [];
+        const { data, pagination, paymentStats } = action.payload;
+        state.paymentHistory = data || [];
+        state.currentPage = pagination.page;
+        state.totalPages = pagination.totalPages;
+        state.totalItems = pagination.totalItems;
+        state.paymentStats = paymentStats;
       })
       .addCase(getPaymentHistory.rejected, (state, action) => {
         state.historyLoading = false;
