@@ -152,7 +152,7 @@ const TransactionHistory = () => {
     <div className="min-vh-100 bg-gray-50">
       <Navbar pageTitle="Transaction History" />
 
-      <main className="px-5">
+      <main className="px-4">
         {/* Header Section */}
         <div className="bg-white py-4 px-4 border-bottom">
           <Container fluid className="px-0">
@@ -356,16 +356,6 @@ const TransactionHistory = () => {
             </Col>
           </Row>
         </Container>
-
-        {/* Error Alert */}
-        {historyError && (
-          <Container fluid className="px-4 py-3">
-            <Alert variant="danger" dismissible>
-              <Alert.Heading>Error Loading Transactions</Alert.Heading>
-              <p>{historyError}</p>
-            </Alert>
-          </Container>
-        )}
 
         {/* Transactions List */}
         <Container fluid className="px-0">

@@ -185,7 +185,7 @@ const PlanModal = ({
           onClick={handleSubmit}
           style={submitButtonStyle}
         >
-          <FaPlus className="me-2" />
+          {/* <FaPlus className="me-2" /> */}
           {planData._id ? "Update Plan" : "Create Plan"}
         </Button>
       </Modal.Footer>

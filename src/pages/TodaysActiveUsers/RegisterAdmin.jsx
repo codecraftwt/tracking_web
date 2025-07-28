@@ -47,6 +47,7 @@ const RegisterAdmin = () => {
 
   const [previewImage, setPreviewImage] = useState(null);
   const userData = useSelector((state) => state.UserData.userInfo);
+  const loading = useSelector((state) => state.UserData.loading);
 
   useEffect(() => {
     if (editingUser) {
@@ -579,16 +580,28 @@ const RegisterAdmin = () => {
                           transition: "all 0.3s ease",
                         }}
                         onMouseOver={(e) => {
-                          e.target.style.transform = "translateY(-2px)";
-                          e.target.style.boxShadow =
-                            "0 6px 20px rgba(0, 123, 255, 0.4)";
+                          if (!loading) {
+                            e.target.style.transform = "translateY(-2px)";
+                            e.target.style.boxShadow =
+                              "0 6px 20px rgba(0, 123, 255, 0.4)";
+                          }
                         }}
                         onMouseOut={(e) => {
-                          e.target.style.transform = "translateY(0)";
-                          e.target.style.boxShadow =
-                            "0 4px 15px rgba(0, 123, 255, 0.3)";
+                          if (!loading) {
+                            e.target.style.transform = "translateY(0)";
+                            e.target.style.boxShadow =
+                              "0 4px 15px rgba(0, 123, 255, 0.3)";
+                          }
                         }}
+                        disabled={loading}
                       >
+                        {loading && (
+                          <div
+                            className="spinner-border spinner-border-sm text-light me-2"
+                            role="status"
+                            aria-hidden="true"
+                          ></div>
+                        )}
                         {editingUser
                           ? getRoleBasedLabel("Update Admin")
                           : getRoleBasedLabel("Register Admin")}

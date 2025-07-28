@@ -180,7 +180,7 @@ const PaymentPlans = () => {
               await dispatch(getPaymentHistory({ adminId }));
             } else {
               console.error("Payment verification failed:", verifyResult.error);
-              alert("Payment verification failed. Please contact support.");
+              // alert("Payment verification failed. Please contact support.");
             }
           } catch (verifyError) {
             console.error("Payment verification error:", verifyError);

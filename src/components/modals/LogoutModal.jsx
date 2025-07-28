@@ -20,9 +20,9 @@ const LogoutModal = ({ showModal, setShowModal, handleLogout }) => {
         }}
         className="text-white"
       >
-        <Modal.Title className="fw-bold d-flex align-items-center gap-2">
+        <Modal.Title className="fw-bold d-flex align-items-center gap-2 fs-5">
           <div
-            className="p-2 rounded-3"
+            className="p-1 px-2 rounded-3 me-2"
             style={{
               background: "rgba(255, 255, 255, 0.2)",
               backdropFilter: "blur(10px)",
@@ -35,7 +35,7 @@ const LogoutModal = ({ showModal, setShowModal, handleLogout }) => {
         </Modal.Title>
       </Modal.Header>
 
-      <Modal.Body className="text-center p-5" style={{ background: "#f8fafc" }}>
+      <Modal.Body className="text-center p-4" style={{ background: "#f8fafc" }}>
         <motion.div
           className="mx-auto mb-4 p-3 rounded-circle d-flex align-items-center justify-content-center"
           style={{
@@ -59,19 +59,12 @@ const LogoutModal = ({ showModal, setShowModal, handleLogout }) => {
       </Modal.Body>
 
       <Modal.Footer
-        className="d-flex justify-content-center gap-3 p-4 border-top"
+        className="d-flex justify-content-center gap-3 p-3 border-top"
         style={{ background: "#f8fafc" }}
       >
         <Button
-          variant="light"
-          className="px-4 py-2 fw-semibold rounded-3 border-0"
-          style={{
-            background: "#ffffff",
-            color: "#6B7280",
-            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-            minWidth: "140px",
-            transition: "all 0.3s ease",
-          }}
+          variant="outline-secondary"
+          className="px-5 py-2 fw-semibold rounded-3 border-1"
           onClick={() => setShowModal(false)}
           onMouseEnter={(e) => (e.target.style.transform = "scale(1.05)")}
           onMouseLeave={(e) => (e.target.style.transform = "scale(1)")}
@@ -80,7 +73,7 @@ const LogoutModal = ({ showModal, setShowModal, handleLogout }) => {
         </Button>
         <Button
           variant="danger"
-          className="px-4 py-2 fw-semibold rounded-3 border-0 d-flex align-items-center gap-2"
+          className="px-4 py-2 fw-semibold rounded-3 border-0 d-flex justify-content-center align-items-center gap-2"
           onClick={handleLogout}
           style={{
             background: "linear-gradient(135deg, #DC2626, #B91C1C)",
@@ -91,7 +84,6 @@ const LogoutModal = ({ showModal, setShowModal, handleLogout }) => {
           onMouseEnter={(e) => (e.target.style.transform = "scale(1.05)")}
           onMouseLeave={(e) => (e.target.style.transform = "scale(1)")}
         >
-          <FaSignOutAlt size={16} />
           Log Out
         </Button>
       </Modal.Footer>

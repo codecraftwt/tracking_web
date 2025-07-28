@@ -216,7 +216,7 @@ const Login = () => {
             {loading ? (
               <motion.div
                 animate={{ rotate: 360 }}
-                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                transition={{ duration: 1, repeat: Infinity }}
               >
                 <FaSpinner style={{ marginRight: "8px" }} />
               </motion.div>

@@ -67,6 +67,9 @@ const User = () => {
   const totalUsers = useSelector((state) => state.UserData.totalUsers);
   const subscriptionExpiry = userData?.currentPaymentId?.expiresAt;
 
+  const isExpired =
+    subscriptionExpiry && moment(subscriptionExpiry).isBefore(moment());
+
   const canCreateUser =
     role_id === 2 ||
     (maxUser &&
@@ -392,44 +395,69 @@ const User = () => {
       />
 
       {/* User Limit Modal */}
-      <Modal show={showLimitModal} onHide={handleCloseModal} centered>
-        <Modal.Header className="border-0 pb-0">
-          <Modal.Title className="fw-bold">
-            {subscriptionExpiry && moment(subscriptionExpiry).isBefore(moment())
-              ? "Subscription Expired"
-              : "User Limit Reached"}
+      <Modal
+        show={showLimitModal}
+        onHide={handleCloseModal}
+        centered
+        aria-labelledby="limit-modal-title"
+        aria-describedby="limit-modal-description"
+        backdrop="static" // prevent closing by clicking outside, optional
+        keyboard={false} // prevent closing by Esc key, optional
+        animation={true} // smooth fade in/out animation
+      >
+        <Modal.Header className="border-0 pb-3 bg-warning" closeButton>
+          <Modal.Title
+            id="limit-modal-title"
+            className="fw-bold text-center w-100 fs-5 text-white"
+          >
+            {isExpired ? "Subscription Expired" : "User Limit Reached"}
           </Modal.Title>
         </Modal.Header>
+
         <Modal.Body className="text-center py-4">
           <div className="mb-4">
-            <div className="bg-danger bg-opacity-10 rounded-circle d-inline-flex p-4">
-              <BiUserPlus size={32} className="text-danger" />
+            <div
+              className={`rounded-circle d-inline-flex p-4 ${
+                isExpired
+                  ? "bg-danger bg-opacity-10"
+                  : "bg-warning bg-opacity-10"
+              }`}
+              aria-hidden="true"
+            >
+              <BiUserPlus
+                size={36}
+                className={isExpired ? "text-danger" : "text-warning"}
+              />
             </div>
           </div>
+
           <h5 className="fw-bold mb-3">
-            {subscriptionExpiry && moment(subscriptionExpiry).isBefore(moment())
+            {isExpired
               ? "Your subscription has expired"
               : "You've reached your user limit"}
           </h5>
-          <p className="text-muted">
-            {subscriptionExpiry && moment(subscriptionExpiry).isBefore(moment())
+          <p id="limit-modal-description" className="text-muted mb-0 px-3">
+            {isExpired
               ? "Renew your subscription to continue adding users."
               : "Upgrade your plan to add more users to your account."}
           </p>
         </Modal.Body>
+
         <Modal.Footer className="border-0 justify-content-center gap-3">
-          <Button variant="outline-secondary" onClick={handleCloseModal}>
+          <Button
+            variant="outline-secondary"
+            className="px-4"
+            onClick={handleCloseModal}
+          >
             Cancel
           </Button>
           <Button
-            variant="danger"
+            variant={isExpired ? "danger" : "warning"}
             onClick={handleNavigateToSubscription}
-            className="d-flex align-items-center gap-2"
+            className="px-3 fw-bold text-white"
+            autoFocus
           >
-            {subscriptionExpiry && moment(subscriptionExpiry).isBefore(moment())
-              ? "Renew Now"
-              : "Upgrade Plan"}
-            <FiChevronRight size={18} />
+            {isExpired ? "Renew Now" : "Upgrade Plan"}
           </Button>
         </Modal.Footer>
       </Modal>
