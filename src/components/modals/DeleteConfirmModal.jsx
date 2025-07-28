@@ -1,5 +1,5 @@
 import React from "react";
-import { Modal, Button } from "react-bootstrap";
+import { Modal, Button, Spinner } from "react-bootstrap";
 import { FaTrash } from "react-icons/fa";
 
 const DeleteConfirmModal = ({
@@ -9,6 +9,9 @@ const DeleteConfirmModal = ({
   title = "Delete",
   message,
   subMessage,
+  confirmDisabled = false,
+  cancelDisabled = false,
+  loading = false,
 }) => {
   return (
     <Modal
@@ -56,20 +59,37 @@ const DeleteConfirmModal = ({
           variant="outline-secondary"
           className="px-5 py-2 fw-semibold rounded-3"
           onClick={onHide}
+          disabled={cancelDisabled || loading}
         >
           Cancel
         </Button>
 
         <Button
           variant="danger"
-          className="px-5 py-2 fw-semibold rounded-3"
+          className="px-5 py-2 fw-semibold rounded-3 d-flex align-items-center justify-content-center gap-2"
           onClick={onConfirm}
           style={{
             background: "linear-gradient(135deg, #DC2626, #B91C1C)",
           }}
+          disabled={confirmDisabled || loading}
         >
-          {/* <FaTrash className="me-2" /> */}
-          Delete
+          {loading ? (
+            <>
+              <Spinner
+                as="span"
+                animation="border"
+                size="sm"
+                role="status"
+                aria-hidden="true"
+              />
+              Deleting...
+            </>
+          ) : (
+            <>
+              <FaTrash />
+              Delete
+            </>
+          )}
         </Button>
       </Modal.Footer>
     </Modal>

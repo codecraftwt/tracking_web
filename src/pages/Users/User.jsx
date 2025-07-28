@@ -25,6 +25,9 @@ import {
   BiTrash,
   BiDotsVerticalRounded,
   BiFilterAlt,
+  BiSortUp,
+  BiSortDown,
+  BiDownload,
 } from "react-icons/bi";
 import {
   FaUser,
@@ -47,7 +50,9 @@ import { toast } from "react-toastify";
 import { motion } from "framer-motion";
 import DeleteConfirmModal from "../../components/modals/DeleteConfirmModal";
 import moment from "moment";
-
+import { jsPDF } from "jspdf";
+import { autoTable } from "jspdf-autotable";
+import { convertImageUrlToBase64 } from "../../utils/hepler";
 const User = () => {
   const [key, setKey] = useState("active");
   const [searchQuery, setSearchQuery] = useState("");
@@ -58,6 +63,8 @@ const User = () => {
   const [viewMode, setViewMode] = useState("table");
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [isBulkDeleteMode, setIsBulkDeleteMode] = useState(false);
+  const [sortOrder, setSortOrder] = useState("desc"); // 'asc' or 'desc'
+  const [isDeleting, setIsDeleting] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -66,6 +73,8 @@ const User = () => {
   const maxUser = userData?.currentPaymentId?.maxUser;
   const totalUsers = useSelector((state) => state.UserData.totalUsers);
   const subscriptionExpiry = userData?.currentPaymentId?.expiresAt;
+
+  console.log("User data --->", userData);
 
   const isExpired =
     subscriptionExpiry && moment(subscriptionExpiry).isBefore(moment());
@@ -105,8 +114,15 @@ const User = () => {
     role_id === 1 ? state.UserData.loadingUser : state.UserData.loadingAdmin
   );
 
-  const activeUsers = users.filter((user) => user.isActive);
-  const inactiveUsers = users.filter((user) => !user.isActive);
+  // Sort users by joined date
+  const sortedUsers = [...users].sort((a, b) => {
+    const dateA = new Date(a.createdAt);
+    const dateB = new Date(b.createdAt);
+    return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
+  });
+
+  const activeUsers = sortedUsers.filter((user) => user.isActive);
+  const inactiveUsers = sortedUsers.filter((user) => !user.isActive);
 
   const filteredActiveUsers = activeUsers.filter(
     (user) =>
@@ -121,6 +137,7 @@ const User = () => {
   );
 
   const handleDeleteUser = () => {
+    setIsDeleting(true);
     dispatch(deleteUser(selectedUser._id))
       .unwrap()
       .then(() => {
@@ -130,20 +147,14 @@ const User = () => {
       })
       .catch((error) => {
         toast.error("Failed to delete user");
+      })
+      .finally(() => {
+        setIsDeleting(false);
       });
   };
 
-  const toggleUserSelection = (userId) => {
-    setSelectedUsers((prev) =>
-      prev.includes(userId)
-        ? prev.filter((id) => id !== userId)
-        : [...prev, userId]
-    );
-  };
-
   const handleBulkDelete = () => {
-    // Implement bulk delete logic here
-    // This would dispatch multiple delete actions or a bulk delete API call
+    setIsDeleting(true);
     Promise.all(selectedUsers.map((userId) => dispatch(deleteUser(userId))))
       .then(() => {
         toast.success(
@@ -158,7 +169,22 @@ const User = () => {
       })
       .catch(() => {
         toast.error("Failed to delete some users");
+      })
+      .finally(() => {
+        setIsDeleting(false);
       });
+  };
+
+  const toggleSortOrder = () => {
+    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+  };
+
+  const toggleUserSelection = (userId) => {
+    setSelectedUsers((prev) =>
+      prev.includes(userId)
+        ? prev.filter((id) => id !== userId)
+        : [...prev, userId]
+    );
   };
 
   const toggleBulkDeleteMode = () => {
@@ -173,6 +199,64 @@ const User = () => {
   const handleNavigateToSubscription = () => navigate("/payment-plans");
   const toggleViewMode = () =>
     setViewMode(viewMode === "card" ? "table" : "card");
+
+  const downloadUsersPDF = async () => {
+    const doc = new jsPDF();
+
+    // 👤 Show avatar if available
+    if (userData?.avtar) {
+      try {
+        const base64Image = await convertImageUrlToBase64(userData.avtar);
+        doc.addImage(base64Image, "JPEG", 10, 5, 20, 20); // x, y, width, height
+      } catch (error) {
+        console.warn("Could not load avatar image:", error);
+      }
+    }
+
+    // 📄 Title
+    doc.setFontSize(18);
+    doc.text("User List Report", 105, 15, { align: "center" });
+
+    // 🕒 Timestamp
+    doc.setFontSize(10);
+    doc.text(`Generated on: ${new Date().toLocaleString()}`, 105, 25, {
+      align: "center",
+    });
+
+    // 📋 Table headers and data
+    const headers = [["No.", "Name", "Email", "Status", "Joined Date"]];
+    const data = users.map((user, index) => [
+      index + 1,
+      user.name,
+      user.email,
+      user.isActive ? "Active" : "Inactive",
+      moment(user.createdAt).format("MMM D, YYYY"),
+    ]);
+
+    // 📊 Render table
+    autoTable(doc, {
+      head: headers,
+      body: data,
+      startY: 35,
+      styles: {
+        cellPadding: 2,
+        fontSize: 9,
+        valign: "middle",
+        halign: "left",
+      },
+      headStyles: {
+        fillColor: [220, 53, 69],
+        textColor: 255,
+        fontStyle: "bold",
+      },
+      alternateRowStyles: {
+        fillColor: [240, 240, 240],
+      },
+    });
+
+    // 💾 Save file
+    doc.save(`users-report-${new Date().toISOString().split("T")[0]}.pdf`);
+  };
 
   return (
     <div className="min-vh-100 bg-gray-50">
@@ -217,16 +301,13 @@ const User = () => {
                 </span>
               </Button>
               <Button
-                variant="primary"
+                variant="outline-primary"
                 className="px-4 d-flex align-items-center gap-2"
-                onClick={
-                  canCreateUser ? () => navigate("/add-admin") : handleShowModal
-                }
+                onClick={downloadUsersPDF}
+                disabled={loading || isRefreshing}
               >
-                <BiUserPlus />
-                <span className="d-none d-md-inline">
-                  {role_id === 1 ? "Add User" : "Add Organization"}
-                </span>
+                <BiDownload />
+                <span className="d-none d-md-inline">Download PDF</span>
               </Button>
               {isBulkDeleteMode ? (
                 <>
@@ -240,9 +321,13 @@ const User = () => {
                         toast.warning("No users selected");
                       }
                     }}
-                    disabled={selectedUsers.length === 0}
+                    disabled={selectedUsers.length === 0 || isDeleting}
                   >
-                    <BiTrash />
+                    {isDeleting ? (
+                      <Spinner size="sm" animation="border" />
+                    ) : (
+                      <BiTrash />
+                    )}
                     <span className="d-none d-md-inline">
                       Delete ({selectedUsers.length})
                     </span>
@@ -251,6 +336,7 @@ const User = () => {
                     variant="outline-secondary"
                     className="px-4 d-flex align-items-center gap-2"
                     onClick={toggleBulkDeleteMode}
+                    disabled={isDeleting}
                   >
                     Cancel
                   </Button>
@@ -287,21 +373,30 @@ const User = () => {
                     />
                   </InputGroup>
                 </Col>
-                {/* <Col md={6} className="d-flex justify-content-md-end gap-2">
+                <Col md={6} className="d-flex justify-content-md-end gap-2">
                   <Button
                     variant="outline-secondary"
                     className="d-flex align-items-center gap-2"
+                    onClick={toggleSortOrder}
                   >
-                    <BiFilterAlt />
-                    <span>Filters</span>
+                    {sortOrder === "asc" ? <BiSortUp /> : <BiSortDown />}
+                    <span>Joined Date {sortOrder === "asc" ? "↑" : "↓"}</span>
                   </Button>
                   <Button
-                    variant="outline-secondary"
-                    className="d-flex align-items-center gap-2"
+                    variant="primary"
+                    className="px-4 d-flex align-items-center gap-2"
+                    onClick={
+                      canCreateUser
+                        ? () => navigate("/add-admin")
+                        : handleShowModal
+                    }
                   >
-                    <span>Sort By</span>
+                    <BiUserPlus />
+                    <span className="d-none d-md-inline">
+                      {role_id === 1 ? "Add User" : "Add Organization"}
+                    </span>
                   </Button>
-                </Col> */}
+                </Col>
               </Row>
             </Card.Body>
           </Card>
@@ -341,6 +436,8 @@ const User = () => {
                   isBulkDeleteMode={isBulkDeleteMode}
                   selectedUsers={selectedUsers}
                   onToggleSelect={toggleUserSelection}
+                  sortOrder={sortOrder}
+                  isDeleting={isDeleting}
                 />
               </Tab>
               <Tab
@@ -373,6 +470,8 @@ const User = () => {
                   isBulkDeleteMode={isBulkDeleteMode}
                   selectedUsers={selectedUsers}
                   onToggleSelect={toggleUserSelection}
+                  sortOrder={sortOrder}
+                  isDeleting={isDeleting}
                 />
               </Tab>
             </Tabs>
@@ -383,7 +482,7 @@ const User = () => {
       {/* Delete Confirmation Modal */}
       <DeleteConfirmModal
         show={showDeleteModal}
-        onHide={() => setShowDeleteModal(false)}
+        onHide={() => !isDeleting && setShowDeleteModal(false)}
         onConfirm={selectedUser ? handleDeleteUser : handleBulkDelete}
         title={selectedUser ? "Confirm Deletion" : "Confirm Bulk Deletion"}
         message={
@@ -392,6 +491,9 @@ const User = () => {
             : `Are you sure you want to delete ${selectedUsers.length} users?`
         }
         subMessage="This user will be hidden and access will be blocked, but not permanently deleted."
+        loading={isDeleting}
+        confirmDisabled={isDeleting}
+        cancelDisabled={isDeleting}
       />
 
       {/* User Limit Modal */}
@@ -401,9 +503,9 @@ const User = () => {
         centered
         aria-labelledby="limit-modal-title"
         aria-describedby="limit-modal-description"
-        backdrop="static" // prevent closing by clicking outside, optional
-        keyboard={false} // prevent closing by Esc key, optional
-        animation={true} // smooth fade in/out animation
+        backdrop="static"
+        keyboard={false}
+        animation={true}
       >
         <Modal.Header className="border-0 pb-3 bg-warning" closeButton>
           <Modal.Title
@@ -476,6 +578,8 @@ const UserList = ({
   isBulkDeleteMode,
   selectedUsers,
   onToggleSelect,
+  sortOrder,
+  isDeleting,
 }) => {
   if (loading) {
     return (
@@ -525,6 +629,7 @@ const UserList = ({
                   checked={selectedUsers.includes(user._id)}
                   onChange={() => onToggleSelect(user._id)}
                   className="me-3"
+                  disabled={isDeleting}
                 />
               )}
               {user?.avtar ? (
@@ -566,6 +671,11 @@ const UserList = ({
                   <span className="text-muted small d-flex align-items-center gap-1">
                     <FaRegClock size={12} />
                     Joined {moment(user.createdAt).format("MMM D, YYYY")}
+                    {sortOrder === "asc" ? (
+                      <BiSortUp className="text-primary" />
+                    ) : (
+                      <BiSortDown className="text-primary" />
+                    )}
                   </span>
                 </div>
               </div>
@@ -582,8 +692,8 @@ const UserList = ({
                       navigate(`/list-users/${user._id}`);
                     }
                   }}
+                  disabled={isDeleting}
                 >
-                  {/* <FaEye size={14} /> */}
                   View Details
                 </Button>
                 <Button
@@ -591,6 +701,7 @@ const UserList = ({
                   size="sm"
                   className="rounded-3"
                   onClick={() => navigate("/add-admin", { state: { user } })}
+                  disabled={isDeleting}
                 >
                   <BiPencil size={14} />
                 </Button>
@@ -599,8 +710,13 @@ const UserList = ({
                   size="sm"
                   className="rounded-3"
                   onClick={() => onDeleteClick(user)}
+                  disabled={isDeleting}
                 >
-                  <BiTrash size={14} />
+                  {isDeleting && selectedUsers.includes(user._id) ? (
+                    <Spinner size="sm" animation="border" />
+                  ) : (
+                    <BiTrash size={14} />
+                  )}
                 </Button>
               </div>
             </div>
@@ -617,7 +733,16 @@ const UserList = ({
             <th>User</th>
             <th>Email</th>
             <th>Status</th>
-            <th>Joined Date</th>
+            <th>
+              <div className="d-flex align-items-center gap-1">
+                <span>Joined Date</span>
+                {sortOrder === "asc" ? (
+                  <BiSortUp className="text-primary" />
+                ) : (
+                  <BiSortDown className="text-primary" />
+                )}
+              </div>
+            </th>
             <th className="text-end">Actions</th>
           </tr>
         </thead>
@@ -630,6 +755,7 @@ const UserList = ({
                     type="checkbox"
                     checked={selectedUsers.includes(user._id)}
                     onChange={() => onToggleSelect(user._id)}
+                    disabled={isDeleting}
                   />
                 </td>
               )}
@@ -685,6 +811,7 @@ const UserList = ({
                         navigate(`/list-users/${user._id}`);
                       }
                     }}
+                    disabled={isDeleting}
                   >
                     <FaEye size={14} />
                   </Button>
@@ -692,6 +819,7 @@ const UserList = ({
                     variant="outline-secondary"
                     size="sm"
                     onClick={() => navigate("/add-admin", { state: { user } })}
+                    disabled={isDeleting}
                   >
                     <BiPencil size={14} />
                   </Button>
@@ -699,8 +827,13 @@ const UserList = ({
                     variant="outline-danger"
                     size="sm"
                     onClick={() => onDeleteClick(user)}
+                    disabled={isDeleting}
                   >
-                    <BiTrash size={14} />
+                    {isDeleting && selectedUsers.includes(user._id) ? (
+                      <Spinner size="sm" animation="border" />
+                    ) : (
+                      <BiTrash size={14} />
+                    )}
                   </Button>
                 </div>
               </td>

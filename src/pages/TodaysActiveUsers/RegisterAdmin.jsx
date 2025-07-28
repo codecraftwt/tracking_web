@@ -245,7 +245,7 @@ const RegisterAdmin = () => {
                   </h4>
                 </div>
 
-                <div className="card-body p-5">
+                  <div className="card-body p-5">
                   <form onSubmit={handleSubmit}>
                     <div className="row">
                       {/* Full Name */}
