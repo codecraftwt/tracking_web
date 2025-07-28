@@ -83,6 +83,7 @@ const AdminDashboard = () => {
       color: "primary",
       bgColor: "rgba(59, 130, 246, 0.1)",
       iconColor: "#3B82F6",
+      onClick: (navigate) => navigate("/user"),
     },
     {
       key: "inactiveUsers",
@@ -111,6 +112,7 @@ const AdminDashboard = () => {
       color: "warning",
       bgColor: "rgba(245, 158, 11, 0.1)",
       iconColor: "#F59E0B",
+      onClick: (navigate) => navigate("/report"),
     },
   ];
 

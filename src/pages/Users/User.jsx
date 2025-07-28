@@ -15,6 +15,7 @@ import {
   Spinner,
   Table,
   Container,
+  Form,
 } from "react-bootstrap";
 import Navbar from "../../components/Navbar";
 import {
@@ -55,6 +56,8 @@ const User = () => {
   const [showLimitModal, setShowLimitModal] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [viewMode, setViewMode] = useState("table");
+  const [selectedUsers, setSelectedUsers] = useState([]);
+  const [isBulkDeleteMode, setIsBulkDeleteMode] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -127,6 +130,41 @@ const User = () => {
       });
   };
 
+  const toggleUserSelection = (userId) => {
+    setSelectedUsers((prev) =>
+      prev.includes(userId)
+        ? prev.filter((id) => id !== userId)
+        : [...prev, userId]
+    );
+  };
+
+  const handleBulkDelete = () => {
+    // Implement bulk delete logic here
+    // This would dispatch multiple delete actions or a bulk delete API call
+    Promise.all(selectedUsers.map((userId) => dispatch(deleteUser(userId))))
+      .then(() => {
+        toast.success(
+          `${selectedUsers.length} user${
+            selectedUsers.length === 1 ? "" : "s"
+          } deleted successfully!`
+        );
+        setSelectedUsers([]);
+        setIsBulkDeleteMode(false);
+        setShowDeleteModal(false);
+        refreshData();
+      })
+      .catch(() => {
+        toast.error("Failed to delete some users");
+      });
+  };
+
+  const toggleBulkDeleteMode = () => {
+    setIsBulkDeleteMode(!isBulkDeleteMode);
+    if (isBulkDeleteMode) {
+      setSelectedUsers([]);
+    }
+  };
+
   const handleCloseModal = () => setShowLimitModal(false);
   const handleShowModal = () => setShowLimitModal(true);
   const handleNavigateToSubscription = () => navigate("/payment-plans");
@@ -187,6 +225,43 @@ const User = () => {
                   {role_id === 1 ? "Add User" : "Add Organization"}
                 </span>
               </Button>
+              {isBulkDeleteMode ? (
+                <>
+                  <Button
+                    variant="danger"
+                    className="px-4 d-flex align-items-center gap-2"
+                    onClick={() => {
+                      if (selectedUsers.length > 0) {
+                        setShowDeleteModal(true);
+                      } else {
+                        toast.warning("No users selected");
+                      }
+                    }}
+                    disabled={selectedUsers.length === 0}
+                  >
+                    <BiTrash />
+                    <span className="d-none d-md-inline">
+                      Delete ({selectedUsers.length})
+                    </span>
+                  </Button>
+                  <Button
+                    variant="outline-secondary"
+                    className="px-4 d-flex align-items-center gap-2"
+                    onClick={toggleBulkDeleteMode}
+                  >
+                    Cancel
+                  </Button>
+                </>
+              ) : (
+                <Button
+                  variant="outline-primary"
+                  className="px-4 d-flex align-items-center gap-2"
+                  onClick={toggleBulkDeleteMode}
+                >
+                  <BiTrash />
+                  <span className="d-none d-md-inline">Bulk Actions</span>
+                </Button>
+              )}
             </div>
           </div>
 
@@ -260,6 +335,9 @@ const User = () => {
                     setShowDeleteModal(true);
                   }}
                   viewMode={viewMode}
+                  isBulkDeleteMode={isBulkDeleteMode}
+                  selectedUsers={selectedUsers}
+                  onToggleSelect={toggleUserSelection}
                 />
               </Tab>
               <Tab
@@ -289,6 +367,9 @@ const User = () => {
                     setShowDeleteModal(true);
                   }}
                   viewMode={viewMode}
+                  isBulkDeleteMode={isBulkDeleteMode}
+                  selectedUsers={selectedUsers}
+                  onToggleSelect={toggleUserSelection}
                 />
               </Tab>
             </Tabs>
@@ -300,10 +381,14 @@ const User = () => {
       <DeleteConfirmModal
         show={showDeleteModal}
         onHide={() => setShowDeleteModal(false)}
-        onConfirm={handleDeleteUser}
-        title="Confirm Deletion"
-        message={`Are you sure you want to delete ${selectedUser?.name}?`}
-        subMessage="This action cannot be undone. All associated data will be permanently removed."
+        onConfirm={selectedUser ? handleDeleteUser : handleBulkDelete}
+        title={selectedUser ? "Confirm Deletion" : "Confirm Bulk Deletion"}
+        message={
+          selectedUser
+            ? `Are you sure you want to delete ${selectedUser?.name}?`
+            : `Are you sure you want to delete ${selectedUsers.length} users?`
+        }
+        subMessage="This user will be hidden and access will be blocked, but not permanently deleted."
       />
 
       {/* User Limit Modal */}
@@ -360,6 +445,9 @@ const UserList = ({
   searchQuery,
   onDeleteClick,
   viewMode,
+  isBulkDeleteMode,
+  selectedUsers,
+  onToggleSelect,
 }) => {
   if (loading) {
     return (
@@ -403,6 +491,14 @@ const UserList = ({
         >
           <ListGroup.Item className="border-0 px-4 py-3 hover-bg-light">
             <div className="d-flex align-items-center">
+              {isBulkDeleteMode && (
+                <Form.Check
+                  type="checkbox"
+                  checked={selectedUsers.includes(user._id)}
+                  onChange={() => onToggleSelect(user._id)}
+                  className="me-3"
+                />
+              )}
               {user?.avtar ? (
                 <img
                   src={user?.avtar}
@@ -489,6 +585,7 @@ const UserList = ({
       <Table striped hover className="mb-0">
         <thead className="bg-light" style={{ fontSize: "0.90rem" }}>
           <tr>
+            {isBulkDeleteMode && <th></th>}
             <th>User</th>
             <th>Email</th>
             <th>Status</th>
@@ -499,6 +596,15 @@ const UserList = ({
         <tbody style={{ fontSize: "0.85rem" }}>
           {users.map((user) => (
             <tr key={user._id}>
+              {isBulkDeleteMode && (
+                <td className="text-center">
+                  <Form.Check
+                    type="checkbox"
+                    checked={selectedUsers.includes(user._id)}
+                    onChange={() => onToggleSelect(user._id)}
+                  />
+                </td>
+              )}
               <td>
                 <div className="d-flex align-items-center">
                   {user?.avtar ? (
