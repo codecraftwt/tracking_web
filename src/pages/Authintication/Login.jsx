@@ -213,14 +213,15 @@ const Login = () => {
             }}
             disabled={loading}
           >
-            {loading ? (
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 1, repeat: Infinity }}
+            {loading && (
+              <div
+                className="spinner-border spinner-border-sm text-light me-2"
+                role="status"
+                style={{ width: "1rem", height: "1rem" }}
               >
-                <FaSpinner style={{ marginRight: "8px" }} />
-              </motion.div>
-            ) : null}
+                <span className="visually-hidden">Loading...</span>
+              </div>
+            )}
             {loading ? "Logging in..." : "Log In"}
           </motion.button>
         </motion.div>

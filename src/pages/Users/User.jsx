@@ -28,6 +28,7 @@ import {
   BiSortUp,
   BiSortDown,
   BiDownload,
+  BiCalendar,
 } from "react-icons/bi";
 import {
   FaUser,
@@ -53,6 +54,7 @@ import moment from "moment";
 import { jsPDF } from "jspdf";
 import { autoTable } from "jspdf-autotable";
 import { convertImageUrlToBase64 } from "../../utils/hepler";
+
 const User = () => {
   const [key, setKey] = useState("active");
   const [searchQuery, setSearchQuery] = useState("");
@@ -65,6 +67,9 @@ const User = () => {
   const [isBulkDeleteMode, setIsBulkDeleteMode] = useState(false);
   const [sortOrder, setSortOrder] = useState("desc"); // 'asc' or 'desc'
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showDateFilter, setShowDateFilter] = useState(false);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -73,8 +78,6 @@ const User = () => {
   const maxUser = userData?.currentPaymentId?.maxUser;
   const totalUsers = useSelector((state) => state.UserData.totalUsers);
   const subscriptionExpiry = userData?.currentPaymentId?.expiresAt;
-
-  console.log("User data --->", userData);
 
   const isExpired =
     subscriptionExpiry && moment(subscriptionExpiry).isBefore(moment());
@@ -114,8 +117,28 @@ const User = () => {
     role_id === 1 ? state.UserData.loadingUser : state.UserData.loadingAdmin
   );
 
+  // Filter users by date range if dates are selected
+  const filterUsersByDateRange = (users) => {
+    if (!startDate && !endDate) return users;
+
+    return users.filter((user) => {
+      const joinedDate = moment(user.createdAt);
+      const start = startDate ? moment(startDate) : null;
+      const end = endDate ? moment(endDate) : null;
+
+      if (start && end) {
+        return joinedDate.isBetween(start, end, null, "[]"); // inclusive
+      } else if (start) {
+        return joinedDate.isSameOrAfter(start);
+      } else if (end) {
+        return joinedDate.isSameOrBefore(end);
+      }
+      return true;
+    });
+  };
+
   // Sort users by joined date
-  const sortedUsers = [...users].sort((a, b) => {
+  const sortedUsers = [...filterUsersByDateRange(users)].sort((a, b) => {
     const dateA = new Date(a.createdAt);
     const dateB = new Date(b.createdAt);
     return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
@@ -200,30 +223,55 @@ const User = () => {
   const toggleViewMode = () =>
     setViewMode(viewMode === "card" ? "table" : "card");
 
+  const applyDateFilter = () => {
+    setShowDateFilter(false);
+    refreshData();
+  };
+
+  const clearDateFilter = () => {
+    setStartDate("");
+    setEndDate("");
+    setShowDateFilter(false);
+    refreshData();
+  };
+
   const downloadUsersPDF = async () => {
     const doc = new jsPDF();
 
-    // 👤 Show avatar if available
+    // Show avatar if available
     if (userData?.avtar) {
       try {
         const base64Image = await convertImageUrlToBase64(userData.avtar);
-        doc.addImage(base64Image, "JPEG", 10, 5, 20, 20); // x, y, width, height
+        doc.addImage(base64Image, "JPEG", 10, 5, 20, 20);
       } catch (error) {
         console.warn("Could not load avatar image:", error);
       }
     }
 
-    // 📄 Title
+    // Title
     doc.setFontSize(18);
     doc.text("User List Report", 105, 15, { align: "center" });
 
-    // 🕒 Timestamp
+    // Timestamp
     doc.setFontSize(10);
     doc.text(`Generated on: ${new Date().toLocaleString()}`, 105, 25, {
       align: "center",
     });
 
-    // 📋 Table headers and data
+    // Date range if applied
+    if (startDate || endDate) {
+      doc.setFontSize(10);
+      doc.text(
+        `Date range: ${
+          startDate ? moment(startDate).format("MMM D, YYYY") : "Start"
+        } - ${endDate ? moment(endDate).format("MMM D, YYYY") : "End"}`,
+        105,
+        35,
+        { align: "center" }
+      );
+    }
+
+    // Table headers and data
     const headers = [["No.", "Name", "Email", "Status", "Joined Date"]];
     const data = users.map((user, index) => [
       index + 1,
@@ -233,11 +281,11 @@ const User = () => {
       moment(user.createdAt).format("MMM D, YYYY"),
     ]);
 
-    // 📊 Render table
+    // Render table
     autoTable(doc, {
       head: headers,
       body: data,
-      startY: 35,
+      startY: startDate || endDate ? 45 : 35,
       styles: {
         cellPadding: 2,
         fontSize: 9,
@@ -254,7 +302,7 @@ const User = () => {
       },
     });
 
-    // 💾 Save file
+    // Save file
     doc.save(`users-report-${new Date().toISOString().split("T")[0]}.pdf`);
   };
 
@@ -374,6 +422,58 @@ const User = () => {
                   </InputGroup>
                 </Col>
                 <Col md={6} className="d-flex justify-content-md-end gap-2">
+                  <Dropdown
+                    show={showDateFilter}
+                    onToggle={(isOpen) => setShowDateFilter(isOpen)}
+                  >
+                    <Dropdown.Toggle
+                      variant="outline-secondary"
+                      className="d-flex align-items-center gap-2"
+                    >
+                      <BiCalendar />
+                      <span>Date Filter</span>
+                    </Dropdown.Toggle>
+
+                    <Dropdown.Menu className="p-3" style={{ width: "300px" }}>
+                      <div className="mb-3">
+                        <label className="form-label small">Start Date</label>
+                        <input
+                          type="date"
+                          className="form-control"
+                          value={startDate}
+                          onChange={(e) => setStartDate(e.target.value)}
+                        />
+                      </div>
+                      <div className="mb-3">
+                        <label className="form-label small">End Date</label>
+                        <input
+                          type="date"
+                          className="form-control"
+                          value={endDate}
+                          onChange={(e) => setEndDate(e.target.value)}
+                          min={startDate}
+                        />
+                      </div>
+                      <div className="d-flex justify-content-between gap-2">
+                        <Button
+                          variant="outline-secondary"
+                          size="sm"
+                          onClick={clearDateFilter}
+                          disabled={!startDate && !endDate}
+                        >
+                          Clear
+                        </Button>
+                        <Button
+                          variant="primary"
+                          size="sm"
+                          onClick={applyDateFilter}
+                        >
+                          Apply
+                        </Button>
+                      </div>
+                    </Dropdown.Menu>
+                  </Dropdown>
+
                   <Button
                     variant="outline-secondary"
                     className="d-flex align-items-center gap-2"
@@ -382,6 +482,7 @@ const User = () => {
                     {sortOrder === "asc" ? <BiSortUp /> : <BiSortDown />}
                     <span>Joined Date {sortOrder === "asc" ? "↑" : "↓"}</span>
                   </Button>
+
                   <Button
                     variant="primary"
                     className="px-4 d-flex align-items-center gap-2"
@@ -438,6 +539,8 @@ const User = () => {
                   onToggleSelect={toggleUserSelection}
                   sortOrder={sortOrder}
                   isDeleting={isDeleting}
+                  startDate={startDate}
+                  endDate={endDate}
                 />
               </Tab>
               <Tab
@@ -472,6 +575,8 @@ const User = () => {
                   onToggleSelect={toggleUserSelection}
                   sortOrder={sortOrder}
                   isDeleting={isDeleting}
+                  startDate={startDate}
+                  endDate={endDate}
                 />
               </Tab>
             </Tabs>
@@ -580,6 +685,8 @@ const UserList = ({
   onToggleSelect,
   sortOrder,
   isDeleting,
+  startDate,
+  endDate,
 }) => {
   if (loading) {
     return (
@@ -602,7 +709,7 @@ const UserList = ({
           No {role_id === 1 ? "users" : "organizations"} found
         </h5>
         <p className="text-muted small">
-          {searchQuery
+          {searchQuery || startDate || endDate
             ? "Try adjusting your search or filters"
             : `No ${
                 role_id === 1 ? "users" : "organizations"
