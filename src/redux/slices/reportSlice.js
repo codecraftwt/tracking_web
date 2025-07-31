@@ -17,15 +17,17 @@ const initialState = {
 // Thunk to fetch reports for admin with optional date, page, limit
 export const getReportsByAdmin = createAsyncThunk(
   "reports/getReportsByAdmin",
-  async ({ date, page = 1, limit = 10 } = {}, { rejectWithValue }) => {
+  async (
+    { fromDate, toDate, page = 1, limit = 10 } = {},
+    { rejectWithValue }
+  ) => {
     try {
       const params = { page, limit };
-      if (date) params.date = date;
+      if (fromDate) params.fromDate = fromDate;
+      if (toDate) params.toDate = toDate;
 
-      const response = await axiosInstance.get("api/reports/admin", {
-        params,
-      });
-      return response.data; // expects { status, data, pagination }
+      const response = await axiosInstance.get("api/reports/admin", { params });
+      return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }

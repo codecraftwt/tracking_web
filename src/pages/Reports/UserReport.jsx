@@ -14,10 +14,27 @@ const UserReport = () => {
   const { reports, pagination, loading } = useSelector((state) => state.report);
 
   const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [dateRange, setDateRange] = useState({ fromDate: "", toDate: "" });
 
   useEffect(() => {
-    dispatch(getReportsByAdmin({ page: currentPage, limit: 10 }));
-  }, [dispatch, currentPage]);
+    dispatch(
+      getReportsByAdmin({
+        page: currentPage,
+        limit: itemsPerPage,
+        ...dateRange,
+      })
+    );
+  }, [dispatch, currentPage, itemsPerPage, dateRange]);
+
+  const handleItemsPerPageChange = (newItemsPerPage) => {
+    setCurrentPage(1); // Reset to first page when items per page changes
+    setItemsPerPage(newItemsPerPage);
+  };
+  const handleDateChange = (newDateRange) => {
+    setCurrentPage(1); // Reset to first page when date changes
+    setDateRange(newDateRange);
+  };
 
   const columns = useMemo(
     () => [
@@ -94,10 +111,10 @@ const UserReport = () => {
           loading={loading}
           rowRender={rowRender}
           showDateFilter={true}
-          onDateChange={(date) => {
-            setCurrentPage(1);
-            dispatch(getReportsByAdmin({ page: 1, limit: 10, date }));
-          }}
+          onDateChange={handleDateChange}
+          currentDateRange={dateRange}
+          itemsPerPage={itemsPerPage}
+          onItemsPerPageChange={handleItemsPerPageChange}
         />
       </motion.main>
     </div>

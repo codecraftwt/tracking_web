@@ -32,14 +32,14 @@ export const createContact = createAsyncThunk(
 
 export const getContacts = createAsyncThunk(
   "contact/getContacts",
-  async ({ page = 1, limit = 10 }, { rejectWithValue }) => {
-    console.log("API called .......");
+  async ({ page = 1, limit = 10, fromDate, toDate }, { rejectWithValue }) => {
     try {
-      console.log("API called .......");
-      const response = await axiosInstance.get("/api/contacts", {
-        params: { page, limit }, // Pass the page and limit as query parameters
-      });
-      return response.data; // This should include contacts, totalPages, totalContacts, etc.
+      const params = { page, limit };
+      if (fromDate) params.fromDate = fromDate;
+      if (toDate) params.toDate = toDate;
+
+      const response = await axiosInstance.get("/api/contacts", { params });
+      return response.data;
     } catch (error) {
       console.log("Error fetching contacts:", error);
       return rejectWithValue(error.response.data);
@@ -55,6 +55,20 @@ export const getContactById = createAsyncThunk(
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+export const updateContactStatus = createAsyncThunk(
+  "contact/updateStatus",
+  async ({ id, status }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.patch(`/api/contacts/${id}/status`, {
+        status,
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
     }
   }
 );
@@ -105,6 +119,25 @@ const contactSlice = createSlice({
       .addCase(getContactById.rejected, (state, action) => {
         state.loadingContact = false;
         state.errorContact = action.payload;
+      })
+      .addCase(updateContactStatus.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateContactStatus.fulfilled, (state, action) => {
+        state.loading = false;
+        toast.success(action.payload.message);
+        // Update the specific contact in the state
+        state.contacts = state.contacts.map((contact) =>
+          contact._id === action.payload.contact._id
+            ? action.payload.contact
+            : contact
+        );
+      })
+      .addCase(updateContactStatus.rejected, (state, action) => {
+        state.loading = false;
+        state.error =
+          action.payload?.message || "Failed to update contact status";
       });
   },
 });
