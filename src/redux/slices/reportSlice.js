@@ -18,13 +18,14 @@ const initialState = {
 export const getReportsByAdmin = createAsyncThunk(
   "reports/getReportsByAdmin",
   async (
-    { fromDate, toDate, page = 1, limit = 10 } = {},
+    { fromDate, toDate, page = 1, limit = 10, search } = {},
     { rejectWithValue }
   ) => {
     try {
       const params = { page, limit };
       if (fromDate) params.fromDate = fromDate;
       if (toDate) params.toDate = toDate;
+      if (search) params.search = search;
 
       const response = await axiosInstance.get("api/reports/admin", { params });
       return response.data;
