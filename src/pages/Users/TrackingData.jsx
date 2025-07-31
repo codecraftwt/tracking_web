@@ -319,11 +319,14 @@ const TrackingData = () => {
                                   <small className="text-muted d-block">
                                     Check Out
                                   </small>
+
                                   <span
                                     className="fw-semibold"
                                     style={{ color: "#374151" }}
                                   >
-                                    {formatTime(data.end_at)}
+                                    {data.end_at
+                                      ? formatTime(data.end_at)
+                                      : "Not checked out"}
                                   </span>
                                 </div>
                               </div>
@@ -337,6 +340,22 @@ const TrackingData = () => {
                             />
                             <small className="text-muted">
                               {data?.locations?.length || 0} locations tracked
+                            </small>
+                          </div>
+
+                          <div className="d-flex align-items-center mt-2">
+                            <FaRoute
+                              className="me-2"
+                              style={{ color: "#10B981" }}
+                            />
+                            <small className="text-muted">
+                              Distance Travelled:{" "}
+                              <span
+                                className="fw-semibold"
+                                style={{ color: "#374151" }}
+                              >
+                                {data.direction_distance_travelled} km
+                              </span>
                             </small>
                           </div>
                         </div>

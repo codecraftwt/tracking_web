@@ -43,6 +43,7 @@ const UserReport = () => {
       { label: "Email", key: "email" },
       { label: "Check In", key: "checkIn" },
       { label: "Check Out", key: "checkOut" },
+      { label: "Total Distance", key: "distance" },
       { label: "Status", key: "status" },
     ],
     []
@@ -79,6 +80,11 @@ const UserReport = () => {
           <td className={clsx("border-0 p-3", rowBg)}>
             {report.check_out_time
               ? formatDateTimeDDMMYYYY(report.check_out_time)
+              : "-"}
+          </td>
+          <td className={clsx("border-0 p-3", rowBg)}>
+            {report.tracker?.direction_distance_travelled
+              ? `${report.tracker.direction_distance_travelled} km`
               : "-"}
           </td>
           <td className={clsx("border-0 p-3", rowBg)}>
