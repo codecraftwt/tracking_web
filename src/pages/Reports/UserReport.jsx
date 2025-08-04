@@ -111,8 +111,8 @@ const UserReport = () => {
         report.check_out_time
           ? formatDateTimeDDMMYYYY(report.check_out_time)
           : "-",
-        report.tracker?.direction_distance_travelled
-          ? `${report.tracker.direction_distance_travelled}`
+        report.tracker?.total_distance
+          ? `${report.tracker.total_distance.toFixed(2)}`
           : "-",
         report.tracker?.status || "-",
       ]);
@@ -205,8 +205,8 @@ const UserReport = () => {
               : "-"}
           </td>
           <td className={clsx("border-0 p-3", rowBg)}>
-            {report.tracker?.direction_distance_travelled
-              ? `${report.tracker.direction_distance_travelled} km`
+            {report.tracker?.total_distance
+              ? `${report.tracker.total_distance.toFixed(2)} km`
               : "-"}
           </td>
           <td className={clsx("border-0 p-3", rowBg)}>

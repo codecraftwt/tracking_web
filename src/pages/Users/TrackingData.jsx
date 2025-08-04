@@ -354,7 +354,7 @@ const TrackingData = () => {
                                 className="fw-semibold"
                                 style={{ color: "#374151" }}
                               >
-                                {data.direction_distance_travelled} km
+                                {data.total_distance.toFixed(2)} km
                               </span>
                             </small>
                           </div>

@@ -7,6 +7,7 @@ import {
   getAllUsers,
   getUserById,
   getLastFiveTrackedUsers,
+  getActiveUserLocations,
 } from "../../redux/slices/userSlice";
 import { motion } from "framer-motion";
 import { FaUsers, FaUserCheck, FaUserTimes, FaUserClock } from "react-icons/fa";
@@ -39,6 +40,10 @@ const AdminDashboard = () => {
       dispatch(getLastFiveTrackedUsers(userData._id));
     }
   }, [dispatch, userData?._id]);
+
+  useEffect(() => {
+    dispatch(getActiveUserLocations());
+  }, [dispatch]);
 
   useEffect(() => {
     dispatch(getAllUsers(userData?._id)).then((response) => {

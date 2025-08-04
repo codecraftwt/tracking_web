@@ -54,6 +54,7 @@ import moment from "moment";
 import { jsPDF } from "jspdf";
 import { autoTable } from "jspdf-autotable";
 import { convertImageUrlToBase64 } from "../../utils/hepler";
+import { formatDateDDMMYYYY, planExpiresIn } from "../../utils/dateFormat";
 
 const User = () => {
   const [key, setKey] = useState("active");
@@ -326,6 +327,32 @@ const User = () => {
                 {role_id === 1
                   ? "Manage your team members and their access"
                   : "Manage organizations and their users"}
+
+                {userData?.currentPaymentId?.expiresAt && (
+                  <>
+                    <br />
+                    <div className="text-warning fw-semibold pt-2">
+                      Subscription expires:{" "}
+                      {formatDateDDMMYYYY(userData.currentPaymentId.expiresAt)}{" "}
+                      {/* Show message only if the subscription is still valid */}
+                      {planExpiresIn(userData.currentPaymentId.expiresAt) >
+                      0 ? (
+                        <span>
+                          (Expires in{" "}
+                          {planExpiresIn(userData.currentPaymentId.expiresAt)}{" "}
+                          {planExpiresIn(
+                            userData.currentPaymentId.expiresAt
+                          ) === 1
+                            ? "day"
+                            : "days"}
+                          )
+                        </span>
+                      ) : (
+                        <span className="text-danger">(Expired)</span>
+                      )}
+                    </div>
+                  </>
+                )}
               </p>
             </div>
             <div className="d-flex gap-2">
