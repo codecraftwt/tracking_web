@@ -28,13 +28,13 @@ const ForgotPassword = () => {
       const response = await dispatch(forgotPassword({ email }));
 
       if (response?.payload?.status === 1) {
-        toast.success("Password reset link sent to your email!");
+        // toast.success("Password reset link sent to your email!");
         navigate("/login");
       } else {
-        toast.error(response?.payload?.message || "Error sending reset link!");
+        // toast.error(response?.payload?.message || "Error sending reset link!");
       }
     } catch (error) {
-      toast.error("Failed to send reset link. Please try again.");
+      // toast.error("Failed to send reset link. Please try again.");
     }
   };
 
@@ -155,14 +155,15 @@ const ForgotPassword = () => {
             }}
             disabled={forgotPasswordLoading}
           >
-            {forgotPasswordLoading ? (
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+            {forgotPasswordLoading && (
+              <div
+                className="spinner-border spinner-border-sm text-light me-2"
+                role="status"
+                style={{ width: "1rem", height: "1rem" }}
               >
-                <FaSpinner style={{ marginRight: "8px" }} />
-              </motion.div>
-            ) : null}
+                <span className="visually-hidden">Loading...</span>
+              </div>
+            )}
             {forgotPasswordLoading ? "Sending..." : "Send Reset Link"}
           </motion.button>
         </motion.div>

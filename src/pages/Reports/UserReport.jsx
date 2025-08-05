@@ -60,13 +60,21 @@ const UserReport = () => {
     try {
       const doc = new jsPDF();
 
-      // Title
       doc.setFontSize(18);
-      doc.text("User Reports", 105, 15, { align: "center" });
+      doc.setTextColor(0, 102, 204);
+      doc.setFont(undefined, "bold");
+      doc.text("Team Trackify", 105, 15, { align: "center" });
+
+      doc.setFont(undefined, "normal");
+      doc.setTextColor(0, 0, 0);
+
+      // Title
+      doc.setFontSize(16);
+      doc.text("User Reports", 105, 25, { align: "center" });
 
       // Timestamp
       doc.setFontSize(10);
-      doc.text(`Generated on: ${new Date().toLocaleString()}`, 105, 25, {
+      doc.text(`Generated on: ${new Date().toLocaleString()}`, 105, 35, {
         align: "center",
       });
 
@@ -121,7 +129,7 @@ const UserReport = () => {
       autoTable(doc, {
         head: [headers],
         body: data,
-        startY: dateRange.fromDate || dateRange.toDate ? 45 : 35,
+        startY: dateRange.fromDate || dateRange.toDate ? 55 : 45,
         styles: {
           cellPadding: 2,
           fontSize: 9,
