@@ -116,7 +116,7 @@ const Login = () => {
           />
           <motion.h1
             variants={itemVariants}
-            style={{ color: "#111827", fontWeight: 600, fontSize: "34px" }}
+            style={{ color: "#111827", fontWeight: 600, fontSize: "1.8rem" }}
           >
             Team Trackify
           </motion.h1>

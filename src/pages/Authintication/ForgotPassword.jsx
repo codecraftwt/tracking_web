@@ -102,13 +102,18 @@ const ForgotPassword = () => {
           />
           <motion.h1
             variants={itemVariants}
-            style={{ color: "#111827", fontWeight: 600, fontSize: "34px" }}
+            style={{ color: "#111827", fontWeight: 600, fontSize: "1.8rem" }}
           >
             Team Trackify
           </motion.h1>
           <motion.h2
             variants={itemVariants}
-            style={{ color: "#111827", fontWeight: 600, fontSize: "20px" }}
+            style={{
+              color: "#111827",
+              fontWeight: 600,
+              fontSize: "18px",
+              marginTop: "15px",
+            }}
           >
             Forgot Your Password?
           </motion.h2>
