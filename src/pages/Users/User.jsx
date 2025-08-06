@@ -326,8 +326,9 @@ const User = () => {
       <main className="px-0">
         <Container fluid className="px-4 py-3">
           {/* Header and Actions */}
-          <div className="d-flex justify-content-between align-items-center mb-4">
-            <div>
+          <div className="row align-items-center mb-4 gy-3">
+            {/* Left side: Title and subscription info */}
+            <div className="col-12 col-md">
               <h4 className="fw-bold mb-1">
                 {role_id === 1 ? "User Management" : "Organizations"}
               </h4>
@@ -342,7 +343,6 @@ const User = () => {
                     <div className="text-warning fw-semibold pt-2">
                       Subscription expires:{" "}
                       {formatDateDDMMYYYY(userData.currentPaymentId.expiresAt)}{" "}
-                      {/* Show message only if the subscription is still valid */}
                       {planExpiresIn(userData.currentPaymentId.expiresAt) >
                       0 ? (
                         <span>
@@ -363,7 +363,9 @@ const User = () => {
                 )}
               </p>
             </div>
-            <div className="d-flex gap-2">
+
+            {/* Right side: Buttons */}
+            <div className="col-12 col-md-auto d-flex flex-wrap gap-2 justify-content-start justify-content-md-end">
               <Button
                 variant="light"
                 className="px-3 d-flex align-items-center gap-2"
@@ -373,6 +375,7 @@ const User = () => {
                 <FiRefreshCw className={isRefreshing ? "spin" : ""} />
                 <span className="d-none d-md-inline">Refresh</span>
               </Button>
+
               <Button
                 variant={viewMode === "card" ? "outline-primary" : "primary"}
                 className="px-3 d-flex align-items-center gap-2"
@@ -383,6 +386,7 @@ const User = () => {
                   {viewMode === "card" ? "Table View" : "Card View"}
                 </span>
               </Button>
+
               <Button
                 variant="outline-primary"
                 className="px-4 d-flex align-items-center gap-2"
@@ -392,6 +396,7 @@ const User = () => {
                 <BiDownload />
                 <span className="d-none d-md-inline">Download PDF</span>
               </Button>
+
               {isBulkDeleteMode ? (
                 <>
                   <Button
@@ -456,17 +461,21 @@ const User = () => {
                     />
                   </InputGroup>
                 </Col>
-                <Col md={6} className="d-flex justify-content-md-end gap-2">
+                <Col
+                  xs={12}
+                  md={6}
+                  className="d-flex flex-wrap gap-2 justify-content-start justify-content-md-end"
+                >
                   <Dropdown
                     show={showDateFilter}
                     onToggle={(isOpen) => setShowDateFilter(isOpen)}
                   >
                     <Dropdown.Toggle
                       variant="outline-secondary"
-                      className="d-flex align-items-center gap-2"
+                      className="d-flex align-items-center gap-2 flex-shrink-0"
                     >
                       <BiCalendar />
-                      <span>Date Filter</span>
+                      <span className="d-none d-md-inline">Date Filter</span>
                     </Dropdown.Toggle>
 
                     <Dropdown.Menu className="p-3" style={{ width: "300px" }}>
@@ -511,16 +520,18 @@ const User = () => {
 
                   <Button
                     variant="outline-secondary"
-                    className="d-flex align-items-center gap-2"
+                    className="d-flex align-items-center gap-2 flex-shrink-0"
                     onClick={toggleSortOrder}
                   >
                     {sortOrder === "asc" ? <BiSortUp /> : <BiSortDown />}
-                    <span>Joined Date {sortOrder === "asc" ? "↑" : "↓"}</span>
+                    <span className="d-none d-md-inline">
+                      Joined Date {sortOrder === "asc" ? "↑" : "↓"}
+                    </span>
                   </Button>
 
                   <Button
                     variant="primary"
-                    className="px-4 d-flex align-items-center gap-2"
+                    className="px-4 d-flex align-items-center gap-2 flex-shrink-0"
                     onClick={
                       canCreateUser
                         ? () => navigate("/add-admin")
@@ -542,17 +553,32 @@ const User = () => {
             <Tabs
               activeKey={key}
               onSelect={(k) => setKey(k)}
-              className="px-3 pt-3 border-0"
+              className="flex-nowrap d-flex px-2 pt-2 pb-1 border-0"
+              style={{ minWidth: "max-content" }}
             >
               <Tab
                 eventKey="active"
                 title={
-                  <div className="d-flex align-items-center gap-2 px-3 py-2">
-                    <FaUsers size={16} className="text-success" />
-                    <span>
+                  <div
+                    className="d-flex align-items-center gap-2 gap-sm-1 px-3 px-sm-2 py-2 py-sm-1"
+                    style={{ fontSize: "1rem" }} // base font size for md+
+                  >
+                    <FaUsers
+                      className="text-success"
+                      size={16} // default for md+
+                      style={{ fontSize: "14px" }} // overridden for mobile via media query
+                    />
+                    <span className="d-none d-sm-inline">
                       {role_id === 1 ? "Active Users" : "Active Organizations"}
                     </span>
-                    <Badge bg="success" className="ms-2 rounded-pill">
+                    <span className="d-inline d-sm-none">
+                      {role_id === 1 ? "Active" : "Active"}
+                    </span>
+                    <Badge
+                      bg="success"
+                      className="ms-2 rounded-pill"
+                      style={{ fontSize: "0.75rem" }}
+                    >
                       {filteredActiveUsers.length}
                     </Badge>
                   </div>
@@ -581,14 +607,31 @@ const User = () => {
               <Tab
                 eventKey="inactive"
                 title={
-                  <div className="d-flex align-items-center gap-2 px-3 py-2">
-                    <FaUserShield size={16} className="text-secondary" />
-                    <span>
+                  <div
+                    className="d-flex align-items-center gap-2 gap-sm-1 px-3 px-sm-2 py-2 py-sm-1"
+                    style={{ fontSize: "1rem" }} // default size for sm and up
+                  >
+                    <FaUserShield
+                      className="text-secondary"
+                      size={16}
+                      style={{ fontSize: "14px" }} // for smaller screens
+                    />
+                    {/* Responsive text label */}
+                    <span className="d-none d-sm-inline">
                       {role_id === 1
                         ? "Inactive Users"
                         : "Inactive Organizations"}
                     </span>
-                    <Badge bg="secondary" className="ms-2 rounded-pill">
+                    <span className="d-inline d-sm-none">
+                      {role_id === 1 ? "Inactive" : "Inactive"}
+                    </span>
+
+                    {/* Badge */}
+                    <Badge
+                      bg="secondary"
+                      className="ms-2 rounded-pill"
+                      style={{ fontSize: "0.75rem" }}
+                    >
                       {filteredInactiveUsers.length}
                     </Badge>
                   </div>

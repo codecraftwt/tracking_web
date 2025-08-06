@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import {
   BrowserRouter as Router,
@@ -9,7 +9,7 @@ import {
   Navigate,
 } from "react-router-dom";
 import "./App.css";
-import { CgProfile } from "react-icons/cg";
+import { CgProfile, CgMenu, CgClose } from "react-icons/cg";
 import { MdDashboard } from "react-icons/md";
 import { HiUsers } from "react-icons/hi";
 import { BsFileEarmarkBarGraphFill } from "react-icons/bs";
@@ -44,13 +44,14 @@ import { FaEnvelope } from "react-icons/fa";
 import { TbReportAnalytics } from "react-icons/tb";
 import UserReport from "./pages/Reports/UserReport.jsx";
 
-const SidebarLink = ({ to, icon: Icon, label }) => {
+const SidebarLink = ({ to, icon: Icon, label, onClick }) => {
   const location = useLocation();
   const isActive = location.pathname === to;
   return (
     <li className="mb-3">
       <Link
         to={to}
+        onClick={onClick}
         className={`text-decoration-none d-flex align-items-center p-2 rounded-2 transition-all ${
           isActive ? "bg-white text-primary shadow-sm" : "text-white"
         }`}
@@ -87,33 +88,36 @@ const App = () => {
   const location = useLocation();
   const userData = JSON.parse(localStorage.getItem("user"));
   const role_id = userData?.role_id;
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 992);
 
-  console.log("role_id ------------------->", role_id);
-
-  const getActiveIndex = () => {
-    switch (location.pathname) {
-      case "/":
-        return 0;
-      case "/dashboard":
-        return 1;
-      case "/user":
-        return 2;
-      case "/revenue":
-        return 3;
-      case "/add-admin":
-        return 4;
-      case "/manage-plans":
-        return 5;
-      case "/profile":
-        return 6;
-      case "/list-users":
-        return 7;
-      default:
-        return -1;
-    }
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
   };
 
-  const activeIndex = getActiveIndex();
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 992);
+      // Close sidebar when resizing to desktop if it was open
+      if (window.innerWidth >= 992 && !sidebarOpen) {
+        setSidebarOpen(false);
+      }
+    };
+
+    // Set initial state based on screen size
+    handleResize();
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [sidebarOpen]);
+
+  const shouldShowSidebar =
+    location.pathname !== "/" &&
+    location.pathname !== "/contact" &&
+    location.pathname !== "/login" &&
+    location.pathname !== "/forgot-password" &&
+    location.pathname !== "/reset-forgot-password" &&
+    location.pathname !== "/privacy-policy";
 
   return (
     <div
@@ -124,172 +128,208 @@ const App = () => {
         background: "#f8fafc",
       }}
     >
-      {location.pathname !== "/" &&
-        location.pathname !== "/contact" &&
-        location.pathname !== "/login" &&
-        location.pathname !== "/forgot-password" &&
-        location.pathname !== "/reset-forgot-password" &&
-        location.pathname !== "/privacy-policy" && (
-          <aside
-            className="p-3"
-            style={{
-              minWidth: "280px",
-              background: "linear-gradient(135deg, #3B82F6, #2563EB)",
-              minHeight: "100vh",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "space-between",
-              boxShadow: "4px 0 20px rgba(0, 0, 0, 0.1)",
-              position: "relative",
-              overflow: "hidden",
-            }}
-          >
-            {/* Background Pattern */}
-            <div
-              style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                background:
-                  "radial-gradient(circle at 20% 80%, rgba(255,255,255,0.1) 0%, transparent 50%)",
-                pointerEvents: "none",
-              }}
-            />
+      {/* Mobile Toggle Button */}
+      {shouldShowSidebar && isMobile && (
+        <button
+          onClick={toggleSidebar}
+          className="btn btn-secondary d-lg-none"
+          style={{
+            position: "fixed",
+            top: "16px",
+            left: "10px",
+            zIndex: 1050,
+            padding: "5px 10px",
+          }}
+        >
+          {sidebarOpen ? <CgClose size={20} /> : <CgMenu size={20} />}
+        </button>
+      )}
 
-            <div style={{ position: "relative", zIndex: 1 }}>
-              {/* Logo Section */}
+      {/* Sidebar */}
+      {shouldShowSidebar && (
+        <aside
+          className={`p-3 ${sidebarOpen || !isMobile ? "d-flex" : "d-none"} ${
+            isMobile ? "mobile-sidebar" : ""
+          }`}
+          style={{
+            minWidth: "280px",
+            width: isMobile ? "280px" : "auto",
+            background: "linear-gradient(135deg, #3B82F6, #2563EB)",
+            minHeight: "100vh",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+            boxShadow: "4px 0 20px rgba(0, 0, 0, 0.1)",
+            position: isMobile ? "fixed" : "relative",
+            zIndex: 1040,
+            overflowY: "auto",
+            transform: isMobile
+              ? sidebarOpen
+                ? "translateX(0)"
+                : "translateX(-100%)"
+              : "none",
+            transition: "transform 0.3s ease-in-out",
+          }}
+        >
+          {/* Background Pattern */}
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background:
+                "radial-gradient(circle at 20% 80%, rgba(255,255,255,0.1) 0%, transparent 50%)",
+              pointerEvents: "none",
+            }}
+          />
+
+          <div style={{ position: "relative", zIndex: 1 }}>
+            {/* Logo Section */}
+            <div
+              className={`d-flex align-items-center mb-4 p-2 rounded-3`}
+              style={{
+                background: "rgba(255, 255, 255, 0.15)",
+                backdropFilter: "blur(10px)",
+                border: "1px solid rgba(255, 255, 255, 0.2)",
+                gap: isMobile ? "8px" : "12px", // smaller gap on mobile
+                flexDirection: isMobile ? "column" : "row", // stack vertically on mobile
+                textAlign: isMobile ? "center" : "left",
+              }}
+            >
               <div
-                className="d-flex align-items-center mb-4 p-2 rounded-3"
+                className="p-1 rounded-2"
                 style={{
-                  background: "rgba(255, 255, 255, 0.15)",
-                  backdropFilter: "blur(10px)",
-                  border: "1px solid rgba(255, 255, 255, 0.2)",
-                  gap: "12px",
+                  background: "rgba(255, 255, 255, 0.2)",
+                  backdropFilter: "blur(5px)",
                 }}
               >
-                <div
-                  className="p-1 rounded-2"
+                <img src={logo} alt="Logo" width={isMobile ? 40 : 30} />
+              </div>
+              <div>
+                <h5
+                  className="mb-0 text-white"
                   style={{
-                    background: "rgba(255, 255, 255, 0.2)",
-                    backdropFilter: "blur(5px)",
+                    fontFamily: "Poppins, sans-serif",
+                    fontWeight: 700,
                   }}
                 >
-                  <img src={logo} alt="Logo" width="30" />
-                </div>
-                <div>
-                  <h5
-                    className="mb-0 text-white"
-                    style={{
-                      fontSize: "20px",
-                      fontFamily: "Poppins, sans-serif",
-                      fontWeight: 700,
-                    }}
-                  >
-                    Team Trackify
-                  </h5>
-                  <small
-                    className="text-white text-opacity-75"
-                    style={{ fontSize: "11px" }}
-                  >
-                    Admin Panel
-                  </small>
-                </div>
-              </div>
-
-              {/* Navigation */}
-              <nav>
-                <ul className="list-unstyled" style={{ marginTop: "25px" }}>
-                  {role_id === 2 && (
-                    <>
-                      <SidebarLink
-                        to="/dashboard"
-                        icon={MdDashboard}
-                        label="Dashboard"
-                      />
-                      <SidebarLink
-                        to="/user"
-                        icon={HiUsers}
-                        label="Organization Details"
-                      />
-                      <SidebarLink
-                        to="/revenue"
-                        icon={BsFileEarmarkBarGraphFill}
-                        label="Revenue Analytics"
-                      />
-                      <SidebarLink
-                        to="/manage-plans"
-                        icon={RiVerifiedBadgeFill}
-                        label="Plan Management"
-                      />
-                      <SidebarLink
-                        to="/contact-list"
-                        icon={FaEnvelope}
-                        label="Contact List"
-                      />
-                      <SidebarLink
-                        to="/profile"
-                        icon={CgProfile}
-                        label="Profile Settings"
-                      />
-                    </>
-                  )}
-                  {role_id === 1 && (
-                    <>
-                      <SidebarLink
-                        to="/admindashboard"
-                        icon={MdDashboard}
-                        label="Admin Dashboard"
-                      />
-                      <SidebarLink
-                        to="/user"
-                        icon={HiUsers}
-                        label="User Management"
-                      />
-                      <SidebarLink
-                        to="/payment-plans"
-                        icon={RiVerifiedBadgeFill}
-                        label="Payment Plans"
-                      />
-                      <SidebarLink
-                        to="/transactionhistory"
-                        icon={RiVerifiedBadgeFill}
-                        label="Transaction History"
-                      />
-                      <SidebarLink
-                        to="/report"
-                        icon={TbReportAnalytics}
-                        label="Reports"
-                      />
-                      <SidebarLink
-                        to="/profile"
-                        icon={CgProfile}
-                        label="Profile Settings"
-                      />
-                    </>
-                  )}
-                </ul>
-              </nav>
-            </div>
-
-            {/* Footer Section */}
-            <div style={{ position: "relative", zIndex: 1 }}>
-              <div
-                className="p-2 rounded-3 text-center"
-                style={{
-                  background: "rgba(255, 255, 255, 0.1)",
-                  backdropFilter: "blur(10px)",
-                  border: "1px solid rgba(255, 255, 255, 0.2)",
-                }}
-              >
-                <small className="text-white text-opacity-75">
-                  © {new Date().getFullYear()} Team Trackify
+                  Team Trackify
+                </h5>
+                <small
+                  className="text-white text-opacity-75"
+                  style={{ fontSize: isMobile ? "14px" : "11px" }}
+                >
+                  Admin Panel
                 </small>
               </div>
             </div>
-          </aside>
-        )}
+
+            {/* Navigation */}
+            <nav>
+              <ul className="list-unstyled" style={{ marginTop: "25px" }}>
+                {role_id === 2 && (
+                  <>
+                    <SidebarLink
+                      to="/dashboard"
+                      icon={MdDashboard}
+                      label="Dashboard"
+                      onClick={() => isMobile && setSidebarOpen(false)}
+                    />
+                    <SidebarLink
+                      to="/user"
+                      icon={HiUsers}
+                      label="Organization Details"
+                      onClick={() => isMobile && setSidebarOpen(false)}
+                    />
+                    <SidebarLink
+                      to="/revenue"
+                      icon={BsFileEarmarkBarGraphFill}
+                      label="Revenue Analytics"
+                      onClick={() => isMobile && setSidebarOpen(false)}
+                    />
+                    <SidebarLink
+                      to="/manage-plans"
+                      icon={RiVerifiedBadgeFill}
+                      label="Plan Management"
+                      onClick={() => isMobile && setSidebarOpen(false)}
+                    />
+                    <SidebarLink
+                      to="/contact-list"
+                      icon={FaEnvelope}
+                      label="Contact List"
+                      onClick={() => isMobile && setSidebarOpen(false)}
+                    />
+                    <SidebarLink
+                      to="/profile"
+                      icon={CgProfile}
+                      label="Profile Settings"
+                      onClick={() => isMobile && setSidebarOpen(false)}
+                    />
+                  </>
+                )}
+                {role_id === 1 && (
+                  <>
+                    <SidebarLink
+                      to="/admindashboard"
+                      icon={MdDashboard}
+                      label="Admin Dashboard"
+                      onClick={() => isMobile && setSidebarOpen(false)}
+                    />
+                    <SidebarLink
+                      to="/user"
+                      icon={HiUsers}
+                      label="User Management"
+                      onClick={() => isMobile && setSidebarOpen(false)}
+                    />
+                    <SidebarLink
+                      to="/payment-plans"
+                      icon={RiVerifiedBadgeFill}
+                      label="Payment Plans"
+                      onClick={() => isMobile && setSidebarOpen(false)}
+                    />
+                    <SidebarLink
+                      to="/transactionhistory"
+                      icon={RiVerifiedBadgeFill}
+                      label="Transaction History"
+                      onClick={() => isMobile && setSidebarOpen(false)}
+                    />
+                    <SidebarLink
+                      to="/report"
+                      icon={TbReportAnalytics}
+                      label="Reports"
+                      onClick={() => isMobile && setSidebarOpen(false)}
+                    />
+                    <SidebarLink
+                      to="/profile"
+                      icon={CgProfile}
+                      label="Profile Settings"
+                      onClick={() => isMobile && setSidebarOpen(false)}
+                    />
+                  </>
+                )}
+              </ul>
+            </nav>
+          </div>
+
+          {/* Footer Section */}
+          <div style={{ position: "relative", zIndex: 1 }}>
+            <div
+              className="p-2 rounded-3 text-center"
+              style={{
+                background: "rgba(255, 255, 255, 0.1)",
+                backdropFilter: "blur(10px)",
+                border: "1px solid rgba(255, 255, 255, 0.2)",
+              }}
+            >
+              <small className="text-white text-opacity-75">
+                © {new Date().getFullYear()} Team Trackify
+              </small>
+            </div>
+          </div>
+        </aside>
+      )}
 
       {/* Main Content Area */}
       <div
@@ -297,8 +337,26 @@ const App = () => {
           flexGrow: 1,
           overflowY: "auto",
           background: "#f8fafc",
+          // marginLeft: shouldShowSidebar && !isMobile ? "280px" : "0",
+          transition: "margin-left 0.3s ease-in-out",
         }}
       >
+        {/* Overlay for mobile when sidebar is open */}
+        {isMobile && sidebarOpen && shouldShowSidebar && (
+          <div
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: "rgba(0,0,0,0.5)",
+              zIndex: 1039,
+            }}
+            onClick={toggleSidebar}
+          />
+        )}
+
         <AuthProvider>
           <Routes>
             <Route path="/" element={<Landing />} />

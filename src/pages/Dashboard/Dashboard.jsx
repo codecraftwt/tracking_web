@@ -252,7 +252,7 @@ const Dashboard = () => {
                           <FaArrowUp className="me-1 text-success" size={10} />+
                           {revenueSummary?.growthPercentage > 0
                             ? revenueSummary?.growthPercentage.toLocaleString()
-                            : ""}
+                            : "0"}
                           %
                         </Badge>
                         <p className="text-white-50 small mb-0">This Month</p>

@@ -191,6 +191,30 @@
   outline: none;
 }
 
+/* Mobile sidebar styles */
+@media (max-width: 991.98px) {
+  .mobile-sidebar {
+    height: 100vh;
+    top: 0;
+    left: 0;
+  }
+  
+  /* Add some padding to main content when sidebar is open */
+  body {
+    overflow-x: hidden;
+  }
+}
+
+/* Smooth transitions */
+aside {
+  transition: transform 0.3s ease-in-out;
+}
+
+/* Ensure main content doesn't get squished */
+.main-content {
+  min-width: 0;
+}
+
 /* Responsive design improvements */
 @media (max-width: 768px) {
   .sidebar {

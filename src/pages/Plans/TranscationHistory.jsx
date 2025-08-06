@@ -173,7 +173,7 @@ const TransactionHistory = () => {
                 </div>
               </div>
 
-              <div className="d-flex gap-2">
+              <div className="d-flex flex-wrap gap-2 justify-content-center justify-content-md-start">
                 <Button
                   variant="light"
                   className="d-flex align-items-center gap-2"

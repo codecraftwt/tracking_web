@@ -101,7 +101,7 @@ const AdminDashboard = () => {
     },
     {
       key: "checkedInUsers",
-      label: "Checked In", 
+      label: "Checked In",
       count: checkedInCount,
       icon: <FaUserCheck size={24} />,
       color: "success",
