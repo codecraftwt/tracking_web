@@ -12,6 +12,8 @@ import {
   AiOutlineHome,
   AiOutlineCamera,
   AiOutlineExclamationCircle,
+  AiOutlineEye,
+  AiOutlineEyeInvisible,
 } from "react-icons/ai";
 import { registerUser, updateUser } from "../../redux/slices/userSlice";
 import { div } from "framer-motion/client";
@@ -46,6 +48,8 @@ const RegisterAdmin = () => {
   });
 
   const [previewImage, setPreviewImage] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const userData = useSelector((state) => state.UserData.userInfo);
   const loading = useSelector((state) => state.UserData.loading);
 
@@ -334,22 +338,43 @@ const RegisterAdmin = () => {
                               <AiOutlineLock className="me-2 text-primary" />
                               Password
                             </label>
-                            <input
-                              type="password"
-                              name="password"
-                              className={`form-control form-control-sm ${
-                                errors.password ? "is-invalid" : ""
-                              }`}
-                              placeholder="Enter password"
-                              value={formData.password}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              required
-                              style={{
-                                borderRadius: "8px",
-                                border: "1px solid #e0e0e0",
-                              }}
-                            />
+                            <div className="position-relative">
+                              <input
+                                type={showPassword ? "text" : "password"}
+                                name="password"
+                                className={`form-control form-control-sm ${
+                                  errors.password ? "is-invalid" : ""
+                                }`}
+                                placeholder="Enter password"
+                                value={formData.password}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                required
+                                style={{
+                                  borderRadius: "8px",
+                                  border: "1px solid #e0e0e0",
+                                  paddingRight: "35px",
+                                }}
+                              />
+                              <button
+                                type="button"
+                                className="btn btn-link position-absolute end-10 top-50 translate-middle-y"
+                                style={{
+                                  right: "10px",
+                                  color: "#6c757d",
+                                  padding: "0",
+                                  background: "transparent",
+                                  border: "none",
+                                }}
+                                onClick={() => setShowPassword(!showPassword)}
+                              >
+                                {showPassword ? (
+                                  <AiOutlineEyeInvisible />
+                                ) : (
+                                  <AiOutlineEye />
+                                )}
+                              </button>
+                            </div>
                             {errors.password && (
                               <div className="invalid-feedback d-flex align-items-center">
                                 <AiOutlineExclamationCircle className="me-1" />
@@ -365,22 +390,46 @@ const RegisterAdmin = () => {
                               <AiOutlineLock className="me-2 text-primary" />
                               Confirm Password
                             </label>
-                            <input
-                              type="password"
-                              name="confirmPassword"
-                              className={`form-control form-control-sm ${
-                                errors.confirmPassword ? "is-invalid" : ""
-                              }`}
-                              placeholder="Confirm password"
-                              value={formData.confirmPassword}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              required
-                              style={{
-                                borderRadius: "8px",
-                                border: "1px solid #e0e0e0",
-                              }}
-                            />
+                            <div className="position-relative">
+                              <input
+                                type={showConfirmPassword ? "text" : "password"}
+                                name="confirmPassword"
+                                className={`form-control form-control-sm ${
+                                  errors.confirmPassword ? "is-invalid" : ""
+                                }`}
+                                placeholder="Confirm password"
+                                value={formData.confirmPassword}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                required
+                                style={{
+                                  borderRadius: "8px",
+                                  border: "1px solid #e0e0e0",
+                                  paddingRight: "35px",
+                                  backgroundImage: "none",
+                                }}
+                              />
+                              <button
+                                type="button"
+                                className="btn btn-link position-absolute end-10 top-50 translate-middle-y"
+                                style={{
+                                  right: "10px",
+                                  color: "#6c757d",
+                                  padding: "0",
+                                  background: "transparent",
+                                  border: "none",
+                                }}
+                                onClick={() =>
+                                  setShowConfirmPassword(!showConfirmPassword)
+                                }
+                              >
+                                {showConfirmPassword ? (
+                                  <AiOutlineEyeInvisible />
+                                ) : (
+                                  <AiOutlineEye />
+                                )}
+                              </button>
+                            </div>
                             {errors.confirmPassword && (
                               <div className="invalid-feedback d-flex align-items-center">
                                 <AiOutlineExclamationCircle className="me-1" />
