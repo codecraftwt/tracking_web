@@ -149,6 +149,13 @@ const RegisterAdmin = () => {
     return label;
   };
 
+  const getRoleBasedName = (name) => {
+    if (role_id === 1) {
+      return name.replace("Organization", "User");
+    }
+    return name;
+  };
+
   const validateForm = () => {
     const newErrors = {
       fullName: validateField("fullName", formData.fullName),
@@ -245,7 +252,7 @@ const RegisterAdmin = () => {
                   </h4>
                 </div>
 
-                  <div className="card-body p-5">
+                <div className="card-body p-5">
                   <form onSubmit={handleSubmit}>
                     <div className="row">
                       {/* Full Name */}
@@ -256,7 +263,9 @@ const RegisterAdmin = () => {
                             style={{ fontSize: "0.9rem" }}
                           >
                             <AiOutlineUser className="me-2 text-primary" />
-                            Full Name
+                            {editingUser
+                              ? getRoleBasedName("User Name")
+                              : getRoleBasedName("Organization Name")}
                           </label>
                           <input
                             type="text"
