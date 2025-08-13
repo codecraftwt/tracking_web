@@ -75,6 +75,9 @@ const Locations = () => {
     const coordChunks = chunkCoords(rawCoords, 100);
     const allSnappedPoints = [];
 
+    // First, identify all points with images
+    const pointsWithImages = rawCoords.filter((coord) => coord.location_image);
+
     for (const chunk of coordChunks) {
       const path = chunk.map((coord) => `${coord.lat},${coord.lng}`).join("|");
       const url = `https://roads.googleapis.com/v1/snapToRoads?path=${encodeURIComponent(
@@ -97,7 +100,7 @@ const Locations = () => {
           const snapped = data.snappedPoints.map((point) => {
             const original = originalMap[point.originalIndex] || {};
 
-            // For points with images, preserve all original data
+            // Always preserve the original data for points with images
             if (original.location_image) {
               return {
                 ...original,
@@ -106,7 +109,6 @@ const Locations = () => {
               };
             }
 
-            // For other points, preserve essential data
             return {
               lat: point.location.latitude,
               lng: point.location.longitude,
@@ -127,18 +129,38 @@ const Locations = () => {
       }
     }
 
-    // Special handling for the last point to ensure it's preserved
-    const lastOriginal = rawCoords[rawCoords.length - 1];
-    if (lastOriginal.location_image) {
-      const lastSnapped = allSnappedPoints[allSnappedPoints.length - 1];
-      if (!lastSnapped.location_image) {
-        allSnappedPoints[allSnappedPoints.length - 1] = {
-          ...lastOriginal,
-          lat: lastSnapped.lat,
-          lng: lastSnapped.lng,
-        };
+    // Now ensure all points with images are included, even if they were lost in snapping
+    pointsWithImages.forEach((imagePoint) => {
+      const exists = allSnappedPoints.some(
+        (point) =>
+          point.id === imagePoint.id ||
+          (point.lat === imagePoint.lat && point.lng === imagePoint.lng)
+      );
+
+      if (!exists) {
+        // Find the closest position in the snapped points to insert this image point
+        let minDistance = Infinity;
+        let insertIndex = -1;
+
+        for (let i = 0; i < allSnappedPoints.length; i++) {
+          const distance = Math.sqrt(
+            Math.pow(imagePoint.lat - allSnappedPoints[i].lat, 2) +
+              Math.pow(imagePoint.lng - allSnappedPoints[i].lng, 2)
+          );
+
+          if (distance < minDistance) {
+            minDistance = distance;
+            insertIndex = i;
+          }
+        }
+
+        if (insertIndex !== -1) {
+          allSnappedPoints.splice(insertIndex, 0, imagePoint);
+        } else {
+          allSnappedPoints.push(imagePoint);
+        }
       }
-    }
+    });
 
     return allSnappedPoints;
   };
