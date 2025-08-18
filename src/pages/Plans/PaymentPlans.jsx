@@ -277,7 +277,7 @@ const PaymentPlans = () => {
             );
             dispatch(clearOrderData());
             dispatch(getUserById(adminId));
-            await dispatch(getPaymentHistory({adminId}));
+            await dispatch(getPaymentHistory({ adminId }));
           } else {
             console.error("Payment verification failed:", verifyResult.error);
             alert("Payment verification failed");
@@ -482,7 +482,7 @@ const PaymentPlans = () => {
                     subscriptionExpiry &&
                     moment(subscriptionExpiry).isBefore(moment())
                       ? "warning"
-                      : "secondary"
+                      : "primary"
                   }
                   className="d-flex align-items-center justify-content-center"
                   disabled={

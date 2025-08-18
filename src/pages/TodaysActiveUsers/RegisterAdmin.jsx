@@ -227,6 +227,10 @@ const RegisterAdmin = () => {
     }
   };
 
+  const handleCancel = () => {
+    navigate("/user");
+  };
+
   return (
     <div className="bg-white min-vh-100">
       <Navbar
@@ -235,6 +239,7 @@ const RegisterAdmin = () => {
             ? getRoleBasedLabel("Edit Admin")
             : getRoleBasedLabel("Add New Admin")
         }
+        showBackButton={true}
       />
       <main className="container py-5">
         <section>
@@ -626,7 +631,7 @@ const RegisterAdmin = () => {
                     </div>
 
                     {/* Submit Button */}
-                    <div className="d-grid gap-2 mt-5">
+                    <div className="d-flex gap-2 mt-5">
                       <button
                         type="submit"
                         className="btn btn-primary btn-sm fw-bold"
@@ -636,6 +641,7 @@ const RegisterAdmin = () => {
                           fontSize: "0.95rem",
                           boxShadow: "0 4px 15px rgba(0, 123, 255, 0.3)",
                           transition: "all 0.3s ease",
+                          flex: "1 1 50%",
                         }}
                         onMouseOver={(e) => {
                           if (!loading) {
@@ -663,6 +669,27 @@ const RegisterAdmin = () => {
                         {editingUser
                           ? getRoleBasedLabel("Update Admin")
                           : getRoleBasedLabel("Register Admin")}
+                      </button>
+
+                      <button
+                        type="button"
+                        className="btn btn-secondary btn-sm fw-bold"
+                        style={{
+                          borderRadius: "10px",
+                          padding: "10px 20px",
+                          fontSize: "0.95rem",
+                          transition: "all 0.3s ease",
+                          flex: "1 1 50%",
+                        }}
+                        onClick={handleCancel}
+                        onMouseOver={(e) => {
+                          e.target.style.transform = "translateY(-2px)";
+                        }}
+                        onMouseOut={(e) => {
+                          e.target.style.transform = "translateY(0)";
+                        }}
+                      >
+                        Cancel
                       </button>
                     </div>
                   </form>
