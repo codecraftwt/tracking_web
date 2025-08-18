@@ -144,3 +144,16 @@
 .nav-button:hover {
   background: rgba(255, 255, 255, 0.2);
 }
+
+/* Leaflet map adjustments */
+.leaflet-container {
+  background-color: #f8f9fa;
+}
+
+/* Map section headers */
+.map-section-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  border-bottom: 1px solid #dee2e6;
+}
