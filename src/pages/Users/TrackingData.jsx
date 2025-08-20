@@ -146,82 +146,99 @@ const TrackingData = () => {
               </Badge>
             </div>
 
-            {/* Date Filter Section */}
-            <Card
-              className="border-0 shadow-sm mb-4"
-              style={{ borderRadius: "12px" }}
-            >
-              <Card.Body className="p-4">
-                <div className="d-flex justify-content-between align-items-center flex-wrap gap-3">
-                  <div className="d-flex align-items-center">
-                    <FaCalendarAlt
-                      className="me-2"
-                      style={{ color: "#3B82F6" }}
-                    />
-                    <span className="fw-semibold" style={{ color: "#374151" }}>
-                      {selectedDate.toLocaleDateString("en-US", {
-                        weekday: "long",
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })}
-                    </span>
-                    {!isToday && (
-                      <Badge
-                        bg="warning"
-                        className="ms-2 px-2 py-1"
-                        style={{ fontSize: "10px" }}
+            <div style={{ position: "relative" }}>
+              {/* Date Filter Section */}
+              <Card
+                className="border-0 shadow-sm mb-4"
+                style={{ borderRadius: "12px" }}
+              >
+                <Card.Body className="p-4">
+                  <div className="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                    <div className="d-flex align-items-center">
+                      <FaCalendarAlt
+                        className="me-2"
+                        style={{ color: "#3B82F6" }}
+                      />
+                      <span
+                        className="fw-semibold"
+                        style={{ color: "#374151" }}
                       >
-                        Filtered
-                      </Badge>
-                    )}
+                        {selectedDate.toLocaleDateString("en-US", {
+                          weekday: "long",
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })}
+                      </span>
+                      {!isToday && (
+                        <Badge
+                          bg="warning"
+                          className="ms-2 px-2 py-1"
+                          style={{ fontSize: "10px" }}
+                        >
+                          Filtered
+                        </Badge>
+                      )}
+                    </div>
+
+                    <Button
+                      variant="outline-primary"
+                      className="d-flex align-items-center"
+                      onClick={() => setShowCalendar(!showCalendar)}
+                      style={{ borderRadius: "8px" }}
+                    >
+                      <FaCalendarAlt className="me-2" />
+                      Change Date
+                    </Button>
                   </div>
+                </Card.Body>
+              </Card>
 
-                  <Button
-                    variant="outline-primary"
-                    className="d-flex align-items-center"
-                    onClick={() => setShowCalendar(!showCalendar)}
-                    style={{ borderRadius: "8px" }}
-                  >
-                    <FaCalendarAlt className="me-2" />
-                    Change Date
-                  </Button>
-                </div>
-
-                {showCalendar && (
-                  <div className="mt-3 p-3 bg-white">
-                    <Calendar
-                      onChange={handleDateChange}
-                      value={selectedDate}
-                      maxDate={new Date()}
-                      tileClassName="text-dark"
-                      next2Label={null}
-                      prev2Label={null}
-                      tileContent={({ date, view }) => {
-                        if (view === "month") {
-                          const dateStr = formatDateLocal(date);
-                          if (trackedDates.includes(dateStr)) {
-                            return (
-                              <div
-                                style={{
-                                  height: 6,
-                                  width: 6,
-                                  borderRadius: "50%",
-                                  backgroundColor: "#0047b3",
-                                  margin: "0 auto",
-                                  marginTop: 2,
-                                }}
-                              />
-                            );
-                          }
+              {showCalendar && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "100%", // right below the card
+                    right: 0,
+                    zIndex: 1000,
+                    backgroundColor: "white",
+                    padding: "12px",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                    borderRadius: "12px",
+                    marginTop: "8px", // optional spacing from card
+                  }}
+                >
+                  <Calendar
+                    onChange={handleDateChange}
+                    value={selectedDate}
+                    maxDate={new Date()}
+                    tileClassName="text-dark"
+                    next2Label={null}
+                    prev2Label={null}
+                    tileContent={({ date, view }) => {
+                      if (view === "month") {
+                        const dateStr = formatDateLocal(date);
+                        if (trackedDates.includes(dateStr)) {
+                          return (
+                            <div
+                              style={{
+                                height: 6,
+                                width: 6,
+                                borderRadius: "50%",
+                                backgroundColor: "#0047b3",
+                                margin: "0 auto",
+                                marginTop: 2,
+                              }}
+                            />
+                          );
                         }
-                        return null;
-                      }}
-                    />
-                  </div>
-                )}
-              </Card.Body>
-            </Card>
+                      }
+                      return null;
+                    }}
+                  />
+                </div>
+              )}
+            </div>
 
             {/* Loading State */}
             {loading && (

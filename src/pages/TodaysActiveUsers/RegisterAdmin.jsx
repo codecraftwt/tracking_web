@@ -288,7 +288,8 @@ const RegisterAdmin = () => {
                             onBlur={handleBlur}
                             required
                             style={{
-                              borderRadius: "8px",
+                              borderRadius: "4px",
+                              height: "30px",
                               border: "1px solid #e0e0e0",
                             }}
                           />
@@ -320,7 +321,8 @@ const RegisterAdmin = () => {
                             onBlur={handleBlur}
                             required
                             style={{
-                              borderRadius: "8px",
+                              borderRadius: "4px",
+                              height: "30px",
                               border: "1px solid #e0e0e0",
                             }}
                           />
@@ -356,9 +358,11 @@ const RegisterAdmin = () => {
                                 onBlur={handleBlur}
                                 required
                                 style={{
-                                  borderRadius: "8px",
+                                  borderRadius: "4px",
+                                  height: "30px",
                                   border: "1px solid #e0e0e0",
                                   paddingRight: "35px",
+                                  backgroundImage: "none",
                                 }}
                               />
                               <button
@@ -466,7 +470,8 @@ const RegisterAdmin = () => {
                             onBlur={handleBlur}
                             required
                             style={{
-                              borderRadius: "8px",
+                              borderRadius: "4px",
+                              height: "30px",
                               border: "1px solid #e0e0e0",
                             }}
                             min={0}
@@ -499,7 +504,8 @@ const RegisterAdmin = () => {
                             onBlur={handleBlur}
                             required
                             style={{
-                              borderRadius: "8px",
+                              borderRadius: "4px",
+                              height: "30px",
                               border: "1px solid #e0e0e0",
                             }}
                           />
@@ -575,7 +581,8 @@ const RegisterAdmin = () => {
                             onChange={handleImageChange}
                             accept="image/*"
                             style={{
-                              borderRadius: "8px",
+                              borderRadius: "4px",
+                              height: "30px",
                               border: "1px solid #e0e0e0",
                             }}
                           />

@@ -1,110 +1,195 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom"; // Import useNavigate
+import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllUsers } from "../../redux/slices/userSlice";
 import { BiUser } from "react-icons/bi";
 import { Table, Container, Row, Col, Tabs, Tab, Badge } from "react-bootstrap";
 import Navbar from "../../components/Navbar";
 import Loader from "../../components/Loader";
-import { FaRupeeSign, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
+import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
+import { formatDateDDMMYYYY } from "../../utils/dateFormat";
 
 const UserTable = ({ users, status }) => {
-  const navigate = useNavigate(); // Initialize navigate
+  const navigate = useNavigate();
 
   const handleRowClick = (user) => {
-    // Navigate to /trackingdata and pass the user object as state
     navigate("/trackingdata", { state: { item: user } });
   };
 
   return (
-    <Table striped bordered hover responsive className="tableStyle">
-      <thead style={{ background: "rgba(59, 130, 246, 0.05)" }}>
-        <tr className="tdThStyle">
-          <th className="fw-semibold" style={{ color: "#374151" }}>
+    <Table
+      striped
+      hover
+      responsive
+      className="shadow-sm rounded overflow-hidden"
+      style={{
+        background: "#fff",
+        border: "1px solid #dee2e6", // outer border around table
+        borderCollapse: "separate",
+        borderSpacing: 0,
+      }}
+    >
+      <thead
+        style={{
+          backgroundColor: "#3b82f6",
+          color: "white",
+          fontWeight: "600",
+          fontSize: "0.85rem",
+        }}
+      >
+        <tr>
+          <th
+            className="text-center"
+            style={{ borderRight: "1px solid #dee2e6" }}
+          >
             Sr. No.
           </th>
-          <th className="fw-semibold" style={{ color: "#374151" }}>
+          <th
+            className="text-center"
+            style={{ borderRight: "1px solid #dee2e6" }}
+          >
             Profile
           </th>
-          <th className="fw-semibold" style={{ color: "#374151" }}>
-            Name
-          </th>
-          <th className="fw-semibold" style={{ color: "#374151" }}>
-            Email
-          </th>
-          <th className="fw-semibold" style={{ color: "#374151" }}>
-            Mobile Number
-          </th>
-          <th className="fw-semibold" style={{ color: "#374151" }}>
+          <th style={{ borderRight: "1px solid #dee2e6" }}>Name</th>
+          <th style={{ borderRight: "1px solid #dee2e6" }}>Email</th>
+          <th style={{ borderRight: "1px solid #dee2e6" }}>Mobile Number</th>
+          <th
+            className="text-center"
+            style={{ borderRight: "1px solid #dee2e6" }}
+          >
             Status
           </th>
-          <th className="fw-semibold" style={{ color: "#374151" }}>
-            Address
-          </th>
-          <th className="fw-semibold" style={{ color: "#374151" }}>
-            Created At
-          </th>
-          <th className="fw-semibold" style={{ color: "#374151" }}>
-            Updated At
-          </th>
+          <th style={{ borderRight: "1px solid #dee2e6" }}>Address</th>
+          <th style={{ borderRight: "1px solid #dee2e6" }}>Created At</th>
+          <th>Updated At</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody style={{ fontSize: "0.82rem" }}>
         {users.length > 0 ? (
           users.map((user, index) => (
             <tr
               key={user._id}
-              className="tdThStyle"
-              onClick={() => handleRowClick(user)} // Add onClick to each row
-              style={{ cursor: "pointer" }} // Change cursor on hover
+              onClick={() => handleRowClick(user)}
+              style={{ cursor: "pointer" }}
+              className="align-middle"
             >
-              <td>{index + 1}</td>
-              <td className="text-center">
+              <td
+                className="text-center"
+                style={{
+                  borderRight: "1px solid #dee2e6",
+                  borderBottom: "1px solid #dee2e6",
+                }}
+              >
+                {index + 1}
+              </td>
+              <td
+                className="text-center"
+                style={{
+                  borderRight: "1px solid #dee2e6",
+                  borderBottom: "1px solid #dee2e6",
+                }}
+              >
                 {user.avtar ? (
                   <img
                     src={user.avtar}
                     alt="User Avatar"
                     style={{
-                      width: "50px",
-                      height: "50px",
+                      width: 48,
+                      height: 48,
                       borderRadius: "50%",
                       objectFit: "cover",
+                      boxShadow: "0 0 5px rgba(0,0,0,0.1)",
                     }}
                   />
                 ) : (
-                  <BiUser style={{ fontSize: "30px" }} />
+                  <BiUser
+                    style={{
+                      fontSize: "26px",
+                      color: "#6c757d",
+                    }}
+                  />
                 )}
               </td>
-              <td>{user.name}</td>
-              <td>{user.email}</td>
-              <td>{user.mobile_no}</td>
-              <td>
+              <td
+                style={{
+                  borderRight: "1px solid #dee2e6",
+                  borderBottom: "1px solid #dee2e6",
+                  fontWeight: "600",
+                }}
+              >
+                {user.name}
+              </td>
+              <td
+                style={{
+                  borderRight: "1px solid #dee2e6",
+                  borderBottom: "1px solid #dee2e6",
+                }}
+              >
+                {user.email}
+              </td>
+              <td
+                style={{
+                  borderRight: "1px solid #dee2e6",
+                  borderBottom: "1px solid #dee2e6",
+                }}
+              >
+                {user.mobile_no}
+              </td>
+              <td
+                className="text-center"
+                style={{
+                  borderRight: "1px solid #dee2e6",
+                  borderBottom: "1px solid #dee2e6",
+                }}
+              >
                 <Badge
                   bg={user.isActive ? "success" : "danger"}
-                  className="rounded-pill px-3 py-2"
-                  style={{ fontSize: "12px" }}
+                  className="rounded-pill px-3 py-1 d-inline-flex align-items-center"
+                  style={{ fontSize: "0.70rem", gap: "0.3rem" }}
                 >
                   {user.isActive ? (
                     <>
-                      <FaCheckCircle size={12} className="me-1" />
+                      <FaCheckCircle size={14} />
                       Active
                     </>
                   ) : (
                     <>
-                      <FaTimesCircle size={12} className="me-1" />
+                      <FaTimesCircle size={14} />
                       Inactive
                     </>
                   )}
                 </Badge>
               </td>
-              <td>{user.address}</td>
-              <td>{new Date(user.createdAt).toLocaleDateString()}</td>
-              <td>{new Date(user.updatedAt).toLocaleDateString()}</td>
+              <td
+                style={{
+                  maxWidth: "180px",
+                  wordBreak: "break-word",
+                  borderRight: "1px solid #dee2e6",
+                  borderBottom: "1px solid #dee2e6",
+                }}
+              >
+                {user.address || "—"}
+              </td>
+              <td
+                style={{
+                  borderRight: "1px solid #dee2e6",
+                  borderBottom: "1px solid #dee2e6",
+                }}
+              >
+                {formatDateDDMMYYYY(user.createdAt)}
+              </td>
+              <td style={{ borderBottom: "1px solid #dee2e6" }}>
+                {formatDateDDMMYYYY(user.updatedAt)}
+              </td>
             </tr>
           ))
         ) : (
           <tr>
-            <td colSpan="9" className="text-center tdThStyle">
+            <td
+              colSpan="9"
+              className="text-center py-4 text-muted"
+              style={{ borderBottom: "none" }}
+            >
               No {status.toLowerCase()} users found.
             </td>
           </tr>
@@ -130,24 +215,54 @@ const Listusers = () => {
   const inactiveUsers = users.filter((user) => !user.isActive);
 
   return (
-    <div>
-      <Navbar pageTitle="List of Users" />
-      <Container className="my-4">
+    <>
+      <Navbar pageTitle="List of Users" showBackButton={true} />
+      <Container fluid className="py-4">
         <Row className="justify-content-center">
           <Col md={11}>
             <Tabs
               activeKey={activeTab}
               onSelect={(k) => setActiveTab(k)}
-              className="mb-3"
+              className="mb-3 border-bottom"
+              variant="pills"
+              mountOnEnter
+              unmountOnExit
             >
-              <Tab eventKey="active" title="Active Users">
+              <Tab
+                eventKey="active"
+                title={
+                  <span
+                    className={
+                      activeTab === "active"
+                        ? "fw-semibold text-white"
+                        : "text-muted"
+                    }
+                  >
+                    Active Users
+                  </span>
+                }
+              >
                 {loading ? (
                   <Loader text="Getting users" />
                 ) : (
                   <UserTable users={activeUsers} status="Active" />
                 )}
               </Tab>
-              <Tab eventKey="inactive" title="Inactive Users">
+
+              <Tab
+                eventKey="inactive"
+                title={
+                  <span
+                    className={
+                      activeTab === "inactive"
+                        ? "fw-semibold text-white"
+                        : "text-muted"
+                    }
+                  >
+                    Inactive Users
+                  </span>
+                }
+              >
                 {loading ? (
                   <Loader text="Getting users" />
                 ) : (
@@ -158,7 +273,7 @@ const Listusers = () => {
           </Col>
         </Row>
       </Container>
-    </div>
+    </>
   );
 };
 

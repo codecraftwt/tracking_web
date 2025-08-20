@@ -313,287 +313,319 @@ const PaymentPlans = () => {
   // Update the renderPlanCard function to disable subscription plans when there's an active subscription
   const renderPlanCard = (plan, index, isAddOn = false) => (
     <div key={plan._id} className="col-lg-6 col-xl-4">
-      <Card
-        className={`border-0 shadow-sm h-100 ${
-          !isAddOn &&
-          hasActiveSubscription &&
-          currentPlanDetails?.planId !== plan._id
-            ? "opacity-75"
-            : ""
-        }`}
+      <div
         style={{
-          borderRadius: "12px",
-          transition: "all 0.3s ease",
-          cursor: "pointer",
-        }}
-        onMouseOver={(e) => {
-          if (
-            !(
-              !isAddOn &&
-              hasActiveSubscription &&
-              currentPlanDetails?.planId !== plan._id
-            )
-          ) {
-            e.currentTarget.style.transform = "translateY(-8px)";
-            e.currentTarget.style.boxShadow = "0 20px 40px rgba(0,0,0,0.1)";
-          }
-        }}
-        onMouseOut={(e) => {
-          e.currentTarget.style.transform = "translateY(0)";
-          e.currentTarget.style.boxShadow = "0 4px 6px rgba(0,0,0,0.05)";
+          position: "relative",
         }}
       >
-        <Card.Header
-          className="border-0 py-3"
+        {plan.name === "Enterprise Plan" && (
+          <div
+            style={{
+              position: "absolute",
+              top: "-10px",
+              right: "-10px",
+              backgroundColor: "green",
+              color: "white",
+              padding: "5px 10px",
+              borderRadius: "8px",
+              fontSize: "0.75rem",
+              fontWeight: "bold",
+              zIndex: 1,
+              boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+            }}
+          >
+            Recommended
+          </div>
+        )}
+
+        <Card
+          className={`border-0 shadow-sm h-100 ${
+            !isAddOn &&
+            hasActiveSubscription &&
+            currentPlanDetails?.planId !== plan._id
+              ? "opacity-75"
+              : ""
+          }`}
           style={{
-            background: "#0d6efd",
-            borderRadius: "12px 12px 0 0",
+            borderRadius: "12px",
             transition: "all 0.3s ease",
+            cursor: "pointer",
+          }}
+          onMouseOver={(e) => {
+            if (
+              !(
+                !isAddOn &&
+                hasActiveSubscription &&
+                currentPlanDetails?.planId !== plan._id
+              )
+            ) {
+              e.currentTarget.style.transform = "translateY(-8px)";
+              e.currentTarget.style.boxShadow = "0 20px 40px rgba(0,0,0,0.1)";
+            }
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.transform = "translateY(0)";
+            e.currentTarget.style.boxShadow = "0 4px 6px rgba(0,0,0,0.05)";
           }}
         >
-          <div className="d-flex justify-content-between align-items-center">
-            <div className="d-flex align-items-center">
-              <div>
-                <h6 className="mb-0 fw-bold text-white">{plan.name}</h6>
-                <small className="text-white opacity-75">
-                  {isAddOn ? "Add-on" : `Plan #${index + 1}`}
-                </small>
-              </div>
-            </div>
-            <Badge
-              bg="light"
-              className="text-dark px-2 py-1"
-              style={{
-                transition: "all 0.3s ease",
-              }}
-              onMouseOver={(e) => {
-                e.target.style.transform = "scale(1.1)";
-              }}
-              onMouseOut={(e) => {
-                e.target.style.transform = "scale(1)";
-              }}
-            >
-              {plan.duration}
-            </Badge>
-          </div>
-        </Card.Header>
-
-        <Card.Body className="p-4">
-          <p className="text-muted small mb-4">{plan.description}</p>
-
-          <div className="text-center mb-4">
-            <div
-              className="d-flex align-items-center justify-content-center mb-2"
-              style={{
-                transition: "all 0.3s ease",
-              }}
-              onMouseOver={(e) => {
-                if (
-                  !(
-                    !isAddOn &&
-                    hasActiveSubscription &&
-                    currentPlanDetails?.planId !== plan._id
-                  )
-                ) {
-                  e.currentTarget.style.transform = "scale(1.05)";
-                }
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.transform = "scale(1)";
-              }}
-            >
-              <h3 className="fw-bold mb-0" style={{ color: "#0d6efd" }}>
-                {plan.price}
-              </h3>
-            </div>
-            <small className="text-muted">per {plan.duration}</small>
-          </div>
-
-          <div className="mb-4">
-            <div className="row g-3">
-              <div className="col-6">
-                <div
-                  className="d-flex align-items-center"
-                  style={{
-                    transition: "all 0.3s ease",
-                  }}
-                  onMouseOver={(e) => {
-                    if (
-                      !(
-                        !isAddOn &&
-                        hasActiveSubscription &&
-                        currentPlanDetails?.planId !== plan._id
-                      )
-                    ) {
-                      e.currentTarget.style.transform = "translateX(5px)";
-                    }
-                  }}
-                  onMouseOut={(e) => {
-                    e.currentTarget.style.transform = "translateX(0)";
-                  }}
-                >
-                  <FaUsers className="me-2" style={{ color: "#3B82F6" }} />
-                  <div>
-                    <small className="text-muted d-block">Min Users</small>
-                    <span className="fw-semibold" style={{ color: "#374151" }}>
-                      {plan.minUsers}
-                    </span>
-                  </div>
+          <Card.Header
+            className="border-0 py-3"
+            style={{
+              background: "#0d6efd",
+              borderRadius: "12px 12px 0 0",
+              transition: "all 0.3s ease",
+            }}
+          >
+            <div className="d-flex justify-content-between align-items-center">
+              <div className="d-flex align-items-center">
+                <div>
+                  <h6 className="mb-0 fw-bold text-white">{plan.name}</h6>
+                  <small className="text-white opacity-75">
+                    {isAddOn ? "Add-on" : `Plan #${index + 1}`}
+                  </small>
                 </div>
               </div>
-              <div className="col-6">
-                <div
-                  className="d-flex align-items-center"
-                  style={{
-                    transition: "all 0.3s ease",
-                  }}
-                  onMouseOver={(e) => {
-                    if (
-                      !(
-                        !isAddOn &&
-                        hasActiveSubscription &&
-                        currentPlanDetails?.planId !== plan._id
-                      )
-                    ) {
-                      e.currentTarget.style.transform = "translateX(5px)";
-                    }
-                  }}
-                  onMouseOut={(e) => {
-                    e.currentTarget.style.transform = "translateX(0)";
-                  }}
-                >
-                  <FaUsers className="me-2" style={{ color: "#3B82F6" }} />
-                  <div>
-                    <small className="text-muted d-block">Max Users</small>
-                    <span className="fw-semibold" style={{ color: "#374151" }}>
-                      {plan.maxUsers}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="d-grid">
-            {!isAddOn && hasActiveSubscription ? (
-              currentPlanDetails?.planId === plan._id ? (
-                <Button
-                  variant={
-                    subscriptionExpiry &&
-                    moment(subscriptionExpiry).isBefore(moment())
-                      ? "warning"
-                      : "primary"
-                  }
-                  className="d-flex align-items-center justify-content-center"
-                  disabled={
-                    subscriptionExpiry &&
-                    moment(subscriptionExpiry).isAfter(moment())
-                  }
-                  style={{
-                    borderRadius: "8px",
-                    padding: "12px",
-                  }}
-                >
-                  {subscriptionExpiry &&
-                  moment(subscriptionExpiry).isBefore(moment()) ? (
-                    <>
-                      <FaCheckCircle className="me-2" />
-                      Expired - Renew Now
-                    </>
-                  ) : (
-                    <>
-                      <FaCheckCircle className="me-2" />
-                      Active Plan
-                    </>
-                  )}
-                </Button>
-              ) : (
-                <Button
-                  variant="secondary"
-                  className="d-flex align-items-center justify-content-center"
-                  disabled
-                  style={{
-                    borderRadius: "8px",
-                    padding: "12px",
-                    cursor: "not-allowed",
-                  }}
-                >
-                  <FaCreditCard className="me-2" />
-                  Subscribe Now
-                </Button>
-              )
-            ) : (
-              <Button
-                variant="primary"
-                className="d-flex align-items-center justify-content-center"
-                onClick={() => {
-                  isAddOn
-                    ? handleUpgradePlan(plan._id)
-                    : handleSubscriptionPayment(plan._id);
-                }}
-                disabled={
-                  orderLoading ||
-                  (!isAddOn &&
-                    hasActiveSubscription &&
-                    currentPlanDetails?.planId !== plan._id)
-                }
+              <Badge
+                bg="light"
+                className="text-dark px-2 py-1"
                 style={{
-                  borderRadius: "8px",
-                  background: "#0d6efd",
-                  border: "none",
-                  padding: "12px",
                   transition: "all 0.3s ease",
-                  opacity:
-                    orderLoading ||
-                    (!isAddOn &&
-                      hasActiveSubscription &&
-                      currentPlanDetails?.planId !== plan._id)
-                      ? 0.7
-                      : 1,
+                }}
+                onMouseOver={(e) => {
+                  e.target.style.transform = "scale(1.1)";
+                }}
+                onMouseOut={(e) => {
+                  e.target.style.transform = "scale(1)";
+                }}
+              >
+                {plan.duration}
+              </Badge>
+            </div>
+          </Card.Header>
+
+          <Card.Body className="p-4">
+            <p className="text-muted small mb-4">{plan.description}</p>
+
+            <div className="text-center mb-4">
+              <div
+                className="d-flex align-items-center justify-content-center mb-2"
+                style={{
+                  transition: "all 0.3s ease",
                 }}
                 onMouseOver={(e) => {
                   if (
-                    !orderLoading &&
                     !(
                       !isAddOn &&
                       hasActiveSubscription &&
                       currentPlanDetails?.planId !== plan._id
                     )
                   ) {
-                    e.target.style.transform = "translateY(-2px)";
-                    e.target.style.boxShadow = "0 8px 25px rgba(0,0,0,0.2)";
+                    e.currentTarget.style.transform = "scale(1.05)";
                   }
                 }}
                 onMouseOut={(e) => {
-                  e.target.style.transform = "translateY(0)";
-                  e.target.style.boxShadow = "none";
+                  e.currentTarget.style.transform = "scale(1)";
                 }}
               >
-                {processingPlanId === plan._id ? (
-                  <>
-                    <div
-                      className="spinner-border spinner-border-sm me-2"
-                      role="status"
-                    >
-                      <span className="visually-hidden">Loading...</span>
+                <h3 className="fw-bold mb-0" style={{ color: "#0d6efd" }}>
+                  {plan.price}
+                </h3>
+              </div>
+              <small className="text-muted">per {plan.duration}</small>
+            </div>
+
+            <div className="mb-4">
+              <div className="row g-3">
+                <div className="col-6">
+                  <div
+                    className="d-flex align-items-center"
+                    style={{
+                      transition: "all 0.3s ease",
+                    }}
+                    onMouseOver={(e) => {
+                      if (
+                        !(
+                          !isAddOn &&
+                          hasActiveSubscription &&
+                          currentPlanDetails?.planId !== plan._id
+                        )
+                      ) {
+                        e.currentTarget.style.transform = "translateX(5px)";
+                      }
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.transform = "translateX(0)";
+                    }}
+                  >
+                    <FaUsers className="me-2" style={{ color: "#3B82F6" }} />
+                    <div>
+                      <small className="text-muted d-block">Min Users</small>
+                      <span
+                        className="fw-semibold"
+                        style={{ color: "#374151" }}
+                      >
+                        {plan.minUsers}
+                      </span>
                     </div>
-                    Processing...
-                  </>
-                ) : (
-                  <>
-                    {isAddOn ? (
-                      <FaArrowUp className="me-2" />
+                  </div>
+                </div>
+                <div className="col-6">
+                  <div
+                    className="d-flex align-items-center"
+                    style={{
+                      transition: "all 0.3s ease",
+                    }}
+                    onMouseOver={(e) => {
+                      if (
+                        !(
+                          !isAddOn &&
+                          hasActiveSubscription &&
+                          currentPlanDetails?.planId !== plan._id
+                        )
+                      ) {
+                        e.currentTarget.style.transform = "translateX(5px)";
+                      }
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.transform = "translateX(0)";
+                    }}
+                  >
+                    <FaUsers className="me-2" style={{ color: "#3B82F6" }} />
+                    <div>
+                      <small className="text-muted d-block">Max Users</small>
+                      <span
+                        className="fw-semibold"
+                        style={{ color: "#374151" }}
+                      >
+                        {plan.maxUsers}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="d-grid">
+              {!isAddOn && hasActiveSubscription ? (
+                currentPlanDetails?.planId === plan._id ? (
+                  <Button
+                    variant={
+                      subscriptionExpiry &&
+                      moment(subscriptionExpiry).isBefore(moment())
+                        ? "warning"
+                        : "primary"
+                    }
+                    className="d-flex align-items-center justify-content-center"
+                    disabled={
+                      subscriptionExpiry &&
+                      moment(subscriptionExpiry).isAfter(moment())
+                    }
+                    style={{
+                      borderRadius: "8px",
+                      padding: "12px",
+                    }}
+                  >
+                    {subscriptionExpiry &&
+                    moment(subscriptionExpiry).isBefore(moment()) ? (
+                      <>
+                        <FaCheckCircle className="me-2" />
+                        Expired - Renew Now
+                      </>
                     ) : (
-                      <FaCreditCard className="me-2" />
+                      <>
+                        <FaCheckCircle className="me-2" />
+                        Active Plan
+                      </>
                     )}
-                    {isAddOn ? "Upgrade Now" : "Subscribe Now"}
-                  </>
-                )}
-              </Button>
-            )}
-          </div>
-        </Card.Body>
-      </Card>
+                  </Button>
+                ) : (
+                  <Button
+                    variant="secondary"
+                    className="d-flex align-items-center justify-content-center"
+                    disabled
+                    style={{
+                      borderRadius: "8px",
+                      padding: "12px",
+                      cursor: "not-allowed",
+                    }}
+                  >
+                    <FaCreditCard className="me-2" />
+                    Subscribe Now
+                  </Button>
+                )
+              ) : (
+                <Button
+                  variant="primary"
+                  className="d-flex align-items-center justify-content-center"
+                  onClick={() => {
+                    isAddOn
+                      ? handleUpgradePlan(plan._id)
+                      : handleSubscriptionPayment(plan._id);
+                  }}
+                  disabled={
+                    orderLoading ||
+                    (!isAddOn &&
+                      hasActiveSubscription &&
+                      currentPlanDetails?.planId !== plan._id)
+                  }
+                  style={{
+                    borderRadius: "8px",
+                    background: "#0d6efd",
+                    border: "none",
+                    padding: "12px",
+                    transition: "all 0.3s ease",
+                    opacity:
+                      orderLoading ||
+                      (!isAddOn &&
+                        hasActiveSubscription &&
+                        currentPlanDetails?.planId !== plan._id)
+                        ? 0.7
+                        : 1,
+                  }}
+                  onMouseOver={(e) => {
+                    if (
+                      !orderLoading &&
+                      !(
+                        !isAddOn &&
+                        hasActiveSubscription &&
+                        currentPlanDetails?.planId !== plan._id
+                      )
+                    ) {
+                      e.target.style.transform = "translateY(-2px)";
+                      e.target.style.boxShadow = "0 8px 25px rgba(0,0,0,0.2)";
+                    }
+                  }}
+                  onMouseOut={(e) => {
+                    e.target.style.transform = "translateY(0)";
+                    e.target.style.boxShadow = "none";
+                  }}
+                >
+                  {processingPlanId === plan._id ? (
+                    <>
+                      <div
+                        className="spinner-border spinner-border-sm me-2"
+                        role="status"
+                      >
+                        <span className="visually-hidden">Loading...</span>
+                      </div>
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      {isAddOn ? (
+                        <FaArrowUp className="me-2" />
+                      ) : (
+                        <FaCreditCard className="me-2" />
+                      )}
+                      {isAddOn ? "Upgrade Now" : "Subscribe Now"}
+                    </>
+                  )}
+                </Button>
+              )}
+            </div>
+          </Card.Body>
+        </Card>
+      </div>
     </div>
   );
 
