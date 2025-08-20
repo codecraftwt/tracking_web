@@ -39,6 +39,8 @@ import {
   FaRegClock,
   FaRegCheckCircle,
   FaEye,
+  FaTable,
+  FaTh,
 } from "react-icons/fa";
 import { FiChevronRight, FiRefreshCw } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
@@ -383,7 +385,7 @@ const User = () => {
                 className="px-3 d-flex align-items-center gap-2"
                 onClick={toggleViewMode}
               >
-                {viewMode === "card" ? <FaUsers /> : <BiFilterAlt />}
+                {viewMode === "card" ? <FaTable /> : <FaTh />}
                 <span className="d-none d-md-inline">
                   {viewMode === "card" ? "Table View" : "Card View"}
                 </span>
@@ -438,7 +440,7 @@ const User = () => {
                   onClick={toggleBulkDeleteMode}
                 >
                   <BiTrash />
-                  <span className="d-none d-md-inline">Bulk Actions</span>
+                  <span className="d-none d-md-inline">Bulk Delete</span>
                 </Button>
               )}
             </div>
@@ -450,8 +452,16 @@ const User = () => {
               <Row className="align-items-center g-3">
                 <Col md={6}>
                   <InputGroup>
-                    <InputGroup.Text className="bg-transparent border-end-0">
-                      <BiSearch className="text-muted" />
+                    <InputGroup.Text
+                      className="border-0"
+                      style={{
+                        background: "rgba(59, 130, 246, 0.1)",
+                        color: "#3B82F6",
+                        borderTopLeftRadius: "12px",
+                        borderBottomLeftRadius: "12px",
+                      }}
+                    >
+                      <BiSearch size={16} />
                     </InputGroup.Text>
                     <FormControl
                       placeholder={`Search ${
@@ -459,10 +469,16 @@ const User = () => {
                       }...`}
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="border-start-0"
+                      className="border-0"
+                      style={{
+                        background: "rgba(59, 130, 246, 0.05)",
+                        borderTopRightRadius: "12px",
+                        borderBottomRightRadius: "12px",
+                      }}
                     />
                   </InputGroup>
                 </Col>
+
                 <Col
                   xs={12}
                   md={6}
@@ -492,7 +508,46 @@ const User = () => {
                     </Dropdown.Toggle>
 
                     <Dropdown.Menu className="p-3" style={{ width: "300px" }}>
-                      {/* ...your date inputs and buttons */}
+                      <div className="mb-3">
+                        <Form.Label className="small fw-semibold">
+                          Start Date
+                        </Form.Label>
+                        <Form.Control
+                          type="date"
+                          value={startDate}
+                          onChange={(e) => setStartDate(e.target.value)}
+                          className="border-secondary"
+                        />
+                      </div>
+                      <div className="mb-3">
+                        <Form.Label className="small fw-semibold">
+                          End Date
+                        </Form.Label>
+                        <Form.Control
+                          type="date"
+                          value={endDate}
+                          onChange={(e) => setEndDate(e.target.value)}
+                          className="border-secondary"
+                        />
+                      </div>
+                      <div className="d-flex gap-2">
+                        <Button
+                          variant="outline-secondary"
+                          size="sm"
+                          onClick={clearDateFilter}
+                          className="flex-fill"
+                        >
+                          Clear
+                        </Button>
+                        <Button
+                          variant="primary"
+                          size="sm"
+                          onClick={applyDateFilter}
+                          className="flex-fill"
+                        >
+                          Apply Filter
+                        </Button>
+                      </div>
                     </Dropdown.Menu>
                   </Dropdown>
 

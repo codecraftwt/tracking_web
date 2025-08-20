@@ -118,6 +118,11 @@
   text-decoration: none !important;
 }
 
+.react-calendar {
+  border: none !important;
+  box-shadow: none !important; /* remove shadow if any */
+}
+
 .btn-close {
   color: white !important; /* Ensure the close button icon is white */
 }
