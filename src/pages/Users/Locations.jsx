@@ -22,7 +22,7 @@ const leafletMapContainerStyle = {
   height: "50vh",
 };
 
-const GOOGLE_MAPS_APIKEY = "AIzaSyBO02PT60O5rJxH4QuRQc_hmbtUjuTN3jI";
+const GOOGLE_MAPS_APIKEY = "AIzaSyBv6Ti3tTDxmumh_GOFEtxBYRgGDWzZGz0";
 
 const Locations = () => {
   const location = useLocation();
